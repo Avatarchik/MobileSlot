@@ -1,0 +1,84 @@
+{"frames": [
+
+{
+	"filename": "white tiger to wild_00000.png",
+	"frame": {"x":2,"y":2,"w":171,"h":162},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "white tiger to wild_00004.png",
+	"frame": {"x":175,"y":2,"w":171,"h":162},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "white tiger to wild_00008.png",
+	"frame": {"x":2,"y":166,"w":171,"h":162},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "white tiger to wild_00012.png",
+	"frame": {"x":166,"y":175,"w":171,"h":162},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "white tiger to wild_00016.png",
+	"frame": {"x":339,"y":2,"w":171,"h":162},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "white tiger to wild_00020.png",
+	"frame": {"x":339,"y":175,"w":171,"h":162},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "white tiger to wild_00024.png",
+	"frame": {"x":2,"y":339,"w":171,"h":162},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "white tiger to wild_00028.png",
+	"frame": {"x":175,"y":339,"w":171,"h":162},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "white tiger to wild_00032.png",
+	"frame": {"x":339,"y":348,"w":171,"h":162},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker ",
+	"version": "1.0",
+	"image": "anim_white2.png",
+	"format": "RGBA8888",
+	"size": {"w":512,"h":512},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:5464a058cbe4fc93a47ebaa497d56564:a217f98c5c0885c181082d8b2a5fbbe0:e3b0d32a00abb9744948edecdb7daa03$"
+}
+}

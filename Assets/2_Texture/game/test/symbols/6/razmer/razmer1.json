@@ -1,0 +1,84 @@
+{"frames": [
+
+{
+	"filename": "Chinese Lantern OUTPUT_00050.png",
+	"frame": {"x":2,"y":2,"w":171,"h":162},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "Chinese Lantern OUTPUT_00052.png",
+	"frame": {"x":175,"y":2,"w":171,"h":162},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "Chinese Lantern OUTPUT_00054.png",
+	"frame": {"x":2,"y":166,"w":171,"h":162},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "Chinese Lantern OUTPUT_00056.png",
+	"frame": {"x":166,"y":175,"w":171,"h":162},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "Chinese Lantern OUTPUT_00058.png",
+	"frame": {"x":339,"y":2,"w":171,"h":162},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "Chinese Lantern OUTPUT_00060.png",
+	"frame": {"x":339,"y":175,"w":171,"h":162},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "Chinese Lantern OUTPUT_00062.png",
+	"frame": {"x":2,"y":339,"w":171,"h":162},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "Chinese Lantern OUTPUT_00064.png",
+	"frame": {"x":175,"y":339,"w":171,"h":162},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "Chinese Lantern OUTPUT_00066.png",
+	"frame": {"x":339,"y":348,"w":171,"h":162},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker ",
+	"version": "1.0",
+	"image": "razmer1.png",
+	"format": "RGBA8888",
+	"size": {"w":512,"h":512},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:ea3628d62b6c66b484cc778d7b6d9966:b3f89332e7ea0b7e2c5d118e4eb42a4a:1e9d55517e781d54cf5a1a043b8e39e5$"
+}
+}

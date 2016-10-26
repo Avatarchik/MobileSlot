@@ -1,0 +1,44 @@
+{"frames": [
+
+{
+	"filename": "A chinese_00000.png",
+	"frame": {"x":113,"y":135,"w":131,"h":97},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":16,"w":131,"h":97},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00058.png",
+	"frame": {"x":135,"y":2,"w":131,"h":109},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":5,"w":131,"h":109},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00060.png",
+	"frame": {"x":2,"y":115,"w":131,"h":109},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":4,"w":131,"h":109},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00066.png",
+	"frame": {"x":2,"y":2,"w":131,"h":111},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":2,"w":131,"h":111},
+	"sourceSize": {"w":161,"h":143}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker ",
+	"version": "1.0",
+	"image": "a4.png",
+	"format": "RGBA8888",
+	"size": {"w":256,"h":256},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:36085f0bf4e9231af2a0453d07e50f1e:369712896fcb66f45fd96611a7c59deb:168987ef36728bb0eef5624dc5e63932$"
+}
+}

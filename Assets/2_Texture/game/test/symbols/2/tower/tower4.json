@@ -1,0 +1,36 @@
+{"frames": [
+
+{
+	"filename": "PAGODA_00000.png",
+	"frame": {"x":2,"y":2,"w":171,"h":162},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "PAGODA_00002.png",
+	"frame": {"x":175,"y":2,"w":171,"h":162},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "PAGODA_00004.png",
+	"frame": {"x":348,"y":2,"w":171,"h":162},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker ",
+	"version": "1.0",
+	"image": "tower4.png",
+	"format": "RGBA8888",
+	"size": {"w":512,"h":512},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:3b4b1c069c723432235eda5ffe4a9625:0f4226363806892853f4d1f12eff8e91:e784c1d5c3839e0359ca5dcdeddeddb6$"
+}
+}

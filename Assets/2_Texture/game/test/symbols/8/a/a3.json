@@ -1,0 +1,132 @@
+{"frames": [
+
+{
+	"filename": "A chinese_00050.png",
+	"frame": {"x":2,"y":2,"w":133,"h":99},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":12,"y":15,"w":133,"h":99},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00052.png",
+	"frame": {"x":137,"y":2,"w":133,"h":99},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":12,"y":15,"w":133,"h":99},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00062.png",
+	"frame": {"x":401,"y":135,"w":131,"h":109},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":4,"w":131,"h":109},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00064.png",
+	"frame": {"x":2,"y":401,"w":131,"h":109},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":4,"w":131,"h":109},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00068.png",
+	"frame": {"x":135,"y":333,"w":131,"h":111},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":2,"w":131,"h":111},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00070.png",
+	"frame": {"x":272,"y":2,"w":131,"h":113},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":0,"w":131,"h":113},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00072.png",
+	"frame": {"x":2,"y":103,"w":131,"h":113},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":0,"w":131,"h":113},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00074.png",
+	"frame": {"x":135,"y":103,"w":131,"h":113},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":0,"w":131,"h":113},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00076.png",
+	"frame": {"x":268,"y":117,"w":131,"h":113},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":0,"w":131,"h":113},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00078.png",
+	"frame": {"x":2,"y":268,"w":131,"h":113},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":0,"w":131,"h":113},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00080.png",
+	"frame": {"x":135,"y":218,"w":131,"h":113},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":0,"w":131,"h":113},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00082.png",
+	"frame": {"x":268,"y":232,"w":131,"h":113},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":0,"w":131,"h":113},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00084.png",
+	"frame": {"x":268,"y":347,"w":131,"h":111},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":2,"w":131,"h":111},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00086.png",
+	"frame": {"x":401,"y":268,"w":131,"h":109},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":4,"w":131,"h":109},
+	"sourceSize": {"w":161,"h":143}
+},
+{
+	"filename": "A chinese_00088.png",
+	"frame": {"x":405,"y":2,"w":131,"h":97},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":16,"w":131,"h":97},
+	"sourceSize": {"w":161,"h":143}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker ",
+	"version": "1.0",
+	"image": "a3.png",
+	"format": "RGBA8888",
+	"size": {"w":512,"h":512},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:36085f0bf4e9231af2a0453d07e50f1e:369712896fcb66f45fd96611a7c59deb:168987ef36728bb0eef5624dc5e63932$"
+}
+}

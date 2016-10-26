@@ -1,0 +1,84 @@
+{"frames": [
+
+{
+	"filename": "BlackTiger_00054.png",
+	"frame": {"x":2,"y":2,"w":171,"h":162},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "BlackTiger_00056.png",
+	"frame": {"x":175,"y":2,"w":171,"h":162},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "BlackTiger_00058.png",
+	"frame": {"x":2,"y":166,"w":171,"h":162},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "BlackTiger_00060.png",
+	"frame": {"x":166,"y":175,"w":171,"h":162},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "BlackTiger_00062.png",
+	"frame": {"x":339,"y":2,"w":171,"h":162},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "BlackTiger_00064.png",
+	"frame": {"x":339,"y":175,"w":171,"h":162},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "BlackTiger_00066.png",
+	"frame": {"x":2,"y":339,"w":171,"h":162},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "BlackTiger_00068.png",
+	"frame": {"x":175,"y":339,"w":171,"h":162},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+},
+{
+	"filename": "BlackTiger_00070.png",
+	"frame": {"x":339,"y":348,"w":171,"h":162},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":171,"h":162},
+	"sourceSize": {"w":171,"h":162}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker ",
+	"version": "1.0",
+	"image": "tiger2.png",
+	"format": "RGBA8888",
+	"size": {"w":512,"h":512},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:1180eeba0bec5a7a4128d40072603a36:618059e5cec6e03c2d22d091c246ddda:5d4b3d06dc1a34fdb16a7178fa10c05c$"
+}
+}

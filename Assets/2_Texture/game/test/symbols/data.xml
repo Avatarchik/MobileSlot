@@ -1,0 +1,81 @@
+<elementsId  scatterId="2" wildId="1"/>
+<ignore>
+    <roll ID="2">
+        <element ID="3"/>
+    </roll>
+    <roll ID="3">
+        <element ID="3"/>
+    </roll>
+    <roll ID="4">
+        <element ID="3"/>
+    </roll>
+</ignore>
+<elements gameName="ThreeTigers" bonus="3" freeSpin="2" freeSpinCount="10">
+    <element ID="1">
+        <normal name="wild" type="image" scale="0.97,1" shift="3, 0"/>
+        <active name="wild/wild" type="texturePacker" scale="0.97,1" shift="3, 0"/>
+    </element> 
+    <element ID="2">
+        <normal name="tower" type="image" scale="0.97,1" shift="3, 0"/>
+        <active name="tower/tower" type="texturePacker" scale="0.97,1" shift="3, 0"/>
+    </element>
+    <element ID="3">
+        <normal name="tiger" type="image" scale="0.97,1" shift="3, 0"/>
+        <active name="tiger/tiger" type="texturePacker" scale="0.97,1" shift="3, 0"/>
+    </element>
+    <element ID="4">
+        <normal name="red" type="image" scale="0.97,1" shift="3, 0"/>
+        <active name="red/red" type="texturePacker" scale="0.97,1" shift="3, 0"/>
+    </element> 
+    <element ID="5">
+        <normal name="white" type="image" scale="0.97,1" shift="3, 0"/>
+        <active name="white/white" type="texturePacker" scale="0.97,1" shift="3, 0"/>
+    </element> 
+    <element ID="6">
+        <normal name="razmer" type="image" scale="0.97,1" shift="3, 0"/>
+        <active name="razmer/razmer" type="texturePacker" scale="0.97,1" shift="3, 0"/>
+    </element> 
+    <element ID="7">
+        <normal name="Fan" type="image" scale="0.97,1" shift="3, 0"/>
+        <active name="Fan/Fan" type="texturePacker" scale="0.97,1" shift="3, 0"/>
+    </element> 
+    <element ID="8"> 
+        <normal name="a" type="image" scale="0.97,1" shift="3, 0"/>
+        <active name="a/a" type="texturePacker" scale="0.97,1" shift="3, 0"/>
+    </element> 
+    <element ID="9">
+        <normal name="k" type="image" scale="0.97,1" shift="3, 0"/>
+        <active name="k/k" type="texturePacker" scale="0.97,1" shift="3, 0"/>
+    </element> 
+   <element ID="10">
+        <normal name="q" type="image" scale="0.97,1" shift="3, 0"/>
+        <active name="q/q" type="texturePacker" scale="0.97,1" shift="3, 0"/>
+    </element> 
+    <element ID="11">
+        <normal name="j" type="image" scale="0.97,1" shift="3, 0"/>
+        <active name="j/j" type="texturePacker" scale="0.97,1" shift="3, 0"/>
+    </element> 
+    <element ID="12">
+        <normal name="10" type="image" scale="0.97,1" shift="3, 0"/>
+        <active name="ten/ten" type="texturePacker" scale="0.97,1" shift="3, 0"/>
+    </element> 
+    <element ID="13">
+        <normal name="9" type="image" scale="0.97,1" shift="3, 0"/>
+        <active name="nine/nine" type="texturePacker" scale="0.97,1" shift="3, 0"/>
+    </element>
+    <element ID="14">
+        <normal name="tiger" type="image" />
+        <active name="ForAll/wild/wild" type="texturePacker"/>
+        <normalStoping name="anim_black/anim_black" type="texturePacker" cycle="0"/>
+    </element>
+    <element ID="15">
+        <normal name="red" type="image" />
+        <active name="ForAll/wild/wild" type="texturePacker"/>
+        <normalStoping name="anim_red/anim_red" type="texturePacker" cycle="0"/>
+    </element>
+    <element ID="16">
+        <normal name="white" type="image"/>
+        <active name="ForAll/wild/wild" type="texturePacker"/>
+        <normalStoping name="anim_white/anim_white" type="texturePacker" cycle="0"/>
+    </element>
+</elements>
