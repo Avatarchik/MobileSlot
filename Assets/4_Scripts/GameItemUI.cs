@@ -50,6 +50,6 @@ public class GameItemUI : MonoBehaviour
 
 	void OnClicked()
 	{
-		Debug.Log( _data.Name + " clicked" );
+		GameManager.Instance.GameLoad( _data );
 	}
 }

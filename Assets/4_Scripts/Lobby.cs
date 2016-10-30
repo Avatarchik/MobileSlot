@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using lpesign;
 using System.Collections;
 
-public class Lobby : Singleton<Lobby>
+public class Lobby : SingletonSimple<Lobby>
 {
 	private Camera _camera;
 	private LobbyData _data;
