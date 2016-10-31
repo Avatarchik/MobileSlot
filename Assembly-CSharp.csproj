@@ -13,7 +13,8 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <BaseDirectory>Assets</BaseDirectory>
-  </PropertyGroup>
+	<LangVersion>default</LangVersion>
+</PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -23,7 +24,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>0169</NoWarn>
-  </PropertyGroup>
+	<LangVersion>default</LangVersion>
+</PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
@@ -31,7 +33,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>0169</NoWarn>
-  </PropertyGroup>
+	<LangVersion>default</LangVersion>
+</PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.XML" />
@@ -48,13 +51,18 @@
      <Compile Include="Assets\4_Scripts\Config.cs" />
      <Compile Include="Assets\4_Scripts\GameManager.cs" />
      <Compile Include="Assets\4_Scripts\SceneLoader.cs" />
+     <Compile Include="Assets\4_Scripts\game\GameServerCommunicator.cs" />
      <Compile Include="Assets\4_Scripts\game\GameUI.cs" />
+     <Compile Include="Assets\4_Scripts\game\MachineControl.cs" />
+     <Compile Include="Assets\4_Scripts\game\Reel.cs" />
      <Compile Include="Assets\4_Scripts\game\SlotMachine.cs" />
+     <Compile Include="Assets\4_Scripts\game\Symbol.cs" />
      <Compile Include="Assets\4_Scripts\lobby\GameItemDTO.cs" />
      <Compile Include="Assets\4_Scripts\lobby\GameItemUI.cs" />
      <Compile Include="Assets\4_Scripts\lobby\GameTableUI.cs" />
      <Compile Include="Assets\4_Scripts\lobby\Lobby.cs" />
      <Compile Include="Assets\4_Scripts\lobby\LobbyData.cs" />
+     <Compile Include="Assets\4_Scripts\net\SlotSocket.cs" />
      <Compile Include="Assets\4_Scripts\utils\CanvasUtil.cs" />
      <Compile Include="Assets\externalLibs\lpesign\singleton\Singleton.cs" />
      <Compile Include="Assets\externalLibs\lpesign\singleton\SingletonHumble.cs" />
@@ -66,6 +74,10 @@
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
  </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
+      <Project>{C50C83C8-A5F8-1087-3188-C96A21CF5779}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -74,5 +86,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  
 </Project>

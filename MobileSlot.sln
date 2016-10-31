@@ -1,6 +1,7 @@
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2008
-
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{96F07367-EDC9-8139-94E5-438C1873EDFC}") = "MobileSlot", "Assembly-CSharp-firstpass.csproj", "{C50C83C8-A5F8-1087-3188-C96A21CF5779}"
+EndProject
 Project("{96F07367-EDC9-8139-94E5-438C1873EDFC}") = "MobileSlot", "Assembly-CSharp.csproj", "{CE5F2AC8-2044-180D-418A-353BF1A37F75}"
 EndProject
 Project("{96F07367-EDC9-8139-94E5-438C1873EDFC}") = "MobileSlot", "Assembly-CSharp-Editor-firstpass.csproj", "{AAFA0580-EE88-77C8-E8B2-C9B9CE6C0CB7}"
@@ -11,6 +12,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C50C83C8-A5F8-1087-3188-C96A21CF5779}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C50C83C8-A5F8-1087-3188-C96A21CF5779}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C50C83C8-A5F8-1087-3188-C96A21CF5779}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C50C83C8-A5F8-1087-3188-C96A21CF5779}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CE5F2AC8-2044-180D-418A-353BF1A37F75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CE5F2AC8-2044-180D-418A-353BF1A37F75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE5F2AC8-2044-180D-418A-353BF1A37F75}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -19,9 +24,6 @@ Global
 		{AAFA0580-EE88-77C8-E8B2-C9B9CE6C0CB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAFA0580-EE88-77C8-E8B2-C9B9CE6C0CB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAFA0580-EE88-77C8-E8B2-C9B9CE6C0CB7}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj

@@ -194,7 +194,7 @@ public class SceneLoader : MonoBehaviour
 
     IEnumerator LoadingComplete()
     {
-        yield return StartCoroutine(FadeLoadingScreen(1f, 0f));
+        yield return StartCoroutine(FadeLoadingScreen(1f, 0f,0.4f));
         visible = false;
         Debug.Log("All Complete");
     }
