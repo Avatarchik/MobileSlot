@@ -50,6 +50,7 @@ public class SceneLoader : MonoBehaviour
     //--------------------------------------------------------------------------
 
     public Canvas canvas;
+    public Camera camera;
     public CanvasGroup loadingScreen;
 
     [Header("Progress")]
@@ -62,10 +63,25 @@ public class SceneLoader : MonoBehaviour
     string _sceneToLoad = "";
     AsyncOperation _asyncOperation;
     float _progressValue;
+    RectTransform _loadingScreenRtf;
+
+    void Awake()
+    {
+        CanvasUtil.CanvasSetting( canvas );
+    }
 
     void Start()
     {
-        canvas.gameObject.SetActive(false);
+        _loadingScreenRtf = loadingScreen.GetComponent<RectTransform>();
+        visible = false;
+    }
+
+    void Reset()
+    {
+        IsGameReady = false;
+        _progressValue = 0f;
+        progressBar.value = 0f;
+        progressText.text = "0%";
     }
 
     public void Load(string sceneName)
@@ -77,21 +93,20 @@ public class SceneLoader : MonoBehaviour
 
         Debug.Log("load scene: " + _sceneToLoad);
 
-        canvas.gameObject.SetActive(true);
+        visible = true;
 
         Reset();
 
+        ShowLoadingScreen();
+
         StartCoroutine(LoadAsync());
-        StartCoroutine(FadeLoadingScreen(0f, 1f));
-        StartCoroutine(AnimationProgress());
+        StartCoroutine(UpdateProgressBar());
     }
 
-    void Reset()
+    void ShowLoadingScreen()
     {
-        IsGameReady = false;
-        _progressValue = 0f;
-        progressBar.value = 0f;
-        progressText.text = "0%";
+        StartCoroutine(FadeLoadingScreen(0f, 1f));
+        StartCoroutine(ScaleLoadingScreen(0f, 1f));
     }
 
     IEnumerator FadeLoadingScreen(float from, float to, float duration = 0.2f)
@@ -106,8 +121,22 @@ public class SceneLoader : MonoBehaviour
             yield return null;
         }
     }
+    IEnumerator ScaleLoadingScreen(float from, float to, float duration = 0.2f)
+    {
+        Vector3 fromScale = Vector3.one * from;
+        Vector3 toScale = Vector3.one * to;
+        _loadingScreenRtf.localScale = fromScale;
 
-    IEnumerator AnimationProgress()
+        float t = 0f;
+        while (_loadingScreenRtf.localScale != toScale)
+        {
+            _loadingScreenRtf.localScale = Vector3.Lerp(fromScale, toScale, t);
+            t += Time.deltaTime / duration;
+            yield return null;
+        }
+    }
+
+    IEnumerator UpdateProgressBar()
     {
         while (progressBar.value != 1f)
         {
@@ -130,24 +159,32 @@ public class SceneLoader : MonoBehaviour
             yield break;
         }
 
-        //게임 씬 로드
-        while (_asyncOperation.isDone == false)
+        //게임 씬 로드. 90% 까지만 진행
+        _asyncOperation.allowSceneActivation = false;
+        while (_asyncOperation.progress < 0.9f)
         {
-            _progressValue = 0.9f * _asyncOperation.progress;
+            _progressValue = 0.9f * Mathf.InverseLerp(0f, 0.9f, _asyncOperation.progress);
             yield return null;
         }
         _progressValue = 0.9f;
 
-        //게임 준비 대기
+        //로딩 이미지 애니메이션 대기
+        while (loadingScreen.alpha != 1)
+        {
+            yield return null;
+        }
+        _asyncOperation.allowSceneActivation = true;
+
+
+        //씬 전환 이후 게임의 준비완료 신호 대기
         while (IsGameReady == false)
         {
             yield return null;
         }
         _progressValue = 1f;
 
-
-        //애니메이션 대기
-        while (progressBar.value != 1 || loadingScreen.alpha != 1)
+        //ProgressBar 진행 애니메이션 완료 대기
+        while (progressBar.value != 1)
         {
             yield return null;
         }
@@ -158,7 +195,16 @@ public class SceneLoader : MonoBehaviour
     IEnumerator LoadingComplete()
     {
         yield return StartCoroutine(FadeLoadingScreen(1f, 0f));
-        canvas.gameObject.SetActive(false);
+        visible = false;
         Debug.Log("All Complete");
+    }
+
+    public bool visible
+    {
+        set
+        {
+            canvas.gameObject.SetActive(value);
+            camera.gameObject.SetActive(value);
+        }
     }
 }
