@@ -1,21 +1,25 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+using LitJson;
+
 public class SlotMachine : MonoBehaviour
 {
+    public GameUI ui;
 
-	void Awake()
-	{
-		Debug.Log("game Awake");
-	}
-
-    IEnumerator Start()
+    void Start()
     {
-		Debug.Log("game Start");
+        Debug.Log("game Start");
 
-		yield return new WaitForSeconds(0.5f);
+        GameServerCommunicator.Instance.OnLogin += LogimComplete;
+        GameServerCommunicator.Instance.Connect("182.252.135.251", 13100);
+    }
 
-		Debug.Log("game login complete");
-		GameManager.Instance.GameReady();
+    void LogimComplete(ResponseDTO.LoginDTO data)
+    {
+        Debug.Log("game login complete." );
+        GameManager.Instance.GameReady();
+
+        ui.SetData( data );
     }
 }

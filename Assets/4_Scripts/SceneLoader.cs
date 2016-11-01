@@ -50,7 +50,7 @@ public class SceneLoader : MonoBehaviour
     //--------------------------------------------------------------------------
 
     public Canvas canvas;
-    public Camera camera;
+    public Camera cam;
     public CanvasGroup loadingScreen;
 
     [Header("Progress")]
@@ -194,7 +194,7 @@ public class SceneLoader : MonoBehaviour
 
     IEnumerator LoadingComplete()
     {
-        yield return StartCoroutine(FadeLoadingScreen(1f, 0f,0.4f));
+        yield return StartCoroutine(FadeLoadingScreen(1f, 0f ));
         visible = false;
         Debug.Log("All Complete");
     }
@@ -204,7 +204,7 @@ public class SceneLoader : MonoBehaviour
         set
         {
             canvas.gameObject.SetActive(value);
-            camera.gameObject.SetActive(value);
+            cam.gameObject.SetActive(value);
         }
     }
 }

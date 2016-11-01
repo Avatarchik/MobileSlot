@@ -51,6 +51,7 @@
      <Compile Include="Assets\4_Scripts\Config.cs" />
      <Compile Include="Assets\4_Scripts\GameManager.cs" />
      <Compile Include="Assets\4_Scripts\SceneLoader.cs" />
+     <Compile Include="Assets\4_Scripts\game\GameDTO.cs" />
      <Compile Include="Assets\4_Scripts\game\GameServerCommunicator.cs" />
      <Compile Include="Assets\4_Scripts\game\GameUI.cs" />
      <Compile Include="Assets\4_Scripts\game\MachineControl.cs" />

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 using lpesign;
 
 
@@ -14,5 +15,20 @@ public class GameManager : Singleton<GameManager>
 	public void GameReady()
 	{
 		loader.IsGameReady = true;
+	}
+
+	void OnApplicationQuit() {
+        Debug.Log("Application ending after " + Time.time + " seconds");
+    }
+
+	void OnApplicationFocus( bool focusStatus )
+	{
+		//Debug.Log("OnApplicationFocus: " + focusStatus );
+	}
+
+	void OnApplicationPause( bool pauseStatus )
+	{
+		if( pauseStatus ) Debug.Log("Application pause");
+		else Debug.Log("Application resume");
 	}
 }
