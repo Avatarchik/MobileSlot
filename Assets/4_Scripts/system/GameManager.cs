@@ -18,7 +18,7 @@ public class GameManager : Singleton<GameManager>
 	}
 
 	void OnApplicationQuit() {
-        Debug.Log("Application ending after " + Time.time + " seconds");
+        Debug.Log("Application Quit!");
     }
 
 	void OnApplicationFocus( bool focusStatus )
@@ -28,7 +28,7 @@ public class GameManager : Singleton<GameManager>
 
 	void OnApplicationPause( bool pauseStatus )
 	{
-		if( pauseStatus ) Debug.Log("Application pause");
-		else Debug.Log("Application resume");
+		// if( pauseStatus ) Debug.Log("Application pause");
+		// else Debug.Log("Application resume");
 	}
 }

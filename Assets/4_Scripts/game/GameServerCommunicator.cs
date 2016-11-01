@@ -2,6 +2,7 @@
 using System.Collections;
 
 using System;
+using System.Text;
 using LitJson;
 using lpesign;
 
@@ -16,30 +17,42 @@ public class Command
     public const string SPIN = "spin";
 }
 
+public class SendData
+{
+    public string cmd;
+    public DTO data;
+}
+
 public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 {
-    public event Action<ResponseDTO.LoginDTO> OnLogin;
-    public event Action<ResponseDTO.SpinDTO> OnSpin;
+    public event Action<ResDTO.Login> OnLogin;
+    public event Action<ResDTO.Spin> OnSpin;
 
     SlotSocket _socket;
+
+    Coroutine _checkRoutine;
+
+    void Start()
+    {
+        _checkRoutine = StartCoroutine(CheckQueue());
+    }
 
     void createSocket()
     {
         _socket = new SlotSocket();
         _socket.OnConnected += ConnectedHandler;
         _socket.OnDisConnected += DisConnectedHandler;
-        _socket.OnDataReceived += DataReceived;
 
         // //병신같은 litjson
         JsonMapper.RegisterImporter<Int64, double>((Int64 value) =>
         {
-            return System.Convert.ToDouble( value );
+            return System.Convert.ToDouble(value);
         });
     }
 
     void DisConnectedHandler()
     {
-        Debug.Log("Socket Disconnect" + _socket.State);
+        Debug.Log("Socket Disconnect");
     }
 
     public void Connect(string host, int port)
@@ -51,73 +64,104 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 
     void ConnectedHandler()
     {
-        Debug.Log("socket connect complete! " + _socket.State);
         Login();
     }
 
     void Login()
     {
-        SendData sdata = new SendData()
+        SendData data = new SendData()
         {
             cmd = "login",
-            data = new ReqDTO.LoginData()
+            data = new ReqDTO.Login()
             {
                 userID = 0,
                 signedRequest = "good"
             }
         };
 
-        Send(JsonMapper.ToJson(sdata));
+        Send(data);
     }
 
-    void DataReceived(string receive)
+    IEnumerator CheckQueue()
     {
-        Debug.Log( receive );
-        JsonData obj = JsonMapper.ToObject(receive);
+        WaitForSeconds waitSec = new WaitForSeconds(0.1f);
+
+        while (true)
+        {
+            if (_socket == null || _socket.Connected == false) continue;
+
+            DataReceived(_socket.NextPacket());
+            yield return waitSec;
+        }
+    }
+
+    void DataReceived(byte[] packet)
+    {
+        if (packet == null) return;
+
+        var receivedJson = Encoding.ASCII.GetString(packet, 0, packet.Length);
+        Debug.Log("< receive\n" + receivedJson);
+
+        JsonData obj = JsonMapper.ToObject(receivedJson);
+
         string cmd = (string)obj["cmd"];
+        string jsonData = obj["data"].ToJson();
 
         switch (cmd)
         {
             case Command.LOGIN:
-                if (OnLogin != null) OnLogin(JsonMapper.ToObject<ResponseDTO.LoginDTO>(obj["data"].ToJson()));
+                var loginData = JsonMapper.ToObject<ResDTO.Login>(jsonData);
+                if (OnLogin != null) OnLogin(loginData);
                 break;
 
             case Command.SPIN:
-                // if (OnSpin != null) OnSpin(data);
+                var spinData = JsonMapper.ToObject<ResDTO.Spin>(jsonData);
+                if (OnSpin != null) OnSpin(spinData);
                 break;
         }
     }
 
-    public void Spin(float linebet = 100f)
+    public void Spin(float linebet )
     {
-        Debug.Log("spin");
-        SendData sdata = new SendData()
+        SendData data = new SendData()
         {
             cmd = "spin",
-            data = new ReqDTO.SpinData()
+            data = new ReqDTO.Spin()
             {
-                lineBet = 10
+                lineBet = linebet
             }
         };
 
-        Send(JsonMapper.ToJson(sdata));
+        Send(data);
     }
 
-    public void Send(string data)
+    void Send(SendData data)
+    {
+        Send(JsonMapper.ToJson(data));
+    }
+
+    void Send(string data)
     {
         Debug.Log("send >\n" + data);
         _socket.Send(data);
     }
 
+    public void Close(SlotSocket.CloseReason reason)
+    {
+        if (_socket == null) return;
+
+        _socket.Close(reason);
+        _socket = null;
+    }
+
+    void OnDestroy()
+    {
+        StopCoroutine(_checkRoutine);
+        Close(SlotSocket.CloseReason.Destory);
+    }
+
     void OnApplicationQuit()
     {
-        _socket.Close(SlotSocket.CloseReason.ApplicationQuit);
+        Close(SlotSocket.CloseReason.ApplicationQuit);
     }
 }
-
-public class SendData
-{
-    public string cmd;
-    public DTO data;
-}
-

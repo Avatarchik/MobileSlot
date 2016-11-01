@@ -62,12 +62,12 @@ public class SceneLoader : MonoBehaviour
 
     string _sceneToLoad = "";
     AsyncOperation _asyncOperation;
-    float _progressValue;
+    float _loadingProgress;
     RectTransform _loadingScreenRtf;
 
     void Awake()
     {
-        CanvasUtil.CanvasSetting( canvas );
+        CanvasUtil.CanvasSetting(canvas);
     }
 
     void Start()
@@ -79,9 +79,8 @@ public class SceneLoader : MonoBehaviour
     void Reset()
     {
         IsGameReady = false;
-        _progressValue = 0f;
-        progressBar.value = 0f;
-        progressText.text = "0%";
+        SetProgress(0f);
+        _loadingProgress = 0f;
     }
 
     public void Load(string sceneName)
@@ -100,7 +99,7 @@ public class SceneLoader : MonoBehaviour
         ShowLoadingScreen();
 
         StartCoroutine(LoadAsync());
-        StartCoroutine(UpdateProgressBar());
+        StartCoroutine(AnimatingProgressBar());
     }
 
     void ShowLoadingScreen()
@@ -136,16 +135,20 @@ public class SceneLoader : MonoBehaviour
         }
     }
 
-    IEnumerator UpdateProgressBar()
+    IEnumerator AnimatingProgressBar()
     {
         while (progressBar.value != 1f)
         {
-            progressBar.value = Mathf.MoveTowards(progressBar.value, _progressValue, Time.deltaTime * ProgressBarSpeed);
-            progressText.text = (_progressValue * 100).ToString("0") + " %";
+            SetProgress(Mathf.MoveTowards(progressBar.value, _loadingProgress, Time.deltaTime * ProgressBarSpeed));
             yield return null;
         }
     }
 
+    void SetProgress(float value)
+    {
+        progressBar.value = value;
+        progressText.text = (value * 100).ToString("0") + " %";
+    }
 
     IEnumerator LoadAsync()
     {
@@ -163,27 +166,26 @@ public class SceneLoader : MonoBehaviour
         _asyncOperation.allowSceneActivation = false;
         while (_asyncOperation.progress < 0.9f)
         {
-            _progressValue = 0.9f * Mathf.InverseLerp(0f, 0.9f, _asyncOperation.progress);
+            _loadingProgress = 0.9f * Mathf.InverseLerp(0f, 0.9f, _asyncOperation.progress);
             yield return null;
         }
-        _progressValue = 0.9f;
+        _loadingProgress = 0.9f;
 
-        //로딩 이미지 애니메이션 대기
+        //로딩 팝업 애니메이션이 완료되기 전에 씬이 로드되었다면 애니메이션 대기
         while (loadingScreen.alpha != 1)
         {
             yield return null;
         }
         _asyncOperation.allowSceneActivation = true;
 
-
-        //씬 전환 이후 게임의 준비완료 신호 대기
+        //씬 전환 이후 게임의 준비완료 신호 대기( 서버접속, 로그인, 초기화, 동적 로딩 등등)
         while (IsGameReady == false)
         {
             yield return null;
         }
-        _progressValue = 1f;
+        _loadingProgress = 1f;
 
-        //ProgressBar 진행 애니메이션 완료 대기
+        //ProgressBar 애니메이션 진행이 완료될때까지 기다림
         while (progressBar.value != 1)
         {
             yield return null;
@@ -194,9 +196,9 @@ public class SceneLoader : MonoBehaviour
 
     IEnumerator LoadingComplete()
     {
-        yield return StartCoroutine(FadeLoadingScreen(1f, 0f ));
+        Debug.Log("Game Loading Complete");
+        yield return StartCoroutine(FadeLoadingScreen(1f, 0f));
         visible = false;
-        Debug.Log("All Complete");
     }
 
     public bool visible

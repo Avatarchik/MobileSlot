@@ -1,9 +1,13 @@
-﻿using UnityEngine;
-using System.Collections;
-
-public class ResponseDTO
+﻿//todo
+//class 가 아니라 struct 도 고려
+public class DTO
 {
-    public class LoginDTO
+
+}
+
+public class ResDTO
+{
+    public class Login : DTO
     {
         public int levelPercent { get; set; }
         public int level { get; set; }
@@ -17,28 +21,75 @@ public class ResponseDTO
         // public float jackpotPool;
     }
 
-    public class SpinDTO
+    public class Spin : DTO
     {
-
+        public double balance { get; set; }
+        
+        /*
+        {
+            "data": {
+                "levelPercent": 48,
+                "jackpotPool": null,
+                "freeSpinKey": null,
+                "gameLevel": 29,
+                "balance": 342131634187,
+                "payouts": {
+                    "lineBet": 1000,
+                    "spins": [
+                        {
+                            "payLines": [],
+                            "isNormal": true,
+                            "freeSpinCount": 0,
+                            "reel": [
+                                "H2",
+                                "L0",
+                                "H1",
+                                "L0",
+                                "M1",
+                                "L0",
+                                "L0",
+                                "M1",
+                                "L0"
+                            ],
+                            "totalPayout": 0,
+                            "fixedreel": [
+                                0,
+                                0,
+                                0
+                            ]
+                        }
+                    ],
+                    "totalPayout": 0,
+                    "multipleWin": 0,
+                    "isMegaWin": false,
+                    "isBigWin": false,
+                    "accumulateSum": 0,
+                    "isJackpot": false
+                },
+                "level_up_bonus": 0,
+                "gameLevelPercent": 93,
+                "level_up_spins": 0,
+                "winID": 0,
+                "level": 163
+            },
+            "success": true,
+            "cmd": "spin"
+        }
+        */
     }
 }
 
 
 public class ReqDTO
 {
-    public class LoginData : DTO
+    public class Login : DTO
     {
         public int userID { get; set; }
         public string signedRequest { get; set; }
     }
 
-    public class SpinData : DTO
+    public class Spin : DTO
     {
         public double lineBet { get; set; }
     }
-}
-
-public class DTO
-{
-
 }

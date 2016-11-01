@@ -11,42 +11,65 @@ using System.IO;
 
 public class SlotSocket
 {
+    public enum ErrorType
+    {
+        Connect,
+        Receive,
+        Send,
+        Close,
+        HandleData,
+        Mismatch
+    }
+
     public enum SocketState
     {
         Null,
         Closed,
         Connecting,
         Connected,
-        Sending,
-        Receive
     }
 
     public enum CloseReason
     {
         ApplicationQuit,
+        Destory,
         ConnectFail
     }
 
-    public class StateObject
+    public class BufferObject
     {
-        public const int BufferSize = 4096;//4096 or 8192
+        public const int BufferSize = 8192;
         public Socket workSocket = null;
         public byte[] buffer = new byte[BufferSize];
         public StringBuilder sb = new StringBuilder();
     }
-
-    protected ArraySegment<byte> _endSegment = new ArraySegment<byte>(new byte[] { 0 });
-
     public event Action OnConnected;
     public event Action OnDisConnected;
-    public event Action<string> OnDataReceived;
 
+    static private byte[] END_BYTE = new byte[] { 0 };
 
     Socket _socket;
     SocketState _currentState;
 
+    Queue<byte[]> _packetQueue;
+
+    ArraySegment<byte> _endSegment = new ArraySegment<byte>(END_BYTE);
+
+    BufferObject _bufferObject;
+    AsyncCallback _connectCallback;
+    AsyncCallback _sendCallback;
+    AsyncCallback _receiveCallback;
+
     public SlotSocket()
     {
+        _packetQueue = new Queue<byte[]>();
+
+        _bufferObject = new BufferObject();
+
+        _connectCallback = new AsyncCallback(ConnectComplete);
+        _sendCallback = new AsyncCallback(SendComplete);
+        _receiveCallback = new AsyncCallback(DataReceived);
+
         State = SocketState.Closed;
     }
 
@@ -73,6 +96,8 @@ public class SlotSocket
     void CreateSocket()
     {
         _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        _socket.ReceiveBufferSize = BufferObject.BufferSize;
+        _socket.SendBufferSize = BufferObject.BufferSize;
     }
 
     public void Connect(string host, int port)
@@ -91,15 +116,15 @@ public class SlotSocket
         try
         {
             State = SocketState.Connecting;
-            _socket.BeginConnect(remoteEP, new AsyncCallback(ConnectCallBack), _socket);
+            _socket.BeginConnect(remoteEP, _connectCallback, _socket);
         }
         catch (Exception ex)
         {
-            ErrorLog("connect fail", ex);
+            LogError(ErrorType.Receive, ex);
         }
     }
 
-    void ConnectCallBack(IAsyncResult ar)
+    void ConnectComplete(IAsyncResult ar)
     {
         if (State != SocketState.Connecting) return;
 
@@ -112,7 +137,7 @@ public class SlotSocket
 
             if (_socket != client)
             {
-                ErrorLog("mismatch");
+                LogError(ErrorType.Mismatch);
                 return;
             }
 
@@ -124,8 +149,7 @@ public class SlotSocket
         }
         catch (Exception ex)
         {
-            Close(CloseReason.ConnectFail);
-            ErrorLog("connect callback fail", ex);
+            LogError(ErrorType.Connect, ex);
         }
     }
 
@@ -133,67 +157,74 @@ public class SlotSocket
     {
         try
         {
-            StateObject state = new StateObject();
-            state.workSocket = client;
-
-            //  _socket.ReceiveBufferSize = StateObject.BufferSize;
-            //  _socket.SendBufferSize = StateObject.BufferSize;
-
-            client.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallback), state);
+            _bufferObject.workSocket = client;
+            client.BeginReceive(_bufferObject.buffer, 0, BufferObject.BufferSize, SocketFlags.None, _receiveCallback, _bufferObject);
         }
         catch (Exception ex)
         {
-            Close(CloseReason.ConnectFail);
-            ErrorLog("Receive fail", ex);
+            LogError(ErrorType.Receive, ex);
         }
     }
 
-    void ReceiveCallback(IAsyncResult ar)
+    void DataReceived(IAsyncResult ar)
     {
         if (State == SocketState.Closed) return;
 
         try
         {
-            StateObject state = (StateObject)ar.AsyncState;
-            Socket client = state.workSocket;
+            BufferObject obj = (BufferObject)ar.AsyncState;
+            Socket client = obj.workSocket;
 
             if (_socket != client)
             {
-                ErrorLog("mismatch");
+                LogError(ErrorType.Mismatch);
                 return;
             }
 
             int byteSize = client.EndReceive(ar);
 
-            //마지막 \0 이 들어왔는지 체크해야한다. 아니라면 나머지 데이터를 받을때까지 기다려야함.
-            //귀찮다 일단 넘어가자
+            //Debug.Log("byteSize: " + byteSize);
+
             if (byteSize > 0)
             {
-                // var data = Encoding.ASCII.GetString(state.buffer, 0, byteSize - _endSegment.Array.Length );
-                // state.sb.Append(data);
-                // Debug.Log("data: " + data);
+                //TODO
+                //(END_BYTE) 가 들어왔는지 체크하자. 없다면 덜 받은거임. Stream 에 넣은 뒤 다음에 받고 합쳐야함
 
-                var response = Encoding.ASCII.GetString(state.buffer, 0, byteSize - _endSegment.Array.Length);
-                Debug.Log("data: " + response);
-                if (OnDataReceived != null) OnDataReceived(response);
+                int availableSize = byteSize - END_BYTE.Length;
+                byte[] packet = new byte[availableSize];
+                Array.Copy(obj.buffer, packet, availableSize);
+
+                //여기는 메인쓰레드가 아니므로 직접 event 등을 사용하면 callstack 도 꼬이고 유니티에서 짜증난다
+                //완료 된 패킷은 큐에 넣고 꺼내쓰자
+                EnqueuePacket(packet);
             }
 
-            client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
-
+            Receive(client);
         }
         catch (ObjectDisposedException ex)
         {
-            ErrorLog("ObjectDisposedException", ex);
+            LogError(ErrorType.HandleData, ex);
             return;
         }
         catch (SocketException ex)
         {
-            ErrorLog(ex.SocketErrorCode.ToString(), ex);
+            LogError(ErrorType.HandleData, ex.SocketErrorCode.ToString());
         }
         catch (Exception ex)
         {
-            ErrorLog("ReceiveCB", ex);
+            LogError(ErrorType.HandleData, ex);
         }
+    }
+
+    void EnqueuePacket(byte[] packet)
+    {
+        _packetQueue.Enqueue( packet );
+    }
+
+    public byte[] NextPacket()
+    {
+        if( _packetQueue.Count > 0 ) return _packetQueue.Dequeue();
+        else return null;
     }
 
     public void Send(String data)
@@ -206,37 +237,41 @@ public class SlotSocket
 
     void Send(byte[] data)
     {
-        List<ArraySegment<byte>> sendBuffers = new List<ArraySegment<byte>>();
+        try
+        {
+            List<ArraySegment<byte>> sendBuffers = new List<ArraySegment<byte>>();
 
-        sendBuffers.Add(new ArraySegment<byte>(data));
-        sendBuffers.Add(_endSegment);
+            //canvas flash socket 에 연결중. 마지막 0 byte 삽입해야함
 
-        State = SocketState.Sending;
+            sendBuffers.Add(new ArraySegment<byte>(data));
+            sendBuffers.Add(_endSegment);
 
-        _socket.BeginSend(sendBuffers, SocketFlags.None, new AsyncCallback(SendCallback), _socket);
+            _socket.BeginSend(sendBuffers, SocketFlags.None, _sendCallback, _socket);
+        }
+        catch (Exception ex)
+        {
+            LogError(ErrorType.Send, ex);
+        }
     }
 
-    void SendCallback(IAsyncResult ar)
+    void SendComplete(IAsyncResult ar)
     {
         try
         {
-            State = SocketState.Connected;
-
             Socket client = (Socket)ar.AsyncState;
 
             if (_socket != client)
             {
-                ErrorLog("mismatch");
+                LogError(ErrorType.Mismatch);
                 return;
             }
 
             int bytesSent = client.EndSend(ar);
-
             Debug.LogFormat("Sent {0} bytes to server.", bytesSent);
         }
         catch (Exception ex)
         {
-            ErrorLog("Send", ex);
+            LogError(ErrorType.Send, ex);
         }
     }
 
@@ -256,13 +291,31 @@ public class SlotSocket
         }
         catch (Exception ex)
         {
-            ErrorLog("Close", ex);
+            LogError(ErrorType.Close, ex);
         }
     }
 
-    public void ErrorLog(string type, Exception ex = null)
+    void LogError(ErrorType type, Exception ex)
     {
-        if (ex == null) Debug.LogFormat("Socket Error type: {0}", type);
-        else Debug.LogFormat("Socket Error type: {0} ex: {1}", type, ex.ToString());
+        LogError(type, ex.ToString());
+    }
+
+    void LogError(ErrorType type, string errorMessage = "")
+    {
+        //todo
+        //ErrorType 에 맞게 소켓을 닫던지 적절히 조치하자
+        Debug.LogFormat("Socket Error! type: {0} message: {1}", type, errorMessage);
+    }
+
+    public bool Connected
+    {
+        get
+        {
+            if( _socket == null ) return false;
+            else if( _socket.Connected == false ) return false;
+            else if( _currentState != SocketState.Connected ) return false;
+            return true;
+        }
+
     }
 }

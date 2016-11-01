@@ -19,7 +19,7 @@ namespace lpesign
                     _instance = FindObjectOfType<T>();
                     if (_instance == null)
                     {
-                        GameObject obj = new GameObject();
+                        GameObject obj = new GameObject(typeof(T).Name);
                         obj.hideFlags = HideFlags.HideAndDontSave;
                         _instance = obj.AddComponent<T>();
                     }
