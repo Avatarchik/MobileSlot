@@ -1,15 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Symbol : MonoBehaviour {
+public class Symbol : MonoBehaviour
+{
+    Transform _content;
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+    void Awake()
+    {
+        _content = transform.Find("content");
+    }
+
+    void Start()
+    {
+        _content.localPosition = new Vector3(SlotInfo.Main.SymbolRect.width * 0.5f, SlotInfo.Main.SymbolRect.height * -0.5f, 0f);
+    }
 }

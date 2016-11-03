@@ -4,15 +4,22 @@ using System.Collections;
 using LitJson;
 
 
+public class SlotInfo
+{
+    static public SlotInfo Main;
+    static public int Port;
+    static public string Version;
+
+    public int Row, Column;
+
+    public Rect SymbolRect;
+    public Rect ReelRect;
+
+    public int ReelGap;
+}
+
 public class SlotMachine : MonoBehaviour
 {
-    public struct SlotInfo
-    {
-        public string Version;
-
-        public int Port, Row, Column;
-    }
-
     public enum MachineState
     {
         Null,
@@ -25,15 +32,66 @@ public class SlotMachine : MonoBehaviour
 
     public SlotUI ui;
 
-    protected SlotInfo _slotInfo;
+    [Header("prefabs")]
+    public Reel ReelPrefab;
+
+    protected SlotModel _model;
 
     protected MachineState _currentState;
-    protected SlotModel _model;
+
+    protected ReelContainer _reelContainer;
 
     virtual protected void Awake()
     {
-        _slotInfo = new SlotInfo();
         _model = SlotModel.Instance;
+
+        _reelContainer = GetComponentInChildren<ReelContainer>();
+        _reelContainer.CreateReels( ReelPrefab );
+
+        //doc
+        //doc http://www.hamsterbyte.com/category/support/poolmaster/
+        PoolMasterEvents.onPreloadPool += OnPreloadPool;
+        PoolMasterEvents.onSpawn += OnSpawn;
+        PoolMasterEvents.onDespawnObject += OnDespawnObject;
+        PoolMasterEvents.onDespawnPool += OnDespawnPool;
+        PoolMasterEvents.onDestroyObject += OnDestroyObject;
+        PoolMasterEvents.onDestroyPool += OnDestroyPool;
+        PoolMasterEvents.onPlayAudio += OnPlayAudio;
+    }
+
+    void OnPreloadPool(string poolName)
+    {
+        Debug.Log( "OnPreloadPool : " + poolName );
+    }
+
+    void OnSpawn(GameObject g)
+    {
+        Debug.Log( "OnSpawn : " + g );
+    }
+
+    void OnDespawnObject(GameObject g)
+    {
+         Debug.Log( "OnDespawnObject: " +  g );
+    }
+
+    void OnDespawnPool(string poolName)
+    {
+         Debug.Log( "OnDespawnPool : " + poolName );
+    }
+
+    void OnDestroyObject(GameObject g)
+    {
+        Debug.Log("OnDestroyObject : " +  g );
+    }
+
+    void OnDestroyPool(string poolName)
+    {
+        Debug.Log( "OnDestroyPool : " + poolName );
+    }
+
+    void OnPlayAudio(string clipName, GameObject objReference)
+    {
+        Debug.Log( "OnPlayAudio : " + clipName + " : " + objReference );
     }
 
     void Start()
@@ -76,12 +134,12 @@ public class SlotMachine : MonoBehaviour
 
     void ConnectServer()
     {
-        GameServerCommunicator.Instance.OnLogin += LogimComplete;
+        GameServerCommunicator.Instance.OnLogin += LoginComplete;
         GameServerCommunicator.Instance.OnSpin += SpinCompelte;
-        GameServerCommunicator.Instance.Connect("182.252.135.251", _slotInfo.Port);
+        GameServerCommunicator.Instance.Connect("182.252.135.251", SlotInfo.Port);
     }
 
-    void LogimComplete(ResDTO.Login dto)
+    void LoginComplete(ResDTO.Login dto)
     {
         Debug.Log("game login complete.");
 
@@ -129,20 +187,20 @@ public class SlotMachine : MonoBehaviour
 
     void OpenCoinShop()
     {
-        Debug.Log( "돈없어. 그지");
+        Debug.Log("돈없어. 그지");
     }
 
     void Spin()
     {
         //더미 심볼 돌리자
-        GameServerCommunicator.Instance.Spin( 10000 );
+        GameServerCommunicator.Instance.Spin(10000);
     }
 
     void SpinCompelte(ResDTO.Spin dto)
     {
         _model.SetSpinData(dto);
 
-        SetState( MachineState.ReceivedSymbol );
+        SetState(MachineState.ReceivedSymbol);
     }
 
     void ReceivedSymbol()
@@ -150,11 +208,11 @@ public class SlotMachine : MonoBehaviour
         //결과 심볼 넣어서 스핀 마무리
 
         //모든 릴이 멈추면
-        SetState( MachineState.ShowResult);
+        SetState(MachineState.ShowResult);
     }
 
     void ShowResult()
     {
-        SetState( MachineState.Idle);
+        SetState(MachineState.Idle);
     }
 }

@@ -17,7 +17,6 @@ public class SlotUI : MonoBehaviour
 
     public void Idle()
     {
-		// 342,131,634,187
 		DisplayBalance( SlotModel.Instance.Balance );
     }
 

@@ -1,15 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Reel : MonoBehaviour {
+public class Reel : MonoBehaviour
+{
+	// public int column{get;set;}
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+	int _column;
+	public int Column
+	{
+		get { return _column; }
+		set
+		{
+			_column = value;
+			gameObject.name = "Reel" + _column;
+		}
 	}
 }
