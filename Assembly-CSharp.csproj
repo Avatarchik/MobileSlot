@@ -48,8 +48,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\4_Scripts\game\01\ShiningSevens.cs" />
-     <Compile Include="Assets\4_Scripts\game\02\HighDiamonds.cs" />
      <Compile Include="Assets\4_Scripts\game\GameDTO.cs" />
      <Compile Include="Assets\4_Scripts\game\GameServerCommunicator.cs" />
      <Compile Include="Assets\4_Scripts\game\MachineControl.cs" />
@@ -70,6 +68,8 @@
      <Compile Include="Assets\4_Scripts\system\SceneLoader.cs" />
      <Compile Include="Assets\4_Scripts\utils\CanvasUtil.cs" />
      <Compile Include="Assets\4_Scripts\utils\GameObjectUtil.cs" />
+     <Compile Include="Assets\Resources\games\01\scripts\ShiningSevens.cs" />
+     <Compile Include="Assets\Resources\games\02\scripts\HighDiamonds.cs" />
      <Compile Include="Assets\externalLibs\lpesign\singleton\Singleton.cs" />
      <Compile Include="Assets\externalLibs\lpesign\singleton\SingletonHumble.cs" />
      <Compile Include="Assets\externalLibs\lpesign\singleton\SingletonSimple.cs" />

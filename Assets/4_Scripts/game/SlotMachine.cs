@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 using LitJson;
 
@@ -16,6 +17,26 @@ public class SlotInfo
     public Rect ReelRect;
 
     public int ReelGap;
+
+    Dictionary<string, string> _symbolMap;
+    
+    public void SetSymbolMap( Dictionary<string,string> map )
+    {
+        _symbolMap = map;
+    }
+
+    public void AddSymbolToMap(string serverName, string clientName)
+    {
+        if (_symbolMap == null) _symbolMap = new Dictionary<string, string>();
+
+        _symbolMap[serverName] = clientName;
+    }
+
+    public string GetSymbolName( string serverName )
+    {
+        if( _symbolMap.ContainsKey( serverName )) return _symbolMap[ serverName ];
+        else return string.Empty;
+    }
 }
 
 public class SlotMachine : MonoBehaviour
@@ -46,7 +67,7 @@ public class SlotMachine : MonoBehaviour
         _model = SlotModel.Instance;
 
         _reelContainer = GetComponentInChildren<ReelContainer>();
-        _reelContainer.CreateReels( ReelPrefab );
+        _reelContainer.CreateReels(ReelPrefab);
 
         //doc
         //doc http://www.hamsterbyte.com/category/support/poolmaster/
@@ -61,37 +82,37 @@ public class SlotMachine : MonoBehaviour
 
     void OnPreloadPool(string poolName)
     {
-        Debug.Log( "OnPreloadPool : " + poolName );
+        Debug.Log("OnPreloadPool : " + poolName);
     }
 
     void OnSpawn(GameObject g)
     {
-        Debug.Log( "OnSpawn : " + g );
+        Debug.Log("OnSpawn : " + g);
     }
 
     void OnDespawnObject(GameObject g)
     {
-         Debug.Log( "OnDespawnObject: " +  g );
+        Debug.Log("OnDespawnObject: " + g);
     }
 
     void OnDespawnPool(string poolName)
     {
-         Debug.Log( "OnDespawnPool : " + poolName );
+        Debug.Log("OnDespawnPool : " + poolName);
     }
 
     void OnDestroyObject(GameObject g)
     {
-        Debug.Log("OnDestroyObject : " +  g );
+        Debug.Log("OnDestroyObject : " + g);
     }
 
     void OnDestroyPool(string poolName)
     {
-        Debug.Log( "OnDestroyPool : " + poolName );
+        Debug.Log("OnDestroyPool : " + poolName);
     }
 
     void OnPlayAudio(string clipName, GameObject objReference)
     {
-        Debug.Log( "OnPlayAudio : " + clipName + " : " + objReference );
+        Debug.Log("OnPlayAudio : " + clipName + " : " + objReference);
     }
 
     void Start()
