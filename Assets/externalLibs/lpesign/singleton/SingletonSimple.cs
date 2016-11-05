@@ -44,12 +44,12 @@ namespace lpesign
             return SetParent(go.transform);
         }
 
-        protected virtual void Awake()
+        virtual protected void Awake()
         {
             _instance = this as T;
         }
 
-        void OnDestroy()
+        virtual protected void OnDestroy()
         {
             _instance = null;
         }
