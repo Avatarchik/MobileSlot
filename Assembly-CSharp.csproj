@@ -48,8 +48,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\4_Scripts\game\net\GameDTO.cs" />
-     <Compile Include="Assets\4_Scripts\game\net\GameServerCommunicator.cs" />
      <Compile Include="Assets\4_Scripts\game\slotMachine\GamePool.cs" />
      <Compile Include="Assets\4_Scripts\game\slotMachine\MachineControl.cs" />
      <Compile Include="Assets\4_Scripts\game\slotMachine\Reel.cs" />
@@ -65,6 +63,8 @@
      <Compile Include="Assets\4_Scripts\lobby\GameTableUI.cs" />
      <Compile Include="Assets\4_Scripts\lobby\Lobby.cs" />
      <Compile Include="Assets\4_Scripts\lobby\LobbyData.cs" />
+     <Compile Include="Assets\4_Scripts\net\GameDTO.cs" />
+     <Compile Include="Assets\4_Scripts\net\GameServerCommunicator.cs" />
      <Compile Include="Assets\4_Scripts\net\SlotSocket.cs" />
      <Compile Include="Assets\4_Scripts\system\Config.cs" />
      <Compile Include="Assets\4_Scripts\system\GameManager.cs" />

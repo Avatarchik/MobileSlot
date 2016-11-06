@@ -22,8 +22,10 @@ public class GamePool : SingletonSimple<GamePool>
         PoolMasterEvents.onPlayAudio += OnPlayAudio;
     }
 
-    void OnDestroy()
+    override protected void OnDestroy()
     {
+        base.OnDestroy();
+
         PoolMasterEvents.onPreloadPool -= OnPreloadPool;
         PoolMasterEvents.onSpawn -= OnSpawn;
         PoolMasterEvents.onDespawnObject -= OnDespawnObject;
@@ -41,9 +43,6 @@ public class GamePool : SingletonSimple<GamePool>
 
     public Symbol SpawnSymbol(string objName)
     {
-        var pos = Vector3.one;
-        var r = Quaternion.identity;
-
         GameObject go = _pool.SpawnReference("Symbols", objName);
 
         if (go != null) return go.GetComponent<Symbol>();

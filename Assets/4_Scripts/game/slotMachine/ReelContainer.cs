@@ -27,11 +27,19 @@ public class ReelContainer : MonoBehaviour
 
         for (var i = 0; i < count; ++i)
         {
-            var pos = new Vector3(0f, 0f, 0f);
             Reel reel = Instantiate(prefab) as Reel;
             reel.Column = i;
             reel.transform.SetParent(_tf);
             reel.transform.localPosition = Vector3.right * reelSpace * i;
+        }
+    }
+
+    public void Spin()
+    {
+        int count = SlotConfig.Main.Column;
+        for( var i = 0; i < count; ++i )
+        {
+            _reels[i].Spin();
         }
     }
 }

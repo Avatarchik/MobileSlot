@@ -50,5 +50,6 @@ public class ShiningSevens : MonoBehaviour
         SlotConfig.Version = "0.0.1";
 
         _machine = FindObjectOfType<SlotMachine>();
+        // _machine.
     }
 }

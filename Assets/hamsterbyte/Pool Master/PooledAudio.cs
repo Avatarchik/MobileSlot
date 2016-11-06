@@ -16,10 +16,12 @@ SUPPORT: WWW.HAMSTERBYTE.COM/POOL-MASTER
 COPYRIGHT © 2014 HAMSTERBYTE, LLC
 ALL RIGHTS RESERVED
 
+Fix OnLevelWasLoaded deprecated waring by lpesign
 */
 using UnityEngine;
 using UnityEngine.Audio;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 namespace hamsterbyte.PoolMaster {
 	[RequireComponent (typeof(AudioSource))]
@@ -44,6 +46,8 @@ namespace hamsterbyte.PoolMaster {
 			if (playOnSpawn) {
 				Play ();
 			}
+
+			SceneManager.sceneLoaded += OnLevelFinishedLoading;
 		}
 
 		void OnDisable(){
@@ -55,13 +59,24 @@ namespace hamsterbyte.PoolMaster {
 				if(audioMaster.activeCount[_clipIndex] < 0)
 					audioMaster.activeCount[_clipIndex] = 0;
 			}
+
+			SceneManager.sceneLoaded -= OnLevelFinishedLoading;
 		}
 
+		void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
+		{
+			if(!_persistent){
+				this.gameObject.SetActive(false);
+			}
+		}
+
+		/*
 		void OnLevelWasLoaded(int index){
 			if(!_persistent){
 				this.gameObject.SetActive(false);
 			}
 		}
+		*/
         
 		public void Define (AudioClip clip, float volume, float pan, float pitch, int priority, bool loop, bool persistence) {
 

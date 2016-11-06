@@ -154,8 +154,9 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         _socket = null;
     }
 
-    void OnDestroy()
+    override protected void OnDestroy()
     {
+        base.OnDestroy();
         StopCoroutine(_checkRoutine);
         Close(SlotSocket.CloseReason.Destory);
     }

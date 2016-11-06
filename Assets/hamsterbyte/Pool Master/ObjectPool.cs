@@ -16,10 +16,13 @@ SUPPORT: WWW.HAMSTERBYTE.COM/POOL-MASTER
 COPYRIGHT © 2014-2015 HAMSTERBYTE, LLC
 ALL RIGHTS RESERVED
 
+
+Fix OnLevelWasLoaded deprecated waring by lpesign
 */
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace hamsterbyte.PoolMaster {
 	[System.Serializable]
@@ -75,7 +78,30 @@ namespace hamsterbyte.PoolMaster {
 			if (preloadMode == 1)
 				PreloadLocal ();
 		}
-				
+
+
+		void OnEnable()
+		{
+			SceneManager.sceneLoaded += OnLevelFinishedLoading;
+		}
+	
+		void OnDisable()
+		{
+			SceneManager.sceneLoaded -= OnLevelFinishedLoading;
+		}
+	
+		void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
+		{
+			Debug.Log("wasLoaded2~new");
+			if (persistenceMode == 1) {
+				foreach (Pool p in pools) {
+					if(!p.persistent)
+						this.Destroy (p.name);
+				}
+			}
+		}
+
+		/*
 		void OnLevelWasLoaded (int level) {
 			if (persistenceMode == 1) {
 				foreach (Pool p in pools) {
@@ -83,8 +109,8 @@ namespace hamsterbyte.PoolMaster {
 						this.Destroy (p.name);
 				}
 			}
-						
 		}
+		*/
 		#endregion
 		
 		#region CHECK PRECEDENT

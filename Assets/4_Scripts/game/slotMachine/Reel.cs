@@ -48,7 +48,6 @@ public class Reel : MonoBehaviour
         for (var i = 0; i < names.Length; ++i)
         {
             var symbolName = names[i];
-            var pos = Vector3.down * 0.2f * i;
             var symbol = GamePool.Instance.SpawnSymbol(symbolName);
 
             if( symbol == null )
@@ -62,5 +61,10 @@ public class Reel : MonoBehaviour
             // ypos += symbol.Height;
             ypos -= SlotConfig.Main.SymbolRect.height;
         }
+    }
+
+    public void Spin()
+    {
+        
     }
 }
