@@ -48,6 +48,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\4_Scripts\system\Editor\CustomPropertyDrawer.cs" />
      <Compile Include="Assets\hamsterbyte\Pool Master\Editor\ObjectPoolEditor.cs" />
      <Compile Include="Assets\hamsterbyte\Pool Master\Editor\PoolMasterAudioEditor.cs" />
      <Compile Include="Assets\hamsterbyte\Pool Master\Editor\PoolMasterSpawnPointsEditor.cs" />

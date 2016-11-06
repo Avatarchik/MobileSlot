@@ -19,6 +19,8 @@ public class SlotMachine : MonoBehaviour
 
     public SlotUI ui;
 
+    public SlotConfig Config{get;set;}
+
     SlotModel _model;
 
     MachineState _currentState;
@@ -33,7 +35,7 @@ public class SlotMachine : MonoBehaviour
 
     public void Run()
     {
-        if (SlotConfig.Main == null)
+        if (Config == null)
         {
             Debug.LogError("SlotConfig은 반드시 정의 되어야 합니다");
             return;
@@ -102,7 +104,7 @@ public class SlotMachine : MonoBehaviour
             yield return null;
         }
 
-        _reelContainer.Initialize( SlotConfig.Main );
+        _reelContainer.Initialize( Config );
 
         SetState(MachineState.Idle);
 

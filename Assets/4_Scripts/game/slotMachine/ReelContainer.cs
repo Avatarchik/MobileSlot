@@ -4,8 +4,6 @@ using System.Collections.Generic;
 
 public class ReelContainer : MonoBehaviour
 {
-    public float reelSpace;
-
     SlotConfig _relativeConfig;
 
     List<Reel> _reels;
@@ -37,15 +35,14 @@ public class ReelContainer : MonoBehaviour
             Reel reel = Instantiate( _relativeConfig.ReelPrefab ) as Reel;
             reel.Column = i;
             reel.transform.SetParent(_tf);
-            reel.transform.localPosition = Vector3.right * reelSpace * i;
-            reel.CreateStartSymbols();
+            reel.transform.localPosition = Vector3.right * _relativeConfig.ReelSpace * i;
+            reel.Initialize( _relativeConfig );
         }
     }
 
     public void Spin()
     {
-        int count = SlotConfig.Main.Column;
-        for( var i = 0; i < count; ++i )
+        for( var i = 0; i < _relativeConfig.Column; ++i )
         {
             _reels[i].Spin();
         }

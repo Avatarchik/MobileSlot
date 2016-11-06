@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Symbol : MonoBehaviour
+public abstract class Symbol : MonoBehaviour
 {
     public float Height{ get;set;}
     
@@ -16,7 +16,7 @@ public class Symbol : MonoBehaviour
 
     void Start()
     {
-        _content.localPosition = new Vector3(SlotConfig.Main.SymbolRect.width * 0.5f, SlotConfig.Main.SymbolRect.height * -0.5f, 0f);
+        // _content.localPosition = new Vector3(SlotConfig.Main.SymbolRect.width * 0.5f, SlotConfig.Main.SymbolRect.height * -0.5f, 0f);
     }
 
     public void SetParent( Transform parent )

@@ -52,7 +52,6 @@
      <Compile Include="Assets\4_Scripts\game\slotMachine\MachineControl.cs" />
      <Compile Include="Assets\4_Scripts\game\slotMachine\Reel.cs" />
      <Compile Include="Assets\4_Scripts\game\slotMachine\ReelContainer.cs" />
-     <Compile Include="Assets\4_Scripts\game\slotMachine\SlotConfig.cs" />
      <Compile Include="Assets\4_Scripts\game\slotMachine\SlotMachine.cs" />
      <Compile Include="Assets\4_Scripts\game\slotMachine\SlotModel.cs" />
      <Compile Include="Assets\4_Scripts\game\slotMachine\symbol\NullSymbol.cs" />
@@ -68,11 +67,13 @@
      <Compile Include="Assets\4_Scripts\net\GameServerCommunicator.cs" />
      <Compile Include="Assets\4_Scripts\net\SlotSocket.cs" />
      <Compile Include="Assets\4_Scripts\system\Config.cs" />
+     <Compile Include="Assets\4_Scripts\system\CustomProperty.cs" />
      <Compile Include="Assets\4_Scripts\system\GameManager.cs" />
      <Compile Include="Assets\4_Scripts\system\SceneLoader.cs" />
      <Compile Include="Assets\4_Scripts\utils\CanvasUtil.cs" />
      <Compile Include="Assets\4_Scripts\utils\GameObjectUtil.cs" />
      <Compile Include="Assets\Resources\games\01\scripts\ShiningSevens.cs" />
+     <Compile Include="Assets\Resources\games\01\scripts\ShiningSevensSymbol.cs" />
      <Compile Include="Assets\Resources\games\02\scripts\HighDiamonds.cs" />
      <Compile Include="Assets\externalLibs\lpesign\singleton\Singleton.cs" />
      <Compile Include="Assets\externalLibs\lpesign\singleton\SingletonHumble.cs" />

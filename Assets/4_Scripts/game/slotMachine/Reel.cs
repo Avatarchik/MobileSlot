@@ -3,8 +3,6 @@ using System.Collections;
 
 public class Reel : MonoBehaviour
 {
-    // public int column{get;set;}
-
     int _column;
     public int Column
     {
@@ -16,26 +14,32 @@ public class Reel : MonoBehaviour
         }
     }
 
-    public string[,] startSymbolName;
-
+    ReelStrips _strips;
+    int _row;
     Transform _symbolContainer;
+
     void Awake()
     {
         _symbolContainer = transform.Find("symbols");
     }
 
-    public void CreateStartSymbols()
+    public void Initialize(SlotConfig config)
     {
-        ReelStrips strips = SlotConfig.Main.Strips;
-        int row = SlotConfig.Main.Row;
-        string[] names = new string[row];
+        _strips = config.Strips;
+        _row = config.Row;
 
-        for (var r = 0; r < row; ++r)
+        CreateStartSymbols();
+    }
+
+    void CreateStartSymbols()
+    {
+        string[] names = new string[_row];
+
+        for (var r = 0; r < _row; ++r)
         {
-            var name = strips.GetStartSymbolAt(_column, r);
+            var name = _strips.GetStartSymbolAt(_column, r);
             names[r] = name;
         }
-
 
         SetSymbols(names);
     }
@@ -58,7 +62,7 @@ public class Reel : MonoBehaviour
             symbol.SetParent(_symbolContainer);
             symbol.transform.localPosition = new Vector3(0f, ypos, 0f);
             // ypos += symbol.Height;
-            ypos -= SlotConfig.Main.SymbolRect.height;
+            ypos -= 200f;
         }
     }
 

@@ -10,14 +10,14 @@ public class CanvasUtil
         Camera cam = canvas.worldCamera;
         if (cam == null) return;
 
-        cam.orthographicSize = Config.ReferenceHeight * 0.5f / Config.PixelPerUnit;
+        cam.orthographicSize = GlobalConfig.ReferenceHeight * 0.5f / GlobalConfig.PixelPerUnit;
 
         CanvasScaler canvasScaler = canvas.GetComponent<CanvasScaler>();
         if (canvasScaler != null)
         {
             canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             canvasScaler.matchWidthOrHeight = 0f;
-            canvasScaler.referenceResolution = new Vector2(Config.ReferenceWidth, Config.ReferenceHeight);
+            canvasScaler.referenceResolution = new Vector2(GlobalConfig.ReferenceWidth, GlobalConfig.ReferenceHeight);
         }
     }
 }

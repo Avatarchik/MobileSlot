@@ -20,11 +20,11 @@ public class Lobby : SingletonSimple<Lobby>
 
 	void Start()
 	{
-		Application.targetFrameRate  = Config.TargetFrameRate;
+		Application.targetFrameRate  = GlobalConfig.TargetFrameRate;
 		
-		if( Screen.width != Config.ReferenceWidth || Screen.height != Config.ReferenceHeight )
+		if( Screen.width != GlobalConfig.ReferenceWidth || Screen.height != GlobalConfig.ReferenceHeight )
 		{
-			Screen.SetResolution( Screen.width, Screen.width * Config.ReferenceHeight / Config.ReferenceWidth, false );
+			Screen.SetResolution( Screen.width, Screen.width * GlobalConfig.ReferenceHeight / GlobalConfig.ReferenceWidth, false );
 		}
 	}
 }

@@ -23,17 +23,16 @@ public class ShiningSevens : MonoBehaviour
         SlotConfig.Port = 13100;
         SlotConfig.Version = "0.0.1";
 
-
         //slot setting
-        if( config == null ) config = new SlotConfig();
+        if (config == null) config = new SlotConfig();
 
         config.Row = 3;
         config.Column = 3;
-        config.SymbolRect = new Rect(0f, 0f, 2.1f, 1.1f);
-        config.ReelRect = new Rect(0f, 0f, 2.1f, 2.5f);
-        config.ReelGap = 30;
-        config.ReelPrefab = Resources.Load<Reel>("games/" + SlotConfig.ID.ToString("00") + "/prefabs/Reel" );
-
+        config.SymbolSize = new Size2D(2.1f,1.1f);
+        config.ReelSize = new Size2D(2.1f,2.5f);
+        config.ReelGap = 0.3f;
+        config.ReelSpace = 2.56f;
+        config.ReelPrefab = Resources.Load<Reel>("games/" + SlotConfig.ID.ToString("00") + "/prefabs/Reel");
 
         //strips setting
         ReelStrips reelStrips = new ReelStrips();
@@ -56,11 +55,10 @@ public class ShiningSevens : MonoBehaviour
         reelStrips.AddSymbolToMap("L0", L0);
         config.Strips = reelStrips;
 
-
-        //apply
-        SlotConfig.Main = config;
-
         _machine = FindObjectOfType<SlotMachine>();
+        _machine.Config = config;
+
+        // ShiningSevensSymbol.
     }
 
     void Start()
