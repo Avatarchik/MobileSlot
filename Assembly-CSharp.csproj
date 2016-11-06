@@ -48,18 +48,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\4_Scripts\game\machine\GamePool.cs" />
-     <Compile Include="Assets\4_Scripts\game\machine\MachineControl.cs" />
-     <Compile Include="Assets\4_Scripts\game\machine\Reel.cs" />
-     <Compile Include="Assets\4_Scripts\game\machine\ReelContainer.cs" />
-     <Compile Include="Assets\4_Scripts\game\machine\ReelStrips.cs" />
-     <Compile Include="Assets\4_Scripts\game\machine\SlotMachine.cs" />
-     <Compile Include="Assets\4_Scripts\game\machine\SlotModel.cs" />
-     <Compile Include="Assets\4_Scripts\game\machine\symbol\NullSymbol.cs" />
-     <Compile Include="Assets\4_Scripts\game\machine\symbol\Symbol.cs" />
-     <Compile Include="Assets\4_Scripts\game\machine\ui\SlotUI.cs" />
      <Compile Include="Assets\4_Scripts\game\net\GameDTO.cs" />
      <Compile Include="Assets\4_Scripts\game\net\GameServerCommunicator.cs" />
+     <Compile Include="Assets\4_Scripts\game\slotMachine\GamePool.cs" />
+     <Compile Include="Assets\4_Scripts\game\slotMachine\MachineControl.cs" />
+     <Compile Include="Assets\4_Scripts\game\slotMachine\Reel.cs" />
+     <Compile Include="Assets\4_Scripts\game\slotMachine\ReelContainer.cs" />
+     <Compile Include="Assets\4_Scripts\game\slotMachine\SlotConfig.cs" />
+     <Compile Include="Assets\4_Scripts\game\slotMachine\SlotMachine.cs" />
+     <Compile Include="Assets\4_Scripts\game\slotMachine\SlotModel.cs" />
+     <Compile Include="Assets\4_Scripts\game\slotMachine\symbol\NullSymbol.cs" />
+     <Compile Include="Assets\4_Scripts\game\slotMachine\symbol\Symbol.cs" />
+     <Compile Include="Assets\4_Scripts\game\slotMachine\ui\SlotUI.cs" />
      <Compile Include="Assets\4_Scripts\lobby\GameItemDTO.cs" />
      <Compile Include="Assets\4_Scripts\lobby\GameItemUI.cs" />
      <Compile Include="Assets\4_Scripts\lobby\GameTableUI.cs" />
@@ -72,7 +72,6 @@
      <Compile Include="Assets\4_Scripts\utils\CanvasUtil.cs" />
      <Compile Include="Assets\4_Scripts\utils\GameObjectUtil.cs" />
      <Compile Include="Assets\Resources\games\01\scripts\ShiningSevens.cs" />
-     <Compile Include="Assets\Resources\games\01\scripts\ShiningSevensReelStrips.cs" />
      <Compile Include="Assets\Resources\games\02\scripts\HighDiamonds.cs" />
      <Compile Include="Assets\externalLibs\lpesign\singleton\Singleton.cs" />
      <Compile Include="Assets\externalLibs\lpesign\singleton\SingletonHumble.cs" />
