@@ -22,6 +22,8 @@ public class Size2DDrawer : PropertyDrawer
 		EditorGUI.PropertyField( wRect, property.FindPropertyRelative("width"),new GUIContent("W"));
 		EditorGUI.PropertyField( hRect, property.FindPropertyRelative("height"),new GUIContent("H"));
 
+		EditorGUI.indentLevel = indent;
+		
 		EditorGUI.EndProperty();
     }
 }

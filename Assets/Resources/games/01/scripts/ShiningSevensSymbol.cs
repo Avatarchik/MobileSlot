@@ -3,5 +3,4 @@ using System.Collections;
 
 public class ShiningSevensSymbol : Symbol
 {
-	
 }

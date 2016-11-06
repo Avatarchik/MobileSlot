@@ -11,7 +11,7 @@ public class ShiningSevens : MonoBehaviour
     public const string BG = "M1";
     public const string BR = "M2";
 
-    public const string L0 = "L0";
+    public const string L0 = NullSymbol.EMPTY;
     public SlotConfig config;
 
     SlotMachine _machine;
@@ -28,7 +28,10 @@ public class ShiningSevens : MonoBehaviour
 
         config.Row = 3;
         config.Column = 3;
+
         config.SymbolSize = new Size2D(2.1f,1.1f);
+        config.NullSymbolSize = new Size2D(2.1f,0.3f);
+
         config.ReelSize = new Size2D(2.1f,2.5f);
         config.ReelGap = 0.3f;
         config.ReelSpace = 2.56f;
@@ -57,8 +60,6 @@ public class ShiningSevens : MonoBehaviour
 
         _machine = FindObjectOfType<SlotMachine>();
         _machine.Config = config;
-
-        // ShiningSevensSymbol.
     }
 
     void Start()

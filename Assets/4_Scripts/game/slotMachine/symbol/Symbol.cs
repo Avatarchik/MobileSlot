@@ -3,8 +3,7 @@ using System.Collections;
 
 public abstract class Symbol : MonoBehaviour
 {
-    public float Height{ get;set;}
-    
+    Size2D? _symbolArea;
     Transform _tf;
     Transform _content;
 
@@ -16,7 +15,7 @@ public abstract class Symbol : MonoBehaviour
 
     void Start()
     {
-        // _content.localPosition = new Vector3(SlotConfig.Main.SymbolRect.width * 0.5f, SlotConfig.Main.SymbolRect.height * -0.5f, 0f);
+        _content.localPosition = new Vector3( Width * 0.5f, Height * -0.5f, 0f);
     }
 
     public void SetParent( Transform parent )
@@ -28,4 +27,16 @@ public abstract class Symbol : MonoBehaviour
     {
         GamePool.Instance.DespawnSymbol( this );
     }
+
+    public float Width
+    {
+        get{ return Area.width; }
+    }
+
+    public float Height
+    {
+        get{ return Area.height; }
+    }
+
+    public Size2D Area {get;set;}
 }

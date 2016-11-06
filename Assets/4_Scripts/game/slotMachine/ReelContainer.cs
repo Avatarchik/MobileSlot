@@ -13,6 +13,15 @@ public class ReelContainer : MonoBehaviour
     void Awake()
     {
         _tf = transform;
+
+        Reel[] tempReels = GetComponentsInChildren<Reel>();
+        if( tempReels != null && tempReels.Length > 0)
+        {
+            foreach( var r in tempReels )
+            {
+                Destroy( r.gameObject );
+            }
+        }
     }
 
     public void Initialize( SlotConfig config )
@@ -34,9 +43,11 @@ public class ReelContainer : MonoBehaviour
         {
             Reel reel = Instantiate( _relativeConfig.ReelPrefab ) as Reel;
             reel.Column = i;
-            reel.transform.SetParent(_tf);
+            reel.transform.SetParent(_tf );
             reel.transform.localPosition = Vector3.right * _relativeConfig.ReelSpace * i;
             reel.Initialize( _relativeConfig );
+
+            _reels.Add( reel );
         }
     }
 

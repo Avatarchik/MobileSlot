@@ -30,7 +30,9 @@ public class SlotConfig
     public int Row;
     public int Column;
 
+    
     public Size2D SymbolSize;
+    public Size2D NullSymbolSize;
 
 
     [Header("Reel")]

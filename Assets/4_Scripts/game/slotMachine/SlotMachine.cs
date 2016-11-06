@@ -12,7 +12,7 @@ public class SlotMachine : MonoBehaviour
         Null,
         Connecting,
         Idle,
-        Spininig,
+        Spin,
         ReceivedSymbol,
         ShowResult
     }
@@ -62,7 +62,7 @@ public class SlotMachine : MonoBehaviour
                 Idle();
                 break;
 
-            case MachineState.Spininig:
+            case MachineState.Spin:
                 Spin();
                 break;
 
@@ -128,7 +128,7 @@ public class SlotMachine : MonoBehaviour
                 }
                 else
                 {
-                    SetState(MachineState.Spininig);
+                    SetState(MachineState.Spin);
                 }
 
                 break;
@@ -154,6 +154,7 @@ public class SlotMachine : MonoBehaviour
     void Spin()
     {
         //더미 심볼 돌리자
+        _reelContainer.Spin();
         GameServerCommunicator.Instance.Spin(10000);
     }
 

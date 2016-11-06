@@ -13,4 +13,9 @@ public struct Size2D
         width = w;
         height = h;
     }
+
+    override public string ToString()
+    {
+        return string.Format("w: {0} h:{1}",width,height);
+    }
 }

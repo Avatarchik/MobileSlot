@@ -55,12 +55,13 @@ public class GamePool : SingletonSimple<GamePool>
     {
         GameObject go = _pool.SpawnReference("Symbols", objName);
 
-        if (go != null) return go.GetComponent<Symbol>();
-        return null;
+        if (go == null) return null;
+        else return go.GetComponent<Symbol>();
     }
 
     public void DespawnSymbol(Symbol symbol)
     {
+        if( symbol == null ) return;
         _pool.Despawn(symbol.gameObject);
     }
 
