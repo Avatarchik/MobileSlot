@@ -11,9 +11,13 @@ public class SlotConfig
     //게임 전반적인 설정
     //------------------------------------------------------------------
 
-    static public SlotConfig Main;
+
+    static public int ID;
+    static public string Host;
     static public int Port;
     static public string Version;
+
+    static public SlotConfig Main;
 
     //------------------------------------------------------------------
     //게임 내 슬롯 설정 ( 게임 속 다수의 슬롯 머신이 존재할 수 도 있다 )
@@ -24,6 +28,7 @@ public class SlotConfig
     public Rect ReelRect;
 
     public int ReelGap;
+    public Reel ReelPrefab;
 
     public ReelStrips Strips;
 }

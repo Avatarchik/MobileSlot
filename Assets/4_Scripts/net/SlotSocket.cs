@@ -33,7 +33,26 @@ public class SlotSocket
     {
         ApplicationQuit,
         Destory,
-        ConnectFail
+        Error
+    }
+
+    public class SocketEvent
+    {
+        public enum EventType
+        {
+            Connect,
+            Data,
+            DisConnect
+        }
+
+        public EventType Type { get; private set; }
+
+        public byte[] Packet { get; private set; }
+        public SocketEvent(EventType type, byte[] packet = null)
+        {
+            Packet = packet;
+            Type = type;
+        }
     }
 
     public class BufferObject
@@ -43,15 +62,13 @@ public class SlotSocket
         public byte[] buffer = new byte[BufferSize];
         public StringBuilder sb = new StringBuilder();
     }
-    public event Action OnConnected;
-    public event Action OnDisConnected;
 
     static private byte[] END_BYTE = new byte[] { 0 };
 
     Socket _socket;
     SocketState _currentState;
 
-    Queue<byte[]> _packetQueue;
+    Queue<SocketEvent> _eventQueue;
 
     ArraySegment<byte> _endSegment = new ArraySegment<byte>(END_BYTE);
 
@@ -62,7 +79,7 @@ public class SlotSocket
 
     public SlotSocket()
     {
-        _packetQueue = new Queue<byte[]>();
+        _eventQueue = new Queue<SocketEvent>();
 
         _bufferObject = new BufferObject();
 
@@ -145,13 +162,14 @@ public class SlotSocket
 
             Receive(client);
 
-            if (OnConnected != null) OnConnected();
+            EnqueueEvent(SocketEvent.EventType.Connect);
         }
         catch (Exception ex)
         {
             LogError(ErrorType.Connect, ex);
         }
     }
+
 
     void Receive(Socket client)
     {
@@ -188,7 +206,18 @@ public class SlotSocket
             if (byteSize > 0)
             {
                 //TODO
-                //(END_BYTE) 가 들어왔는지 체크하자. 없다면 덜 받은거임. Stream 에 넣은 뒤 다음에 받고 합쳐야함
+                /*
+                (END_BYTE) 가 들어왔는지 체크하자. 없다면 덜 받은거임. Stream 에 넣은 뒤 다음에 받고 합쳐야함
+                현재 테스트로 CrownGames 서버와 통신하며 패킷 구조는 아래와 같은 json 이다
+                {
+                    cmd:"commandName",
+                    data:
+                    {
+                        value:'abc'
+                    }
+                }
+                cmd 부분을 의 값만을 미리 알아낸 뒤 data 만 파싱하는게 옳지만 일단 byte를 그대로 저장하고 넘어가자
+                */
 
                 int availableSize = byteSize - END_BYTE.Length;
                 byte[] packet = new byte[availableSize];
@@ -196,7 +225,7 @@ public class SlotSocket
 
                 //여기는 메인쓰레드가 아니므로 직접 event 등을 사용하면 callstack 도 꼬이고 유니티에서 짜증난다
                 //완료 된 패킷은 큐에 넣고 꺼내쓰자
-                EnqueuePacket(packet);
+                EnqueueEvent(SocketEvent.EventType.Data, packet);
             }
 
             Receive(client);
@@ -216,14 +245,14 @@ public class SlotSocket
         }
     }
 
-    void EnqueuePacket(byte[] packet)
+    void EnqueueEvent(SocketEvent.EventType type, byte[] packet = null)
     {
-        _packetQueue.Enqueue( packet );
+        _eventQueue.Enqueue(new SocketEvent(type, packet));
     }
 
-    public byte[] NextPacket()
+    public SocketEvent HasEvent()
     {
-        if( _packetQueue.Count > 0 ) return _packetQueue.Dequeue();
+        if (_eventQueue.Count > 0) return _eventQueue.Dequeue();
         else return null;
     }
 
@@ -266,8 +295,10 @@ public class SlotSocket
                 return;
             }
 
-            int bytesSent = client.EndSend(ar);
-            Debug.LogFormat("Sent {0} bytes to server.", bytesSent);
+            client.EndSend(ar);
+
+            // int bytesSent = client.EndSend(ar);
+            // Debug.LogFormat("Sent {0} bytes to server.", bytesSent);
         }
         catch (Exception ex)
         {
@@ -279,7 +310,7 @@ public class SlotSocket
     {
         try
         {
-            if (_socket != null)
+            if (_socket != null && _socket.Connected )
             {
                 _socket.Close();
                 _socket = null;
@@ -287,7 +318,7 @@ public class SlotSocket
 
             State = SocketState.Closed;
 
-            if (OnDisConnected != null) OnDisConnected();
+            EnqueueEvent( SocketEvent.EventType.DisConnect );
         }
         catch (Exception ex)
         {
@@ -305,15 +336,17 @@ public class SlotSocket
         //todo
         //ErrorType 에 맞게 소켓을 닫던지 적절히 조치하자
         Debug.LogFormat("Socket Error! type: {0} message: {1}", type, errorMessage);
+
+        Close( CloseReason.Error );
     }
 
     public bool Connected
     {
         get
         {
-            if( _socket == null ) return false;
-            else if( _socket.Connected == false ) return false;
-            else if( _currentState != SocketState.Connected ) return false;
+            if (_socket == null) return false;
+            else if (_socket.Connected == false) return false;
+            else if (_currentState != SocketState.Connected) return false;
             return true;
         }
 

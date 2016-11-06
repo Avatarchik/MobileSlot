@@ -19,30 +19,27 @@ public class SlotMachine : MonoBehaviour
 
     public SlotUI ui;
 
-    [Header("prefabs")]
-    public Reel ReelPrefab;
+    SlotModel _model;
 
-    protected SlotModel _model;
+    MachineState _currentState;
 
-    protected MachineState _currentState;
+    ReelContainer _reelContainer;
 
-    protected ReelContainer _reelContainer;
-
-    void Start()
+    void Awake()
     {
-        if( SlotConfig.Main == null )
+        _model = SlotModel.Instance;
+        _reelContainer = GetComponentInChildren<ReelContainer>();
+    }
+
+    public void Run()
+    {
+        if (SlotConfig.Main == null)
         {
             Debug.LogError("SlotConfig은 반드시 정의 되어야 합니다");
             return;
         }
 
-        Debug.Log("SlotMachine Start");
-
-        _model = SlotModel.Instance;
-
-        _reelContainer = GetComponentInChildren<ReelContainer>();
-        _reelContainer.CreateReels(ReelPrefab);
-
+        Debug.Log("Run SlotMachine");
         SetState(MachineState.Connecting);
     }
 
@@ -79,16 +76,33 @@ public class SlotMachine : MonoBehaviour
 
     void ConnectServer()
     {
+        GameServerCommunicator.Instance.OnConnect += ConnectComplete;
         GameServerCommunicator.Instance.OnLogin += LoginComplete;
         GameServerCommunicator.Instance.OnSpin += SpinCompelte;
-        GameServerCommunicator.Instance.Connect("182.252.135.251", SlotConfig.Port);
+        GameServerCommunicator.Instance.Connect(SlotConfig.Host, SlotConfig.Port);
+    }
+
+    void ConnectComplete()
+    {
+        GameServerCommunicator.Instance.Login(0, "good");
     }
 
     void LoginComplete(ResDTO.Login dto)
     {
-        Debug.Log("game login complete.");
-
         _model.SetLoginData(dto);
+
+        StartCoroutine(Initialize());
+    }
+
+    IEnumerator Initialize()
+    {
+        //필요한 리소스 Pool 들의 preload 가 완료 되길 기다린다.
+        while (GamePool.Instance.IsReady == false)
+        {
+            yield return null;
+        }
+
+        _reelContainer.Initialize( SlotConfig.Main );
 
         SetState(MachineState.Idle);
 

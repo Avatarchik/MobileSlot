@@ -63,6 +63,7 @@
      <Compile Include="Assets\4_Scripts\lobby\GameTableUI.cs" />
      <Compile Include="Assets\4_Scripts\lobby\Lobby.cs" />
      <Compile Include="Assets\4_Scripts\lobby\LobbyData.cs" />
+     <Compile Include="Assets\4_Scripts\net\CrownGamesSocket.cs" />
      <Compile Include="Assets\4_Scripts\net\GameDTO.cs" />
      <Compile Include="Assets\4_Scripts\net\GameServerCommunicator.cs" />
      <Compile Include="Assets\4_Scripts\net\SlotSocket.cs" />

@@ -24,7 +24,7 @@ public class Reel : MonoBehaviour
         _symbolContainer = transform.Find("symbols");
     }
 
-    IEnumerator Start()
+    public void CreateStartSymbols()
     {
         ReelStrips strips = SlotConfig.Main.Strips;
         int row = SlotConfig.Main.Row;
@@ -36,8 +36,7 @@ public class Reel : MonoBehaviour
             names[r] = name;
         }
 
-        yield return new WaitForSeconds(0.5f);
-        
+
         SetSymbols(names);
     }
 
@@ -50,14 +49,14 @@ public class Reel : MonoBehaviour
             var symbolName = names[i];
             var symbol = GamePool.Instance.SpawnSymbol(symbolName);
 
-            if( symbol == null )
+            if (symbol == null)
             {
-                Debug.Log( symbolName + " was null" );
+                Debug.Log(symbolName + " was null");
                 continue;
             }
 
-            symbol.SetParent( _symbolContainer );
-            symbol.transform.localPosition = new Vector3(0f,ypos,0f);
+            symbol.SetParent(_symbolContainer);
+            symbol.transform.localPosition = new Vector3(0f, ypos, 0f);
             // ypos += symbol.Height;
             ypos -= SlotConfig.Main.SymbolRect.height;
         }
@@ -65,6 +64,6 @@ public class Reel : MonoBehaviour
 
     public void Spin()
     {
-        
+
     }
 }

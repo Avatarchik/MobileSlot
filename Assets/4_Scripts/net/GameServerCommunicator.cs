@@ -25,23 +25,21 @@ public class SendData
 
 public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 {
+    public event Action OnConnect;
     public event Action<ResDTO.Login> OnLogin;
     public event Action<ResDTO.Spin> OnSpin;
 
+    public bool IsLogin { get; private set; }
     SlotSocket _socket;
 
     Coroutine _checkRoutine;
 
-    void Start()
-    {
-        _checkRoutine = StartCoroutine(CheckQueue());
-    }
-
     void createSocket()
     {
-        _socket = new SlotSocket();
-        _socket.OnConnected += ConnectedHandler;
-        _socket.OnDisConnected += DisConnectedHandler;
+        // _socket = new SlotSocket();
+        _socket = new CrownGamesSocket();
+
+        _checkRoutine = StartCoroutine(CheckQueue());
 
         // //병신같은 litjson
         JsonMapper.RegisterImporter<Int64, double>((Int64 value) =>
@@ -50,54 +48,46 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         });
     }
 
-    void DisConnectedHandler()
-    {
-        Debug.Log("Socket Disconnect");
-    }
-
-    public void Connect(string host, int port)
-    {
-        if (_socket == null) createSocket();
-
-        _socket.Connect(host, port);
-    }
-
-    void ConnectedHandler()
-    {
-        Login();
-    }
-
-    void Login()
-    {
-        SendData data = new SendData()
-        {
-            cmd = "login",
-            data = new ReqDTO.Login()
-            {
-                userID = 0,
-                signedRequest = "good"
-            }
-        };
-
-        Send(data);
-    }
-
     IEnumerator CheckQueue()
     {
         WaitForSeconds waitSec = new WaitForSeconds(0.1f);
 
         while (true)
         {
-            if (_socket == null || _socket.Connected == false) continue;
-
-            DataReceived(_socket.NextPacket());
+            if ( _socket != null && _socket.Connected )
+            {
+                SocketEventHandler(_socket.HasEvent());
+            }
+            
             yield return waitSec;
+        }
+    }
+
+
+    void SocketEventHandler(SlotSocket.SocketEvent socketEvent)
+    {
+        if (socketEvent == null) return;
+
+        switch (socketEvent.Type)
+        {
+            case SlotSocket.SocketEvent.EventType.Connect:
+                Debug.Log("Server Connected");
+                if (OnConnect != null) OnConnect();
+                break;
+
+            case SlotSocket.SocketEvent.EventType.Data:
+                DataReceived(socketEvent.Packet);
+                break;
+
+            case SlotSocket.SocketEvent.EventType.DisConnect:
+                Debug.Log("Server DisConnected");
+                break;
         }
     }
 
     void DataReceived(byte[] packet)
     {
-        if (packet == null) return;
+        if (packet == null || packet.Length == 0) return;
 
         var receivedJson = Encoding.ASCII.GetString(packet, 0, packet.Length);
         Debug.Log("< receive\n" + receivedJson);
@@ -110,6 +100,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         switch (cmd)
         {
             case Command.LOGIN:
+                IsLogin = true;
                 var loginData = JsonMapper.ToObject<ResDTO.Login>(jsonData);
                 if (OnLogin != null) OnLogin(loginData);
                 break;
@@ -121,7 +112,35 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         }
     }
 
-    public void Spin(float linebet )
+    public void Connect(string host, int port)
+    {
+        if (_socket == null) createSocket();
+
+        _socket.Connect(host, port);
+    }
+
+    public void Login( int userID, string signedRequest )
+    {
+        if (_socket == null || _socket.Connected == false)
+        {
+            Debug.Log("Sockt에 먼저 연결 되어야 합니다");
+            return;
+        }
+
+        SendData data = new SendData()
+        {
+            cmd = "login",
+            data = new ReqDTO.Login()
+            {
+                userID = userID,
+                signedRequest = signedRequest
+            }
+        };
+
+        Send(data);
+    }
+
+    public void Spin(float linebet)
     {
         SendData data = new SendData()
         {
@@ -148,10 +167,13 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 
     public void Close(SlotSocket.CloseReason reason)
     {
-        if (_socket == null) return;
+        IsLogin = false;
 
-        _socket.Close(reason);
-        _socket = null;
+        if (_socket != null)
+        {
+            _socket.Close(reason);
+            _socket = null;
+        }
     }
 
     override protected void OnDestroy()

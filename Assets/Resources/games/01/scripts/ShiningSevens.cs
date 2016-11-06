@@ -12,19 +12,30 @@ public class ShiningSevens : MonoBehaviour
     public const string BR = "M2";
 
     public const string L0 = "L0";
-    public SlotConfig slotInfo;
+    public SlotConfig config;
 
     SlotMachine _machine;
 
     void Awake()
     {
-        SlotConfig config = new SlotConfig();
+        SlotConfig.ID = 1;
+        SlotConfig.Host = "182.252.135.251";
+        SlotConfig.Port = 13100;
+        SlotConfig.Version = "0.0.1";
+
+
+        //slot setting
+        if( config == null ) config = new SlotConfig();
+
         config.Row = 3;
         config.Column = 3;
         config.SymbolRect = new Rect(0f, 0f, 2.1f, 1.1f);
         config.ReelRect = new Rect(0f, 0f, 2.1f, 2.5f);
         config.ReelGap = 30;
+        config.ReelPrefab = Resources.Load<Reel>("games/" + SlotConfig.ID.ToString("00") + "/prefabs/Reel" );
 
+
+        //strips setting
         ReelStrips reelStrips = new ReelStrips();
         reelStrips.SetStartSymbols(new string[,]
         {
@@ -45,11 +56,15 @@ public class ShiningSevens : MonoBehaviour
         reelStrips.AddSymbolToMap("L0", L0);
         config.Strips = reelStrips;
 
+
+        //apply
         SlotConfig.Main = config;
-        SlotConfig.Port = 13100;
-        SlotConfig.Version = "0.0.1";
 
         _machine = FindObjectOfType<SlotMachine>();
-        // _machine.
+    }
+
+    void Start()
+    {
+        _machine.Run();
     }
 }

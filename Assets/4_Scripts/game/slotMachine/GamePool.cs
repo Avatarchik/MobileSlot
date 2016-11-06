@@ -6,10 +6,16 @@ using hamsterbyte.PoolMaster;
 [RequireComponent(typeof(ObjectPool))]
 public class GamePool : SingletonSimple<GamePool>
 {
+
+    public bool IsReady { get; private set; }
+
     ObjectPool _pool;
     override protected void Awake()
     {
         base.Awake();
+
+
+        _pool = PoolMaster.instance;
 
         //doc
         //doc http://www.hamsterbyte.com/category/support/poolmaster/
@@ -37,8 +43,12 @@ public class GamePool : SingletonSimple<GamePool>
 
     void Start()
     {
-        _pool = PoolMaster.instance;
-        // _pool.Preload("Symbols");
+        _pool.Preload("Symbols");
+    }
+
+    void OnPreloadPool(string poolName)
+    {
+        if (poolName == "Symbols") IsReady = true;
     }
 
     public Symbol SpawnSymbol(string objName)
@@ -54,10 +64,6 @@ public class GamePool : SingletonSimple<GamePool>
         _pool.Despawn(symbol.gameObject);
     }
 
-    void OnPreloadPool(string poolName)
-    {
-        Debug.Log("@@@@@@@@@@@@@@@@@@ OnPreloadPool : " + poolName);
-    }
 
     void OnSpawn(GameObject g)
     {
