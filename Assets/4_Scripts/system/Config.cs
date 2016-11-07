@@ -39,7 +39,7 @@ public class SlotConfig
     public Reel ReelPrefab;
     public Size2D ReelSize;
     public float ReelSpace;
-
+    public int DummySymbolCount;
     public float ReelGap;
 
     public ReelStrips Strips;

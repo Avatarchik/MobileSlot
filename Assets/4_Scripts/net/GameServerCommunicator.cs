@@ -68,7 +68,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         switch (socketEvent.Type)
         {
             case SlotSocket.SocketEvent.EventType.Connect:
-                Debug.Log("Server Connected");
+                Log("Server Connected");
                 if (OnConnect != null) OnConnect();
                 break;
 
@@ -77,7 +77,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
                 break;
 
             case SlotSocket.SocketEvent.EventType.DisConnect:
-                Debug.Log("Server DisConnected");
+                Log("Server DisConnected");
                 break;
         }
     }

@@ -29,21 +29,24 @@ public class ShiningSevens : MonoBehaviour
         config.Row = 3;
         config.Column = 3;
 
+        //symbol
         config.SymbolSize = new Size2D(2.1f,1.1f);
         config.NullSymbolSize = new Size2D(2.1f,0.3f);
 
-        config.ReelSize = new Size2D(2.1f,2.5f);
-        config.ReelGap = 0.3f;
-        config.ReelSpace = 2.56f;
+        //reel
         config.ReelPrefab = Resources.Load<Reel>("games/" + SlotConfig.ID.ToString("00") + "/prefabs/Reel");
+        config.ReelSize = new Size2D(2.1f,2.5f);
+        config.ReelSpace = 2.56f;
+        config.ReelGap = 0.3f;
+        config.DummySymbolCount = 1;
 
         //strips setting
         ReelStrips reelStrips = new ReelStrips();
         reelStrips.SetStartSymbols(new string[,]
         {
-            { SR, L0, SG },
-            { L0, W0, L0 },
-            { SB, L0, SG }
+            { L0, SR, L0, SG, L0 },
+            { BB, L0, W0, L0, BG },
+            { L0, SB, L0, SG, L0 }
         });
         reelStrips.AddSymbolToMap("W0", W0);
 

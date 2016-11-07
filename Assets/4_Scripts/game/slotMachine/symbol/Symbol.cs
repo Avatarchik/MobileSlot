@@ -3,7 +3,10 @@ using System.Collections;
 
 public abstract class Symbol : MonoBehaviour
 {
-    Size2D? _symbolArea;
+    public Size2D Area { get; private set; }
+    public string SymbolName { get; private set; }
+    public bool Initialized { get; private set; }
+
     Transform _tf;
     Transform _content;
 
@@ -13,30 +16,35 @@ public abstract class Symbol : MonoBehaviour
         _content = _tf.Find("content");
     }
 
-    void Start()
+    public void Initialize( string symbolName, Size2D areaSize )
     {
-        _content.localPosition = new Vector3( Width * 0.5f, Height * -0.5f, 0f);
+        Area = areaSize;
+        SymbolName = symbolName;
+        Initialized = true;
     }
 
-    public void SetParent( Transform parent )
+    void Start()
     {
-        _tf.SetParent( parent );
+        _content.localPosition = new Vector3(Width * 0.5f, Height * -0.5f, 0f);
+    }
+
+    public void SetParent(Transform parent)
+    {
+        _tf.SetParent(parent);
     }
 
     public void Clear()
     {
-        GamePool.Instance.DespawnSymbol( this );
+        GamePool.Instance.DespawnSymbol(this);
     }
 
     public float Width
     {
-        get{ return Area.width; }
+        get { return Area.width; }
     }
 
     public float Height
     {
-        get{ return Area.height; }
+        get { return Area.height; }
     }
-
-    public Size2D Area {get;set;}
 }

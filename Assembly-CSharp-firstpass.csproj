@@ -61,13 +61,39 @@
      <Compile Include="Assets\Plugins\lpesign\singleton\Singleton.cs" />
      <Compile Include="Assets\Plugins\lpesign\singleton\SingletonHumble.cs" />
      <Compile Include="Assets\Plugins\lpesign\singleton\SingletonSimple.cs" />
+     <None Include="Assets\Demigiant\DOTweenPro\readme.txt" />
+     <None Include="Assets\Demigiant\DemiLib\Core\DemiLib.xml" />
+     <None Include="Assets\Demigiant\DOTween\DOTween50.xml" />
      <None Include="Assets\Plugins\hamsterbyte\Pool Master\README.txt" />
+     <None Include="Assets\Demigiant\DOTween\DOTween46.xml" />
      <None Include="Assets\Plugins\JsonDotNet\link.xml" />
+     <None Include="Assets\Demigiant\DOTween\readme.txt" />
+     <None Include="Assets\Demigiant\DOTween\DOTween43.xml" />
+     <None Include="Assets\Demigiant\DemiLib\Core\Editor\DemiEditor.xml" />
+     <None Include="Assets\Demigiant\readme_DOTweenPro.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Networking">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
+ </Reference>
+ <Reference Include="DemiLib">
+ <HintPath>E:/lpesign/workspace/unity/unitySlot/MobileSlot/Assets/Demigiant/DemiLib/Core/DemiLib.dll</HintPath>
+ </Reference>
+ <Reference Include="DOTween">
+ <HintPath>E:/lpesign/workspace/unity/unitySlot/MobileSlot/Assets/Demigiant/DOTween/DOTween.dll</HintPath>
+ </Reference>
+ <Reference Include="DOTween43">
+ <HintPath>E:/lpesign/workspace/unity/unitySlot/MobileSlot/Assets/Demigiant/DOTween/DOTween43.dll</HintPath>
+ </Reference>
+ <Reference Include="DOTween46">
+ <HintPath>E:/lpesign/workspace/unity/unitySlot/MobileSlot/Assets/Demigiant/DOTween/DOTween46.dll</HintPath>
+ </Reference>
+ <Reference Include="DOTween50">
+ <HintPath>E:/lpesign/workspace/unity/unitySlot/MobileSlot/Assets/Demigiant/DOTween/DOTween50.dll</HintPath>
+ </Reference>
+ <Reference Include="DOTweenPro">
+ <HintPath>E:/lpesign/workspace/unity/unitySlot/MobileSlot/Assets/Demigiant/DOTweenPro/DOTweenPro.dll</HintPath>
  </Reference>
  <Reference Include="Newtonsoft.Json">
  <HintPath>E:/lpesign/workspace/unity/unitySlot/MobileSlot/Assets/Plugins/JsonDotNet/Assemblies/Standalone/Newtonsoft.Json.dll</HintPath>
