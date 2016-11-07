@@ -18,7 +18,7 @@ public class ResDTO
         public int max_line_bet { get; set; }
 
         public double balance { get; set; }
-        // public float jackpotPool;
+        public double? jackpotPool{get;set;}
     }
 
     public class Spin : DTO

@@ -3,7 +3,8 @@ using System.Collections;
 
 using System;
 using System.Text;
-using LitJson;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using lpesign;
 
 // return "lbgames.sloticagames.com";
@@ -25,6 +26,8 @@ public class SendData
 
 public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 {
+    static public bool ENABLE_LOG = true;
+
     public event Action OnConnect;
     public event Action<ResDTO.Login> OnLogin;
     public event Action<ResDTO.Spin> OnSpin;
@@ -40,12 +43,6 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         _socket = new CrownGamesSocket();
 
         _checkRoutine = StartCoroutine(CheckQueue());
-
-        // //병신같은 litjson
-        JsonMapper.RegisterImporter<Int64, double>((Int64 value) =>
-        {
-            return System.Convert.ToDouble(value);
-        });
     }
 
     IEnumerator CheckQueue()
@@ -54,11 +51,11 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 
         while (true)
         {
-            if ( _socket != null && _socket.Connected )
+            if (_socket != null && _socket.Connected)
             {
                 SocketEventHandler(_socket.HasEvent());
             }
-            
+
             yield return waitSec;
         }
     }
@@ -90,23 +87,26 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         if (packet == null || packet.Length == 0) return;
 
         var receivedJson = Encoding.ASCII.GetString(packet, 0, packet.Length);
-        Debug.Log("< receive\n" + receivedJson);
+        var jobj = JObject.Parse(receivedJson);
 
-        JsonData obj = JsonMapper.ToObject(receivedJson);
+        if( ENABLE_LOG ) Log( "< receive\n" + jobj.ToString());
 
-        string cmd = (string)obj["cmd"];
-        string jsonData = obj["data"].ToJson();
+        var cmd = jobj["cmd"].Value<string>();
+        var data = jobj["data"];
 
         switch (cmd)
         {
             case Command.LOGIN:
                 IsLogin = true;
-                var loginData = JsonMapper.ToObject<ResDTO.Login>(jsonData);
+
+                var loginData = data.ToObject<ResDTO.Login>();
+
                 if (OnLogin != null) OnLogin(loginData);
                 break;
 
             case Command.SPIN:
-                var spinData = JsonMapper.ToObject<ResDTO.Spin>(jsonData);
+
+                var spinData = data.ToObject<ResDTO.Spin>();
                 if (OnSpin != null) OnSpin(spinData);
                 break;
         }
@@ -119,11 +119,11 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         _socket.Connect(host, port);
     }
 
-    public void Login( int userID, string signedRequest )
+    public void Login(int userID, string signedRequest)
     {
         if (_socket == null || _socket.Connected == false)
         {
-            Debug.Log("Sockt에 먼저 연결 되어야 합니다");
+            Log("Sockt에 먼저 연결 되어야 합니다");
             return;
         }
 
@@ -156,12 +156,13 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 
     void Send(SendData data)
     {
-        Send(JsonMapper.ToJson(data));
+        Send( JsonConvert.SerializeObject( data, Formatting.Indented ));
     }
 
     void Send(string data)
     {
-        Debug.Log("send >\n" + data);
+        if( ENABLE_LOG ) Log("send >\n" + data);
+        
         _socket.Send(data);
     }
 
@@ -181,6 +182,11 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         base.OnDestroy();
         StopCoroutine(_checkRoutine);
         Close(SlotSocket.CloseReason.Destory);
+    }
+
+    void Log( object message )
+    {
+        Debug.Log("[ServerCommunicator] " + message );
     }
 
     void OnApplicationQuit()

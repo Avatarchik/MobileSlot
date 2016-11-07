@@ -3,8 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-using LitJson;
-
 public class SlotMachine : MonoBehaviour
 {
     public enum MachineState
@@ -37,11 +35,12 @@ public class SlotMachine : MonoBehaviour
     {
         if (Config == null)
         {
-            Debug.LogError("SlotConfig은 반드시 정의 되어야 합니다");
+            LogError("SlotConfig은 반드시 정의 되어야 합니다");
             return;
         }
 
-        Debug.Log("Run SlotMachine");
+        Log("Run SlotMachine");
+
         SetState(MachineState.Connecting);
     }
 
@@ -49,7 +48,8 @@ public class SlotMachine : MonoBehaviour
     {
         if (_currentState == next) return;
 
-        Debug.LogFormat("<STATE CHANGED>.{0} > {1}", _currentState, next);
+        Log( string.Format( "STATE CHANGED. {0} >>> {1}", _currentState, next) );
+
         _currentState = next;
 
         switch (_currentState)
@@ -104,6 +104,8 @@ public class SlotMachine : MonoBehaviour
             yield return null;
         }
 
+        Log("Initialize");
+
         _reelContainer.Initialize( Config );
 
         SetState(MachineState.Idle);
@@ -148,7 +150,7 @@ public class SlotMachine : MonoBehaviour
 
     void OpenCoinShop()
     {
-        Debug.Log("돈없어. 그지");
+        Log("돈없어. 그지");
     }
 
     void Spin()
@@ -176,5 +178,15 @@ public class SlotMachine : MonoBehaviour
     void ShowResult()
     {
         SetState(MachineState.Idle);
+    }
+
+    void Log( object message )
+    {
+        Debug.Log( "[SlotMachine] " + message );
+    }
+
+    void LogError( object message )
+    {
+        Debug.LogError("[SlotMachine] " + message );
     }
 }
