@@ -11,7 +11,7 @@ public class Reel : MonoBehaviour
     [SerializeField]
     int _spiningSymboslCount = 5;
     [SerializeField]
-    int _spinCountThreshold = 10;
+    int _spinCountThreshold = 5;
     int _spinCountLimit = 20;
     [SerializeField]
     float _speedPerSecond = 15f;
@@ -130,8 +130,6 @@ public class Reel : MonoBehaviour
         Symbol topSymbol = _symbols[0];
         bool nullOrder = topSymbol is NullSymbol == false;
 
-        List<Symbol> addedSymbols = new List<Symbol>();
-
         int count = _spiningSymboslCount;
 
         while (count-- > 0)
@@ -211,7 +209,7 @@ public class Reel : MonoBehaviour
     {
         Symbol symbol = GamePool.Instance.SpawnSymbol(symbolName);
 
-        if (symbol.Initialized == false)
+        if (symbol.IsInitialized == false)
         {
             symbol.Initialize(symbolName, symbol is NullSymbol ? _config.NullSymbolSize : _config.SymbolSize);
         }
