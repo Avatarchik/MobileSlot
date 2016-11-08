@@ -30,34 +30,18 @@ public class ShiningSevens : MonoBehaviour
         config.Column = 3;
 
         //symbol
-        config.SymbolSize = new Size2D(2.1f, 1.1f);
-        config.NullSymbolSize = new Size2D(2.1f, 0.3f);
+        config.SymbolSize = new Size2D(2.1f,1.1f);
+        config.NullSymbolSize = new Size2D(2.1f,0.3f);
 
         //reel
         config.ReelPrefab = Resources.Load<Reel>("games/" + SlotConfig.ID.ToString("00") + "/prefabs/Reel");
-        config.ReelSize = new Size2D(2.1f, 2.5f);
+        config.ReelSize = new Size2D(2.1f,2.5f);
         config.ReelSpace = 2.56f;
         config.ReelGap = 0.3f;
         config.DummySymbolCount = 1;
 
-        //symbolNameMap
-
-        SymbolNameMap nameMap = new SymbolNameMap();
-        nameMap.AddSymbolToMap("W0", W0);
-
-        nameMap.AddSymbolToMap("H0", SR);
-        nameMap.AddSymbolToMap("H1", SG);
-        nameMap.AddSymbolToMap("H2", SB);
-
-        nameMap.AddSymbolToMap("M0", BB);
-        nameMap.AddSymbolToMap("M1", BG);
-        nameMap.AddSymbolToMap("M2", BR);
-
-        nameMap.AddSymbolToMap("L0", L0);
-        config.NameMap = nameMap;
-
         //strips setting
-        ReelStrip reelStrips = new ReelStrip();
+        ReelStrips reelStrips = new ReelStrips();
         reelStrips.SetStartSymbols(new string[,]
         {
             { L0, SR, L0, SG, L0 },
@@ -72,6 +56,17 @@ public class ShiningSevens : MonoBehaviour
             {SG,BG,W0,BR,SB,SR,SB,BR,SB,SG,BR,BG,W0,BR,BR}
         });
 
+        reelStrips.AddSymbolToMap("W0", W0);
+
+        reelStrips.AddSymbolToMap("H0", SR);
+        reelStrips.AddSymbolToMap("H1", SG);
+        reelStrips.AddSymbolToMap("H2", SB);
+
+        reelStrips.AddSymbolToMap("M0", BB);
+        reelStrips.AddSymbolToMap("M1", BG);
+        reelStrips.AddSymbolToMap("M2", BR);
+
+        reelStrips.AddSymbolToMap("L0", L0);
         config.Strips = reelStrips;
 
         _machine = FindObjectOfType<SlotMachine>();
