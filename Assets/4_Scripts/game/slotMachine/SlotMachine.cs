@@ -17,7 +17,7 @@ public class SlotMachine : MonoBehaviour
 
     public SlotUI ui;
 
-    public SlotConfig Config{get;set;}
+    public SlotConfig Config { get; set; }
 
     SlotModel _model;
 
@@ -28,7 +28,13 @@ public class SlotMachine : MonoBehaviour
     void Awake()
     {
         _model = SlotModel.Instance;
+
         _reelContainer = GetComponentInChildren<ReelContainer>();
+        _reelContainer.OnReelStopComplete += ReelStopComplete;
+
+        GameServerCommunicator.Instance.OnConnect += ConnectComplete;
+        GameServerCommunicator.Instance.OnLogin += LoginComplete;
+        GameServerCommunicator.Instance.OnSpin += SpinComplete;
     }
 
     public void Run()
@@ -48,7 +54,7 @@ public class SlotMachine : MonoBehaviour
     {
         if (_currentState == next) return;
 
-        Log( string.Format( "STATE CHANGED. {0} >>> {1}", _currentState, next) );
+        Log(string.Format("STATE CHANGED. {0} >>> {1}", _currentState, next));
 
         _currentState = next;
 
@@ -78,9 +84,6 @@ public class SlotMachine : MonoBehaviour
 
     void ConnectServer()
     {
-        GameServerCommunicator.Instance.OnConnect += ConnectComplete;
-        GameServerCommunicator.Instance.OnLogin += LoginComplete;
-        GameServerCommunicator.Instance.OnSpin += SpinCompelte;
         GameServerCommunicator.Instance.Connect(SlotConfig.Host, SlotConfig.Port);
     }
 
@@ -106,7 +109,7 @@ public class SlotMachine : MonoBehaviour
 
         Log("Initialize");
 
-        _reelContainer.Initialize( Config );
+        _reelContainer.Initialize(Config);
 
         SetState(MachineState.Idle);
 
@@ -157,12 +160,10 @@ public class SlotMachine : MonoBehaviour
     {
         //더미 심볼 돌리자
         _reelContainer.Spin();
-        //GameServerCommunicator.Instance.Spin(10000);
-
-        SetState(MachineState.Idle);
+        GameServerCommunicator.Instance.Spin(10000);
     }
 
-    void SpinCompelte(ResDTO.Spin dto)
+    void SpinComplete(ResDTO.Spin dto)
     {
         _model.SetSpinData(dto);
 
@@ -172,8 +173,11 @@ public class SlotMachine : MonoBehaviour
     void ReceivedSymbol()
     {
         //결과 심볼 넣어서 스핀 마무리
+        _reelContainer.ReceivedSymbol();
+    }
 
-        //모든 릴이 멈추면
+    void ReelStopComplete()
+    {
         SetState(MachineState.ShowResult);
     }
 
@@ -182,13 +186,13 @@ public class SlotMachine : MonoBehaviour
         SetState(MachineState.Idle);
     }
 
-    void Log( object message )
+    void Log(object message)
     {
-        Debug.Log( "[SlotMachine] " + message );
+        Debug.Log("[SlotMachine] " + message);
     }
 
-    void LogError( object message )
+    void LogError(object message)
     {
-        Debug.LogError("[SlotMachine] " + message );
+        Debug.LogError("[SlotMachine] " + message);
     }
 }

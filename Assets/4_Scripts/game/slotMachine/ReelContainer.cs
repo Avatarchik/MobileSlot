@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
 public class ReelContainer : MonoBehaviour
 {
+    public event Action OnReelStopComplete;
+
     SlotConfig _relativeConfig;
 
     List<Reel> _reels;
@@ -31,7 +34,7 @@ public class ReelContainer : MonoBehaviour
         CreateReels();
     }
 
-    public void CreateReels()
+    void CreateReels()
     {
         if( _reels != null ) return;
 
@@ -57,5 +60,20 @@ public class ReelContainer : MonoBehaviour
         {
             _reels[i].Spin();
         }
+    }
+
+    public void ReceivedSymbol()
+    {
+        for( var i = 0; i < _relativeConfig.Column; ++i )
+        {
+            _reels[i].ReceivedSymbol();
+        }
+
+        Invoke("ReelAllCompleted",2f);
+    }
+
+    void ReelAllCompleted()
+    {
+        if( OnReelStopComplete != null ) OnReelStopComplete();
     }
 }

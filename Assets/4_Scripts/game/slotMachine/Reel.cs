@@ -11,7 +11,8 @@ public class Reel : MonoBehaviour
     [SerializeField]
     int _spiningSymboslCount = 5;
     [SerializeField]
-    int _spinLimit = 20;
+    int _spinCountThreshold = 10;
+    int _spinCountLimit = 20;
     [SerializeField]
     float _speedPerSecond = 15f;
 
@@ -21,8 +22,9 @@ public class Reel : MonoBehaviour
     Transform _symbolContainer;
     ReelStrip _currentStrip;
     Tweener _spinTween;
-    int _remainSpinCount;
-
+    int _spinCount;
+    float _spinDis;
+    bool _isReceiveData;
     void Awake()
     {
         _symbols = new List<Symbol>();
@@ -99,25 +101,31 @@ public class Reel : MonoBehaviour
     {
         //Log("Spin");
 
-        _remainSpinCount = _spinLimit;
-
+        _spinCount = 0;
         _currentStrip = _config.NormalStrip;
+        _isReceiveData = false;
 
         SpinReel();
     }
 
-    void SpinReel()
+    public void ReceivedSymbol()
     {
-        AddSpiningSymbols();
-
-        TweenLinear();
+        _isReceiveData = true;
     }
 
-    float _spiningDistance;
+    void SpinReel()
+    {
+        ++_spinCount;
+
+        AddSpiningSymbols();
+
+        if( _spinCount == 1 ) TweenFirst();
+        else TweenLinear();
+    }
 
     void AddSpiningSymbols()
     {
-        _spiningDistance = 0;
+        _spinDis = 0;
 
         Symbol topSymbol = _symbols[0];
         bool nullOrder = topSymbol is NullSymbol == false;
@@ -136,7 +144,7 @@ public class Reel : MonoBehaviour
             _symbols.Insert(0, symbol);
             topSymbol = symbol;
 
-            _spiningDistance += h;
+            _spinDis += h;
 
             nullOrder = !nullOrder;
         }
@@ -154,12 +162,17 @@ public class Reel : MonoBehaviour
         }
     }
 
+    void TweenFirst()
+    {
+        TweenLinear();
+    }
+
     void TweenLinear()
     {
         //Log("SpinReel");
 
-        var duration = _spiningDistance / _speedPerSecond;
-        var tgPos = _symbolContainer.position - new Vector3(0f, _spiningDistance, 0f);
+        var duration = _spinDis / _speedPerSecond;
+        var tgPos = _symbolContainer.position - new Vector3(0f, _spinDis, 0f);
         _spinTween = _symbolContainer.DOMove(tgPos, duration);
         _spinTween.SetEase(Ease.Linear);
         _spinTween.OnComplete(TweenLinearComplete);
@@ -168,14 +181,30 @@ public class Reel : MonoBehaviour
     void TweenLinearComplete()
     {
         RemoveSpiningSymbols();
-        --_remainSpinCount;
-        if (_remainSpinCount > 0) SpinReel();
-        else SpinComplete();
+        
+        if( _spinCount == _spinCountLimit )
+        {
+            DataUdigatni();
+        }
+        else if( _spinCount > _spinCountThreshold && _isReceiveData )
+        {
+            FinishSpinReel();
+        }
+        else
+        {
+            SpinReel();
+        }
     }
 
-    void SpinComplete()
+    void DataUdigatni()
     {
-        Log("SpinComplete");
+        //데이터 어디갔니?
+        //뭔가 문제가 일어남. 설정한 최대 스핀이 돌동안 서버로부터 응답이 안왔음
+    }
+
+    void FinishSpinReel()
+    {
+        Log("FinishSpinReel");
     }
 
     Symbol GetSymbol(string symbolName)
