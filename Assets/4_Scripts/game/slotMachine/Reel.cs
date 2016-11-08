@@ -41,7 +41,7 @@ public class Reel : MonoBehaviour
 
         for (var i = 0; i < count; ++i)
         {
-            var sname = _config.Strips.GetStartSymbolAt(_column, i);
+            var sname = _config.GetStartSymbolAt(_column, i);
             var symbol = GetSymbol(sname);
 
             if (symbol == null)
@@ -140,7 +140,7 @@ public class Reel : MonoBehaviour
         string addedSymbolName;
         if( firstSymbol is NullSymbol )
         {
-            addedSymbolName = _config.Strips.GetRandom(_column);
+            addedSymbolName = _config.NormalStrip.GetRandom(_column);
         }
         else
         {
