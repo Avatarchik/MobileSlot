@@ -30,7 +30,7 @@ public class SlotConfig
     public int Row;
     public int Column;
 
-    
+
     public Size2D SymbolSize;
     public Size2D NullSymbolSize;
 
@@ -42,23 +42,19 @@ public class SlotConfig
     public int DummySymbolCount;
     public float ReelGap;
 
-    public ReelStrips Strips;
+    public SymbolNameMap NameMap;
+
+    public ReelStrip Strips;
 }
 
-public class ReelStrips
+public class SymbolNameMap
 {
     Dictionary<string, string> _symbolmap;
-
-    string[,] _startSymbolNames;
-    string[,] _normalStrips;
-
-
-    public ReelStrips()
+    public SymbolNameMap()
     {
 
     }
 
-    #region SymbolNameMap
     public void AddSymbolToMap(string serverName, string clientName)
     {
         if (_symbolmap == null) _symbolmap = new Dictionary<string, string>();
@@ -71,11 +67,17 @@ public class ReelStrips
         if (_symbolmap.ContainsKey(serverName)) return _symbolmap[serverName];
         else return string.Empty;
     }
-    #endregion
+}
 
-    public void SetNormalStrips( string[,] normal )
+public class ReelStrip
+{
+    string[,] _startSymbolNames;
+    string[,] _normalStrips;
+    string[,] _freeStrips;
+
+    public ReelStrip()
     {
-        _normalStrips = normal;
+
     }
 
     #region StartSymbol
@@ -90,12 +92,21 @@ public class ReelStrips
     }
     #endregion
 
-    
+    #region Strips
+    public void SetNormalStrips(string[,] normal)
+    {
+        _normalStrips = normal;
+    }
+    public void SetFreeStrips(string[,] normal)
+    {
+        _normalStrips = normal;
+    }
+    #endregion
 
-    public string GetRandom( int column )
+    public string GetRandom(int column)
     {
         int leng = _normalStrips.GetLength(1);
-        int randomIndex = UnityEngine.Random.Range(0,leng);
-        return _normalStrips[ column,randomIndex];
+        int randomIndex = UnityEngine.Random.Range(0, leng);
+        return _normalStrips[column, randomIndex];
     }
 }
