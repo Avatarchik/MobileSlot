@@ -2,22 +2,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using System.Linq;
 using DG.Tweening;
 
 public class Reel : MonoBehaviour
 {
-    static private bool USE_LOG;
-
     [SerializeField]
     GameObject _expectObject;
+    [SerializeField]
+    int _spiningSymboslCount = 5;
+    [SerializeField]
+    int _spinLimit = 20;
+    [SerializeField]
+    float _speedPerSecond = 15f;
 
     int _column;
-
     SlotConfig _config;
-
     List<Symbol> _symbols;
     Transform _symbolContainer;
+    ReelStrip _currentStrip;
+    Tweener _spinTween;
+    int _remainSpinCount;
 
     void Awake()
     {
@@ -91,80 +95,87 @@ public class Reel : MonoBehaviour
         }
     }
 
-    Tweener _spinTween;
-    int _spinCount;
-
     public void Spin()
     {
         //Log("Spin");
 
-        _spinCount = 20;
+        _remainSpinCount = _spinLimit;
 
-        SpinLinear();
+        _currentStrip = _config.NormalStrip;
+
+        SpinReel();
     }
 
-    void SpinLinear()
+    void SpinReel()
+    {
+        AddSpiningSymbols();
+
+        TweenLinear();
+    }
+
+    float _spiningDistance;
+
+    void AddSpiningSymbols()
+    {
+        _spiningDistance = 0;
+
+        Symbol topSymbol = _symbols[0];
+        bool nullOrder = topSymbol is NullSymbol == false;
+
+        List<Symbol> addedSymbols = new List<Symbol>();
+
+        int count = _spiningSymboslCount;
+
+        while (count-- > 0)
+        {
+            var symbolName = nullOrder ? NullSymbol.EMPTY : _currentStrip.GetRandom(_column);
+            var symbol = GetSymbol(symbolName);
+            var h = symbol.Height;
+
+            symbol.SetParent(_symbolContainer, topSymbol.Y + h, true);
+            _symbols.Insert(0, symbol);
+            topSymbol = symbol;
+
+            _spiningDistance += h;
+
+            nullOrder = !nullOrder;
+        }
+    }
+
+    void RemoveSpiningSymbols()
+    {
+        int count = _spiningSymboslCount;
+        while (count-- > 0)
+        {
+            var idx = _symbols.Count - 1;
+            var symbol = _symbols[idx];
+            _symbols.RemoveAt(idx);
+            GamePool.Instance.DespawnSymbol(symbol);
+        }
+    }
+
+    void TweenLinear()
     {
         //Log("SpinReel");
-        AddSpiningSymbolAtFirst();
 
-        Symbol lastSymbol = _symbols.Last();
-        var speedPerSecond = 15f;
-        var dis = lastSymbol.Height;
-        var duration = dis / speedPerSecond;
-        var tgPos = _symbolContainer.position + Vector3.down * dis;
+        var duration = _spiningDistance / _speedPerSecond;
+        var tgPos = _symbolContainer.position - new Vector3(0f, _spiningDistance, 0f);
         _spinTween = _symbolContainer.DOMove(tgPos, duration);
         _spinTween.SetEase(Ease.Linear);
-        _spinTween.OnComplete(SpinTweenComplte);
+        _spinTween.OnComplete(TweenLinearComplete);
     }
 
-    void SpinTweenComplte()
+    void TweenLinearComplete()
     {
-        //Log("SpinEnd");
-
-        RemoveLastSpiningSymbol();
-        --_spinCount;
-        if (_spinCount > 0) SpinLinear();
+        RemoveSpiningSymbols();
+        --_remainSpinCount;
+        if (_remainSpinCount > 0) SpinReel();
         else SpinComplete();
     }
 
     void SpinComplete()
     {
-        //Log("SpinComplete");
-    }
-
-    void AddSpiningSymbolAtFirst()
-    {
-        Symbol firstSymbol = _symbols.First();
-
-        string addedSymbolName;
-        if( firstSymbol is NullSymbol )
-        {
-            addedSymbolName = _config.NormalStrip.GetRandom(_column);
-        }
-        else
-        {
-            addedSymbolName = NullSymbol.EMPTY;
-        }
-
-        Symbol addedSymbol = GetSymbol(addedSymbolName);
-
-        var ypos = firstSymbol.Y + addedSymbol.Height;
-        addedSymbol.SetParent(_symbolContainer, ypos, true);
-
-        // Log("before > " + GetAddedSymbolNames());
-        _symbols.Insert(0, addedSymbol);
-        // Log("after > " + GetAddedSymbolNames());
-    }
-
-    void RemoveLastSpiningSymbol()
-    {
-        Symbol lastSymbol = _symbols.Last();
-
-        //Log("remove symbolname: " + lastSymbol.SymbolName);
-
-        _symbols.RemoveAt( _symbols.Count-1 );
-        GamePool.Instance.DespawnSymbol( lastSymbol );
+        Log("SpinComplete");
     }
 
     Symbol GetSymbol(string symbolName)
@@ -210,6 +221,6 @@ public class Reel : MonoBehaviour
 
     void LogError(object message)
     {
-        Debug.LogError("[Reel" + _column + "]" + message.ToString());
+        Debug.LogError("[Reel_" + _column + "]" + message.ToString());
     }
 }
