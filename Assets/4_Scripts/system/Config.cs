@@ -44,7 +44,33 @@ public class SlotConfig
 
     public SymbolNameMap NameMap;
 
-    public ReelStrip Strips;
+    //startSymbols
+    string[,] _startSymbolNames;
+    public void SetStartSymbols(string[,] startSymbolNames)
+    {
+        _startSymbolNames = startSymbolNames;
+    }
+
+    public string GetStartSymbolAt(int col, int row)
+    {
+        return _startSymbolNames[col, row];
+    }
+
+    //reelStrip
+    ReelStrip _normalStrip;
+    ReelStrip _freeStrip;
+
+    public ReelStrip NormalStrip
+    {
+        set { _normalStrip = value; }
+        get { return _normalStrip; }
+    }
+
+    public ReelStrip FreeStrip
+    {
+        set { _freeStrip = value; }
+        get { return _freeStrip ?? _normalStrip; }
+    }
 }
 
 public class SymbolNameMap
@@ -71,42 +97,18 @@ public class SymbolNameMap
 
 public class ReelStrip
 {
-    string[,] _startSymbolNames;
-    string[,] _normalStrips;
-    string[,] _freeStrips;
 
-    public ReelStrip()
-    {
+    string[,] _strip;
 
-    }
-
-    #region StartSymbol
-    public void SetStartSymbols(string[,] startSymbolNames)
+    public ReelStrip(string[,] strip)
     {
-        _startSymbolNames = startSymbolNames;
+        _strip = strip;
     }
-
-    public string GetStartSymbolAt(int col, int row)
-    {
-        return _startSymbolNames[col, row];
-    }
-    #endregion
-
-    #region Strips
-    public void SetNormalStrips(string[,] normal)
-    {
-        _normalStrips = normal;
-    }
-    public void SetFreeStrips(string[,] normal)
-    {
-        _normalStrips = normal;
-    }
-    #endregion
 
     public string GetRandom(int column)
     {
-        int leng = _normalStrips.GetLength(1);
+        int leng = _strip.GetLength(1);
         int randomIndex = UnityEngine.Random.Range(0, leng);
-        return _normalStrips[column, randomIndex];
+        return _strip[column, randomIndex];
     }
 }
