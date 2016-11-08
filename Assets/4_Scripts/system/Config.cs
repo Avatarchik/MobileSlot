@@ -3,6 +3,28 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+public class Layers
+{
+    public class Physics
+    {
+        public const string DEFAULT = "Default";
+        public const string UI = "UI";
+        public const string LOADING = "Loading";
+    }
+
+    public class Sorting
+    {
+        public const string BACKGROUND = "GameBackground";
+        public const string REEL = "Reel";
+        public const string SYMBOL = "Symbol";
+        public const string DEFAULT = "Default";
+        public const string FOREGROUND = "GameForeGround";
+        public const string WIN = "WinLayer";
+        public const string TOPBOARD = "Topboard";
+        public const string UI = "UI";
+    }
+}
+
 public class GlobalConfig
 {
     static public int TargetFrameRate = 60;
