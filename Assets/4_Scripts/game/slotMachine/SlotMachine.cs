@@ -157,7 +157,9 @@ public class SlotMachine : MonoBehaviour
     {
         //더미 심볼 돌리자
         _reelContainer.Spin();
-        GameServerCommunicator.Instance.Spin(10000);
+        //GameServerCommunicator.Instance.Spin(10000);
+
+        SetState(MachineState.Idle);
     }
 
     void SpinCompelte(ResDTO.Spin dto)

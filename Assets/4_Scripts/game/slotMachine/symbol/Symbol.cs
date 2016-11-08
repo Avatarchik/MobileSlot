@@ -16,7 +16,7 @@ public abstract class Symbol : MonoBehaviour
         _content = _tf.Find("content");
     }
 
-    public void Initialize( string symbolName, Size2D areaSize )
+    public void Initialize(string symbolName, Size2D areaSize)
     {
         Area = areaSize;
         SymbolName = symbolName;
@@ -28,9 +28,11 @@ public abstract class Symbol : MonoBehaviour
         _content.localPosition = new Vector3(Width * 0.5f, Height * -0.5f, 0f);
     }
 
-    public void SetParent(Transform parent)
+    public void SetParent(Transform parent, float ypos, bool asFirst = false )
     {
         _tf.SetParent(parent);
+        _tf.localPosition = new Vector3(0f, ypos, 0f);
+        if( asFirst ) _tf.SetAsFirstSibling();
     }
 
     public void Clear()
@@ -46,5 +48,10 @@ public abstract class Symbol : MonoBehaviour
     public float Height
     {
         get { return Area.height; }
+    }
+
+    public float Y
+    {
+        get { return _tf.localPosition.y; }
     }
 }

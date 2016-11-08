@@ -1,10 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
+using System.Linq;
 using DG.Tweening;
 
 public class Reel : MonoBehaviour
 {
+    static private bool USE_LOG;
+
     [SerializeField]
     GameObject _expectObject;
 
@@ -52,6 +56,117 @@ public class Reel : MonoBehaviour
         SetStartSymbols(symbols);
     }
 
+    public void SetStartSymbols(Symbol[] symbols)
+    {
+        _symbolContainer.localPosition = Vector3.zero;
+
+        //최종 결과로 3개의 심볼이 릴에 보여진다면 (예를들어 5 by 3 Slot) 3개의 심볼 위아래로 최소 1 이상의 여유 심볼이 필요하다.
+        //전달 받은 symbosl 파라메터는 여유 심볼이 포함되어 있는 배열이므로 결과 심볼이 릴에 제대로 보이게 시작 위치를 조정해야한다.
+        //각 심볼은 크기가 다를 수 있으니 ( NullSymbol 의 경우 높이가 0이거나 타 심볼의 반이하일 수 있다 ) 실제 심볼 크기를 계산한다.
+
+        Symbol firstSymbol = symbols[_config.DummySymbolCount];
+
+        var ypos = 0f;
+
+        for (var i = 0; i < _config.DummySymbolCount; ++i)
+        {
+            ypos += symbols[i].Height;
+
+            //첫번째 심볼이 Null이라면 위치 보정이 필요하다
+            if (firstSymbol is NullSymbol)
+            {
+                float nullSymbolOffesetY = (_config.ReelSize.height - (_config.SymbolSize.height + _config.NullSymbolSize.height * 2)) * 0.5f;
+                ypos -= nullSymbolOffesetY;
+            }
+        }
+
+        for (var i = 0; i < symbols.Length; ++i)
+        {
+            var symbol = symbols[i];
+
+            symbol.SetParent(_symbolContainer, ypos);
+            _symbols.Add(symbol);
+
+            ypos -= symbol.Height;
+        }
+    }
+
+    Tweener _spinTween;
+    int _spinCount;
+
+    public void Spin()
+    {
+        //Log("Spin");
+
+        _spinCount = 20;
+
+        SpinLinear();
+    }
+
+    void SpinLinear()
+    {
+        //Log("SpinReel");
+        AddSpiningSymbolAtFirst();
+
+        Symbol lastSymbol = _symbols.Last();
+        var speedPerSecond = 15f;
+        var dis = lastSymbol.Height;
+        var duration = dis / speedPerSecond;
+        var tgPos = _symbolContainer.position + Vector3.down * dis;
+        _spinTween = _symbolContainer.DOMove(tgPos, duration);
+        _spinTween.SetEase(Ease.Linear);
+        _spinTween.OnComplete(SpinTweenComplte);
+    }
+
+    void SpinTweenComplte()
+    {
+        //Log("SpinEnd");
+
+        RemoveLastSpiningSymbol();
+        --_spinCount;
+        if (_spinCount > 0) SpinLinear();
+        else SpinComplete();
+    }
+
+    void SpinComplete()
+    {
+        //Log("SpinComplete");
+    }
+
+    void AddSpiningSymbolAtFirst()
+    {
+        Symbol firstSymbol = _symbols.First();
+
+        string addedSymbolName;
+        if( firstSymbol is NullSymbol )
+        {
+            addedSymbolName = _config.Strips.GetRandom(_column);
+        }
+        else
+        {
+            addedSymbolName = NullSymbol.EMPTY;
+        }
+
+        Symbol addedSymbol = GetSymbol(addedSymbolName);
+
+        var ypos = firstSymbol.Y + addedSymbol.Height;
+        addedSymbol.SetParent(_symbolContainer, ypos, true);
+
+        // Log("before > " + GetAddedSymbolNames());
+        _symbols.Insert(0, addedSymbol);
+        // Log("after > " + GetAddedSymbolNames());
+    }
+
+    void RemoveLastSpiningSymbol()
+    {
+        Symbol lastSymbol = _symbols.Last();
+
+        //Log("remove symbolname: " + lastSymbol.SymbolName);
+
+        _symbols.RemoveAt( _symbols.Count-1 );
+        GamePool.Instance.DespawnSymbol( lastSymbol );
+    }
+
     Symbol GetSymbol(string symbolName)
     {
         Symbol symbol = GamePool.Instance.SpawnSymbol(symbolName);
@@ -64,70 +179,17 @@ public class Reel : MonoBehaviour
         return symbol;
     }
 
-    public void SetStartSymbols(Symbol[] symbols)
+    string GetAddedSymbolNames()
     {
-        _symbolContainer.localPosition = Vector3.zero;
-
-        //null인경우
-        //0.55, -0.55,-0.85,-1.95, -2.25
-        //0.3, 0,-1.1.-1.4,-2.5
-
-        float ypos = 0;
-
-        //dubbyCount 만큼 심볼크기를 계산해 시작위치를 설정한다.
-
-        for (var i = 0; i < _config.DummySymbolCount; ++i)
+        StringBuilder sb = new StringBuilder();
+        int count = _symbols.Count;
+        for (var i = 0; i < count; ++i)
         {
-            ypos += symbols[i].Height;
-
-            // if (symbols[0] is NullSymbol)
-            // {
-            //     // ypos = -(_relativeConfig.SymbolSize.height + _relativeConfig.NullSymbolSize.height )* 0.5f;
-            //     ypos = -(_config.ReelSize.height - (_config.SymbolSize.height + _config.NullSymbolSize.height * 2)) * 0.5f;
-            // }
+            if (i > 0) sb.Append(",");
+            sb.Append(_symbols[i].SymbolName);
         }
 
-        for (var i = 0; i < symbols.Length; ++i)
-        {
-            var symbol = symbols[i];
-
-            symbol.SetParent(_symbolContainer);
-            symbol.transform.localPosition = new Vector3(0f, ypos, 0f);
-
-            _symbols.Add(symbol);
-
-            ypos -= symbol.Height;
-        }
-    }
-
-
-    Tweener _spinTween;
-    int _spinCount;
-
-    public void Spin()
-    {
-        Log("Spin");
-
-        _spinCount = 5;
-
-        SpinReel();
-    }
-
-    void SpinReel()
-    {
-        var duration = 0.5f;
-        var tgPos = _symbolContainer.position + Vector3.down * 1.5f;
-        _spinTween = _symbolContainer.DOMove(tgPos, duration);
-        _spinTween.SetEase(Ease.Linear);
-        _spinTween.OnComplete(SpinEnd);
-    }
-
-    void SpinEnd()
-    {
-        --_spinCount;
-
-        if (_spinCount > 0) SpinReel();
-        else Log("SpinEnd");
+        return sb.ToString(); ;
     }
 
     public int Column
@@ -142,6 +204,7 @@ public class Reel : MonoBehaviour
 
     void Log(object message)
     {
+        if (_column != 0) return;
         Debug.Log("[Reel" + _column + "]" + message.ToString());
     }
 

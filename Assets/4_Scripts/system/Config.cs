@@ -50,23 +50,13 @@ public class ReelStrips
     Dictionary<string, string> _symbolmap;
 
     string[,] _startSymbolNames;
+    string[,] _normalStrips;
+
 
     public ReelStrips()
     {
 
     }
-
-    #region StartSymbol
-    public void SetStartSymbols(string[,] startSymbolNames)
-    {
-        _startSymbolNames = startSymbolNames;
-    }
-
-    public string GetStartSymbolAt(int col, int row)
-    {
-        return _startSymbolNames[col, row];
-    }
-    #endregion
 
     #region SymbolNameMap
     public void AddSymbolToMap(string serverName, string clientName)
@@ -82,4 +72,30 @@ public class ReelStrips
         else return string.Empty;
     }
     #endregion
+
+    public void SetNormalStrips( string[,] normal )
+    {
+        _normalStrips = normal;
+    }
+
+    #region StartSymbol
+    public void SetStartSymbols(string[,] startSymbolNames)
+    {
+        _startSymbolNames = startSymbolNames;
+    }
+
+    public string GetStartSymbolAt(int col, int row)
+    {
+        return _startSymbolNames[col, row];
+    }
+    #endregion
+
+    
+
+    public string GetRandom( int column )
+    {
+        int leng = _normalStrips.GetLength(1);
+        int randomIndex = UnityEngine.Random.Range(0,leng);
+        return _normalStrips[ column,randomIndex];
+    }
 }
