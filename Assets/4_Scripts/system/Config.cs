@@ -39,6 +39,11 @@ public class SlotConfig
     //------------------------------------------------------------------
     //게임 전반적인 설정
     //------------------------------------------------------------------
+    public enum FreeSpinRetriggerType
+    {
+        Add,
+        Rollback,
+    }
 
 
     static public int ID;
@@ -52,10 +57,10 @@ public class SlotConfig
     public int Row;
     public int Column;
 
-
     public Size2D SymbolSize;
     public Size2D NullSymbolSize;
 
+    public FreeSpinRetriggerType RetriggerType;
 
     [Header("Reel")]
     public Reel ReelPrefab;
