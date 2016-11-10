@@ -6,15 +6,11 @@ using DG.Tweening;
 
 public class Reel : MonoBehaviour
 {
+    const int SPIN_COUNT_LIMIT = 20;
+
     [SerializeField]
     GameObject _expectObject;
-    [SerializeField]
-    int _spiningSymboslCount = 5;
-    [SerializeField]
-    int _spinCountThreshold = 5;
-    int _spinCountLimit = 20;
-    [SerializeField]
-    float _speedPerSecond = 15f;
+
 
     int _column;
     SlotConfig _config;
@@ -130,7 +126,7 @@ public class Reel : MonoBehaviour
         Symbol topSymbol = _symbols[0];
         bool nullOrder = topSymbol is NullSymbol == false;
 
-        int count = _spiningSymboslCount;
+        int count = _config.SpiningSymbolCount;
 
         while (count-- > 0)
         {
@@ -150,7 +146,7 @@ public class Reel : MonoBehaviour
 
     void RemoveSpiningSymbols()
     {
-        int count = _spiningSymboslCount;
+        int count = _config.SpiningSymbolCount;
         while (count-- > 0)
         {
             var idx = _symbols.Count - 1;
@@ -168,8 +164,8 @@ public class Reel : MonoBehaviour
     void TweenLinear()
     {
         //Log("SpinReel");
-
-        var duration = _spinDis / _speedPerSecond;
+        
+        var duration = _spinDis / _config.SpinSpeedPerSec;
         var tgPos = _symbolContainer.position - new Vector3(0f, _spinDis, 0f);
         _spinTween = _symbolContainer.DOMove(tgPos, duration);
         _spinTween.SetEase(Ease.Linear);
@@ -180,11 +176,11 @@ public class Reel : MonoBehaviour
     {
         RemoveSpiningSymbols();
         
-        if( _spinCount == _spinCountLimit )
+        if( _spinCount == SPIN_COUNT_LIMIT )
         {
             DataUdigatni();
         }
-        else if( _spinCount > _spinCountThreshold && _isReceiveData )
+        else if( _spinCount > _config.SpinCountThreshold && _isReceiveData )
         {
             FinishSpinReel();
         }

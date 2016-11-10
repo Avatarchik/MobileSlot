@@ -61,8 +61,13 @@ public class SlotConfig
     public Reel ReelPrefab;
     public Size2D ReelSize;
     public float ReelSpace;
-    public int DummySymbolCount;
     public float ReelGap;
+
+    public int DummySymbolCount;
+
+    public int SpiningSymbolCount;
+    public int SpinCountThreshold;
+    public float SpinSpeedPerSec;
 
     public SymbolNameMap NameMap;
 

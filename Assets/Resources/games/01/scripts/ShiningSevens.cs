@@ -38,7 +38,12 @@ public class ShiningSevens : MonoBehaviour
         config.ReelSize = new Size2D(2.1f, 2.5f);
         config.ReelSpace = 2.56f;
         config.ReelGap = 0.3f;
+
+        //spin
         config.DummySymbolCount = 1;
+        config.SpiningSymbolCount = 5;
+        config.SpinCountThreshold = 5;
+        config.SpinSpeedPerSec = 15f;
 
         //symbolNameMap
         SymbolNameMap nameMap = new SymbolNameMap();
