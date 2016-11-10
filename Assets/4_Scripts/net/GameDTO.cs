@@ -1,4 +1,8 @@
-﻿public class DTO
+﻿using UnityEngine;
+using System.Collections.Generic;
+
+
+public class DTO
 {
 
 }
@@ -7,64 +11,72 @@ public class ResDTO
 {
     public class Login : DTO
     {
-        public int levelPercent { get; set; }
-        public int level { get; set; }
-        public int gameLevel { get; set; }
-        public int gameLevelPercent { get; set; }
-        public double balance { get; set; }
+        public int levelPercent;
+        public int level;
+        public int gameLevel;
+        public int gameLevelPercent;
+        public double balance;
 
-        public int min_line_bet { get; set; }
-        public int last_line_bet { get; set; }
-        public int max_line_bet { get; set; }
+        public int min_line_bet;
+        public int last_line_bet;
+        public int max_line_bet;
 
-        public double? jackpotPool { get; set; }
+        public double? jackpotPool;
     }
 
     public class Spin : DTO
     {
-        public int levelPercent { get; set; }
-        public int level { get; set; }
-        public int gameLevel { get; set; }
-        public int gameLevelPercent { get; set; }
-        public double balance { get; set; }
+        public int levelPercent;
+        public int level;
+        public int gameLevel;
+        public int gameLevelPercent;
+        public double balance;
 
-        public double level_up_bonus { get; set; }
+        public double level_up_bonus;
 
+        public string freeSpinKey;
+        public double? jackpotPool;
+        public int winID;
 
-        public string freeSpinKey { get; set; }
-        public double? jackpotPool { get; set; }
-        public int winID { get; set; }
-
-        public Payout payouts { get; set; }
+        public Payout payouts;
 
         public class Payout
         {
-            public float lineBet { get; set; }
-            public double totalPayout { get; set; }
-            public float multipleWin { get; set; }
-            public bool isMegaWin { get; set; }
-            public bool isBigWin { get; set; }
-            public bool isJackpot { get; set; }
+            public float lineBet;
+            public double totalPayout;
+            public float multipleWin;
+            public bool isMegaWin;
+            public bool isBigWin;
+            public bool isJackpot;
+            public Queue<SpinInfo> spins;
 
-            public SpinInfo[] spins{get;set;}
+            public SpinInfo Next()
+            {
+                if( spins != null || spins.Count > 0 ) return spins.Dequeue();
 
-            // public SpinInfo[] spins { get; set; }
+                return null;
+            }
 
             public class SpinInfo
             {
-                public string[] reel { get; set; } //결과 심볼들
-                public int freeSpinCount { get; set; }
-                public double totalPayout { get; set; }
-                public bool isNormal { get; set; }
-                public int[] fixedreel { get; set; }
-                public Payline[] payLines { get; set; }
+                public string[] reel;
+                public int freeSpinCount;
+                public double totalPayout;
+                public bool isNormal;
+                public int[] fixedreel;
+                public Payline[] payLines;
+
+                public bool IsFreeSpinTrigger
+                {
+                    get{ return freeSpinCount > 0; }
+                }
 
                 public class Payline
                 {
-                    public double payout { get; set; }
-                    public int matches { get; set; }
-                    public int line { get; set; }
-                    public bool isJackpot { get; set; }
+                    public double payout;
+                    public int matches;
+                    public int line;
+                    public bool isJackpot;
                 }
             }
         }
