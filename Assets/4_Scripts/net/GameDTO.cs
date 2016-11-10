@@ -12,70 +12,62 @@ public class ResDTO
         public int levelPercent { get; set; }
         public int level { get; set; }
         public int gameLevel { get; set; }
-        public int min_line_bet { get; set; }
         public int gameLevelPercent { get; set; }
+        public double balance { get; set; }
+
+        public int min_line_bet { get; set; }
         public int last_line_bet { get; set; }
         public int max_line_bet { get; set; }
 
-        public double balance { get; set; }
         public double? jackpotPool{get;set;}
     }
 
     public class Spin : DTO
     {
-        public double balance { get; set; }
-        
-        /*
+        public class Payout
         {
-            "data": {
-                "levelPercent": 48,
-                "jackpotPool": null,
-                "freeSpinKey": null,
-                "gameLevel": 29,
-                "balance": 342131634187,
-                "payouts": {
-                    "lineBet": 1000,
-                    "spins": [
-                        {
-                            "payLines": [],
-                            "isNormal": true,
-                            "freeSpinCount": 0,
-                            "reel": [
-                                "H2",
-                                "L0",
-                                "H1",
-                                "L0",
-                                "M1",
-                                "L0",
-                                "L0",
-                                "M1",
-                                "L0"
-                            ],
-                            "totalPayout": 0,
-                            "fixedreel": [
-                                0,
-                                0,
-                                0
-                            ]
-                        }
-                    ],
-                    "totalPayout": 0,
-                    "multipleWin": 0,
-                    "isMegaWin": false,
-                    "isBigWin": false,
-                    "accumulateSum": 0,
-                    "isJackpot": false
-                },
-                "level_up_bonus": 0,
-                "gameLevelPercent": 93,
-                "level_up_spins": 0,
-                "winID": 0,
-                "level": 163
-            },
-            "success": true,
-            "cmd": "spin"
+            public float lineBet{get;set;}
+            public double totalPayout{get;set;}
+            public float multipleWin{get;set;}
+            public bool isMegaWin{get;set;}
+            public bool isBigWin{get;set;}
+            public bool isJackpot{get;set;}
+            
+            public SpinInfo[] spins{get;set;}
         }
-        */
+
+        public class SpinInfo
+        {
+            public string[] reel{get;set;} //결과 심볼들
+            public int freeSpinCount { get;set;}
+            public double totalPayout{get;set;}
+            public bool isNormal{get;set;}
+            public int[] fixedreel{get;set;}
+            public Payline[] payLines{get;set;}
+        }
+        
+        public class Payline
+        {
+            public double payout{get;set;}
+            public int matches{get;set;}
+            public int line{get;set;}
+            public bool isJackpot{get;set;}
+        }
+
+        public int levelPercent{ get; set; }
+        public int level{ get; set; }
+        public int gameLevel { get; set; }
+        public int gameLevelPercent { get; set; }
+        public double balance { get; set; }
+
+        public double level_up_bonus { get; set; }
+
+
+        public string freeSpinKey{get;set;}
+        public double? jackpotPool{get;set;}
+        public int winID{get;set;}
+
+        public Payout payouts{get;set;}
     }
 }
 

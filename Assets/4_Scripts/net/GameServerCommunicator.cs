@@ -87,12 +87,19 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         if (packet == null || packet.Length == 0) return;
 
         var receivedJson = Encoding.ASCII.GetString(packet, 0, packet.Length);
-        var jobj = JObject.Parse(receivedJson);
+        var receivedObj = JObject.Parse(receivedJson);
 
-        if( ENABLE_LOG ) Log( "< receive\n" + jobj.ToString());
+        if( ENABLE_LOG ) Log( "< receive\n" + receivedObj.ToString());
 
-        var cmd = jobj["cmd"].Value<string>();
-        var data = jobj["data"];
+        var isSuccess = receivedObj["success"].Value<bool>();
+        var cmd = receivedObj["cmd"].Value<string>();
+        var data = receivedObj["data"];
+
+        if( isSuccess == false )
+        {
+            HandleServerError();
+            return;
+        }
 
         switch (cmd)
         {
@@ -110,6 +117,11 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
                 if (OnSpin != null) OnSpin(spinData);
                 break;
         }
+    }
+
+    void HandleServerError()
+    {
+
     }
 
     public void Connect(string host, int port)
