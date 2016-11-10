@@ -28,6 +28,7 @@ public class SlotMachine : MonoBehaviour
     void Awake()
     {
         _model = SlotModel.Instance;
+        _model.Reset();
 
         _reelContainer = GetComponentInChildren<ReelContainer>();
         _reelContainer.OnReelStopComplete += ReelStopComplete;
