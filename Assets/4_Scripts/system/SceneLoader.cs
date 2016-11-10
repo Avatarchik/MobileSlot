@@ -2,7 +2,6 @@
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using System.IO;
 
@@ -10,7 +9,7 @@ public class SceneLoader : MonoBehaviour
 {
     static public string SC_START = "Main";
 
-    static public List<string> sceneNamesInBuild;
+    static public string[] sceneNamesInBuild;
     static public Scene LastScene { get; private set; }
 
     //런타임 시작 시 처음 한번 실행 된다.
@@ -22,10 +21,12 @@ public class SceneLoader : MonoBehaviour
         Application.backgroundLoadingPriority = ThreadPriority.High;
         EditorBuildSettingsScene[] scenesInBuild = EditorBuildSettings.scenes;
 
-        sceneNamesInBuild = new List<string>();
-        foreach (var sc in scenesInBuild)
+        int sceneCount = scenesInBuild.Length;
+
+        sceneNamesInBuild = new string[sceneCount];
+        for( var i = 0; i < sceneCount; ++i )
         {
-            sceneNamesInBuild.Add(Path.GetFileNameWithoutExtension(sc.path));
+            sceneNamesInBuild[i] = Path.GetFileNameWithoutExtension( scenesInBuild[i].path );
         }
 
         Scene startScene = SceneManager.GetActiveScene();
@@ -42,7 +43,7 @@ public class SceneLoader : MonoBehaviour
 
     static public bool ContainsInBuild(string sceneName)
     {
-        return sceneNamesInBuild.Contains(sceneName);
+        return ArrayUtility.Contains( sceneNamesInBuild, sceneName );
     }
 
     //--------------------------------------------------------------------------
