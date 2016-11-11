@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
+
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -6,7 +8,9 @@ using DG.Tweening;
 
 public class Reel : MonoBehaviour
 {
-    const int SPIN_COUNT_LIMIT = 20;
+    public event UnityAction<Reel> OnStop;
+    
+    const int SPIN_COUNT_LIMIT = 50;
 
     [SerializeField]
     GameObject _expectObject;
@@ -20,7 +24,8 @@ public class Reel : MonoBehaviour
     Tweener _spinTween;
     int _spinCount;
     float _spinDis;
-    bool _isReceiveData;
+    string[] _resultSymbolNames;
+
     void Awake()
     {
         _symbols = new List<Symbol>();
@@ -99,34 +104,32 @@ public class Reel : MonoBehaviour
 
         _spinCount = 0;
         _currentStrip = _config.NormalStrip;
-        _isReceiveData = false;
+        _resultSymbolNames = null;
 
         SpinReel();
     }
 
-    public void ReceivedSymbol()
+    public void ReceivedSymbol( ResDTO.Spin.Payout.SpinInfo spinInfo )
     {
-        _isReceiveData = true;
+        _resultSymbolNames = spinInfo.GetReelData( _column, _config.Row );
     }
 
     void SpinReel()
     {
         ++_spinCount;
 
-        AddSpiningSymbols();
+        AddSpiningSymbols( _config.SpiningSymbolCount );
 
         if( _spinCount == 1 ) TweenFirst();
         else TweenLinear();
     }
 
-    void AddSpiningSymbols()
+    void AddSpiningSymbols( int count )
     {
         _spinDis = 0;
 
         Symbol topSymbol = _symbols[0];
         bool nullOrder = topSymbol is NullSymbol == false;
-
-        int count = _config.SpiningSymbolCount;
 
         while (count-- > 0)
         {
@@ -143,6 +146,8 @@ public class Reel : MonoBehaviour
             nullOrder = !nullOrder;
         }
     }
+
+    
 
     void RemoveSpiningSymbols()
     {
@@ -178,9 +183,9 @@ public class Reel : MonoBehaviour
         
         if( _spinCount == SPIN_COUNT_LIMIT )
         {
-            DataUdigatni();
+            ServerTooLate();
         }
-        else if( _spinCount > _config.SpinCountThreshold && _isReceiveData )
+        else if( _spinCount > _config.SpinCountThreshold && _resultSymbolNames != null )
         {
             FinishSpinReel();
         }
@@ -190,7 +195,7 @@ public class Reel : MonoBehaviour
         }
     }
 
-    void DataUdigatni()
+    void ServerTooLate()
     {
         //데이터 어디갔니?
         //뭔가 문제가 일어남. 설정한 최대 스핀이 돌동안 서버로부터 응답이 안왔음
@@ -199,6 +204,30 @@ public class Reel : MonoBehaviour
     void FinishSpinReel()
     {
         Log("FinishSpinReel");
+
+        AddSpiningSymbols( _column * 3 );
+        AddResultSymbols();
+
+        TweenFirst();
+    }
+
+    void AddResultSymbols()
+    {
+        // _resultSymbolNames
+
+        Symbol topSymbol = _symbols[0];
+
+        //제일위가 null 이고 결과 마지막이 null 인 경우
+        //제일위가 null 이고 결과 마지막이 null 아닌 경우
+        //제일위가 null 아니고 결과 마지막이 null 인경우
+        //제일위가 null 아니고 결과 마지막이 null 아닌 경우
+
+        var count = _resultSymbolNames.Length;
+
+        while( count-- > 0 )
+        {
+
+        }
     }
 
     Symbol GetSymbol(string symbolName)

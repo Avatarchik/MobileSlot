@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEditor;
+
 using System.Collections.Generic;
 
 
@@ -69,6 +71,17 @@ public class ResDTO
                 public bool IsFreeSpinTrigger
                 {
                     get{ return freeSpinCount > 0; }
+                }
+
+                public string[] GetReelData( int column, int rowCount )
+                {
+                    var startIndex = column * rowCount;
+                    string[] res = new string[ rowCount ];
+                    for( var i = 0; i < rowCount; ++i )
+                    {
+                        res[i] = reel[startIndex + i];
+                    }
+                    return res;
                 }
 
                 public class Payline

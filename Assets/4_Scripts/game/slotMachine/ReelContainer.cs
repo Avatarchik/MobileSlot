@@ -8,7 +8,7 @@ public class ReelContainer : MonoBehaviour
     public event Action OnReelStopComplete;
 
     SlotConfig _relativeConfig;
-
+    
     List<Reel> _reels;
 
     Transform _tf;
@@ -46,6 +46,9 @@ public class ReelContainer : MonoBehaviour
         {
             Reel reel = Instantiate( _relativeConfig.ReelPrefab ) as Reel;
             reel.Column = i;
+
+            reel.OnStop += OnStopListener;
+            
             reel.transform.SetParent(_tf );
             reel.transform.localPosition = Vector3.right * _relativeConfig.ReelSpace * i;
             reel.Initialize( _relativeConfig );
@@ -62,14 +65,23 @@ public class ReelContainer : MonoBehaviour
         }
     }
 
-    public void ReceivedSymbol()
+    public void ReceivedSymbol( ResDTO.Spin.Payout.SpinInfo spinInfo )
     {
+        
         for( var i = 0; i < _relativeConfig.Column; ++i )
         {
-            _reels[i].ReceivedSymbol();
+            _reels[i].ReceivedSymbol( spinInfo );
         }
+    }
 
-        Invoke("ReelAllCompleted",2f);
+    void OnStopListener( Reel reel )
+    {
+        Debug.Log("reel " + reel.Column + " stopped.");
+
+        if( false )
+        {
+            ReelAllCompleted();
+        }
     }
 
     void ReelAllCompleted()

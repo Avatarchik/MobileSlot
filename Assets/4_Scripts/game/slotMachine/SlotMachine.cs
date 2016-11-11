@@ -21,6 +21,7 @@ public class SlotMachine : MonoBehaviour
 
     SlotModel _model;
 
+    [SerializeField]
     MachineState _currentState;
 
     ReelContainer _reelContainer;
@@ -55,7 +56,7 @@ public class SlotMachine : MonoBehaviour
     {
         if (_currentState == next) return;
 
-        Log(string.Format("STATE CHANGED. {0} >>> {1}", _currentState, next));
+        //Log(string.Format("STATE CHANGED. {0} >>> {1}", _currentState, next));
 
         _currentState = next;
 
@@ -164,17 +165,20 @@ public class SlotMachine : MonoBehaviour
         GameServerCommunicator.Instance.Spin(10000);
     }
 
+    ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
+
     void SpinComplete(ResDTO.Spin dto)
     {
         _model.SetSpinData(dto);
+        _lastSpinInfo = _model.LastSpinInfo;
 
         SetState(MachineState.ReceivedSymbol);
     }
 
+    
     void ReceivedSymbol()
     {
-        //결과 심볼 넣어서 스핀 마무리
-        _reelContainer.ReceivedSymbol();
+        _reelContainer.ReceivedSymbol( _lastSpinInfo );
     }
 
     void ReelStopComplete()

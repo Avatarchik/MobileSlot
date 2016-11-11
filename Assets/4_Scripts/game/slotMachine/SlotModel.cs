@@ -33,6 +33,7 @@ public class SlotModel : SingletonSimple<SlotModel>
     int _spinCount;
     ResDTO.Spin _spinDTO;
     ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
+    public ResDTO.Spin.Payout.SpinInfo LastSpinInfo{ get{ return _lastSpinInfo; }}
 
     public void Reset()
     {
