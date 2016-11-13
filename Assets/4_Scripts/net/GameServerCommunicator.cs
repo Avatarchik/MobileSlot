@@ -26,7 +26,7 @@ public class SendData
 
 public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 {
-    static public bool ENABLE_LOG = false;
+    static public bool ENABLE_LOG = true;
 
     public event Action OnConnect;
     public event Action<ResDTO.Login> OnLogin;
@@ -89,11 +89,11 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         var receivedJson = Encoding.ASCII.GetString(packet, 0, packet.Length);
         var receivedObj = JObject.Parse(receivedJson);
 
-        if( ENABLE_LOG ) Log( "< receive\n" + receivedObj.ToString());
-
         var isSuccess = receivedObj["success"].Value<bool>();
         var cmd = receivedObj["cmd"].Value<string>();
         var data = receivedObj["data"];
+
+        if( ENABLE_LOG ) Log( "< " + cmd + "\n" + data.ToString());
 
         if( isSuccess == false )
         {
@@ -168,13 +168,12 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 
     void Send(SendData data)
     {
+        if( ENABLE_LOG ) Log( data.cmd + " >\n" + data);
         Send( JsonConvert.SerializeObject( data, Formatting.Indented ));
     }
 
     void Send(string data)
     {
-        if( ENABLE_LOG ) Log("send >\n" + data);
-        
         _socket.Send(data);
     }
 

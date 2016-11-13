@@ -57,7 +57,8 @@ public abstract class Symbol : MonoBehaviour
     public void SetParent(Transform parent, float ypos, bool asFirst = false)
     {
         _tf.SetParent(parent);
-        _tf.localPosition = new Vector3(0f, ypos, 0f);
+        Y = ypos;
+
         if (asFirst) _tf.SetAsFirstSibling();
     }
 
@@ -79,5 +80,6 @@ public abstract class Symbol : MonoBehaviour
     public float Y
     {
         get { return _tf.localPosition.y; }
+        set { _tf.localPosition = new Vector3(0f, value, 0f); }
     }
 }

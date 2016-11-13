@@ -45,7 +45,6 @@ public class SlotConfig
         Rollback,
     }
 
-
     static public int ID;
     static public string Host;
     static public int Port;
@@ -68,11 +67,11 @@ public class SlotConfig
     public float ReelSpace;
     public float ReelGap;
 
-    public int DummySymbolCount;
-
-    public int SpiningSymbolCount;
-    public int SpinCountThreshold;
-    public float SpinSpeedPerSec;
+    public int DummySymbolCount;//릴 위아래 위치할 심볼 수
+    public int IncreaseCount;//다음 릴로 갈 수록 더 생겨야할 심볼 수
+    public int SpiningSymbolCount;//스핀 한 세트 당 심볼 수
+    public int SpinCountThreshold;//서버가 응답이 빠르더라도 최소한 돌아야할 스핀 세트 수 
+    public float SpinSpeedPerSec;//스핀 초당 속도
 
     public SymbolNameMap NameMap;
 
@@ -129,12 +128,21 @@ public class SymbolNameMap
 
 public class ReelStrip
 {
+    public enum ReelStripType
+    {
+        NORMAL,
+        USE_NULL,
+        STACK
+    }
+
+    public ReelStripType type;
 
     string[,] _strip;
 
-    public ReelStrip(string[,] strip)
+    public ReelStrip(string[,] strip, ReelStripType type = ReelStripType.NORMAL )
     {
         _strip = strip;
+        this.type = type;
     }
 
     public string GetRandom(int column)

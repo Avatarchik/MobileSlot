@@ -42,6 +42,7 @@ public class ShiningSevens : MonoBehaviour
         //spin
         config.DummySymbolCount = 1;
         config.SpiningSymbolCount = 5;
+        config.IncreaseCount = 8;
         config.SpinCountThreshold = 5;
         config.SpinSpeedPerSec = 15f;
 
@@ -73,7 +74,7 @@ public class ShiningSevens : MonoBehaviour
             {SG,BG,SB,BR,SB,W0,SG,BR,SB,BR,SG,BR,BG,SB,W0},
             {SG,BR,SB,BR,SB,W0,SG,BG,SB,BG,SG,BG,BR,SB,BG},
             {SG,BG,W0,BR,SB,SR,SB,BR,SB,SG,BR,BG,W0,BR,BR}
-        });
+        }, ReelStrip.ReelStripType.USE_NULL );
 
         _machine = FindObjectOfType<SlotMachine>();
         _machine.Config = config;
