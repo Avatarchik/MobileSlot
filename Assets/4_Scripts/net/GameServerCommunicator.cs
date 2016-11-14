@@ -168,7 +168,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 
     void Send(SendData data)
     {
-        if( ENABLE_LOG ) Log( data.cmd + " >\n" + data);
+        if( ENABLE_LOG ) Log( data.cmd + " >\n" +  JsonConvert.SerializeObject( data.data, Formatting.Indented ));
         Send( JsonConvert.SerializeObject( data, Formatting.Indented ));
     }
 
