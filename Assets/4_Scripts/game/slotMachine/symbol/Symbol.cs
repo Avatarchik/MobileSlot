@@ -7,8 +7,6 @@ public abstract class Symbol : MonoBehaviour
     public string SymbolName { get; private set; }
     public bool IsInitialized { get; private set; }
 
-    protected bool _debugDisplayArea;
-
     Transform _tf;
     Transform _content;
     SpriteRenderer _displayArea;
@@ -19,7 +17,7 @@ public abstract class Symbol : MonoBehaviour
         _content = _tf.Find("content");
     }
 
-    public void Initialize(string symbolName, Size2D areaSize)
+    public void Initialize(string symbolName, Size2D areaSize, bool dipslayArea = false )
     {
         if (IsInitialized) return;
 
@@ -28,7 +26,7 @@ public abstract class Symbol : MonoBehaviour
         Area = areaSize;
         SymbolName = symbolName;
 
-        if (_debugDisplayArea)
+        if ( dipslayArea )
         {
             _displayArea = CreateDisplayArea();
         }
@@ -45,7 +43,7 @@ public abstract class Symbol : MonoBehaviour
         renderer.sortingOrder = -1;
         renderer.sprite = Resources.Load<Sprite>("textures/Square");
 
-        renderer.color = ColorHSV.GetRandomColor(Random.Range(0.0f, 360f),0.5f);
+        renderer.color = ColorHSV.GetRandomColor(Random.Range(0.0f, 360f),0.75f);
         return renderer;
     }
 

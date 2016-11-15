@@ -46,6 +46,9 @@ public class ShiningSevens : MonoBehaviour
         config.SpinCountThreshold = 5;
         config.SpinSpeedPerSec = 15f;
 
+        //debug
+        config.DebugSymbolArea = false;
+
         //symbolNameMap
         SymbolNameMap nameMap = new SymbolNameMap();
         nameMap.AddSymbolToMap("W0", W0);

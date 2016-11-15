@@ -67,11 +67,16 @@ public class SlotConfig
     public float ReelSpace;
     public float ReelGap;
 
+
+    [Header("Spin")]
     public int DummySymbolCount;//릴 위아래 위치할 심볼 수
     public int IncreaseCount;//다음 릴로 갈 수록 더 생겨야할 심볼 수
     public int SpiningSymbolCount;//스핀 한 세트 당 심볼 수
     public int SpinCountThreshold;//서버가 응답이 빠르더라도 최소한 돌아야할 스핀 세트 수 
     public float SpinSpeedPerSec;//스핀 초당 속도
+
+    [Header("Debug")]
+    public bool DebugSymbolArea;//심볼 영역을 표시할지 여부
 
     public SymbolNameMap NameMap;
 

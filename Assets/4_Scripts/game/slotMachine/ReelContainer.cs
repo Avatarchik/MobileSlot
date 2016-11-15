@@ -7,11 +7,13 @@ public class ReelContainer : MonoBehaviour
 {
     public event Action OnReelStopComplete;
 
-    SlotConfig _relativeConfig;
+    SlotConfig _config;
     
     List<Reel> _reels;
 
     Transform _tf;
+
+    int _nextStopIndex;
 
     void Awake()
     {
@@ -29,7 +31,7 @@ public class ReelContainer : MonoBehaviour
 
     public void Initialize( SlotConfig config )
     {
-        _relativeConfig = config;
+        _config = config;
 
         CreateReels();
     }
@@ -38,20 +40,20 @@ public class ReelContainer : MonoBehaviour
     {
         if( _reels != null ) return;
 
-        int count = _relativeConfig.Column;
+        int count = _config.Column;
 
         _reels = new List<Reel>(count);
 
         for (var i = 0; i < count; ++i)
         {
-            Reel reel = Instantiate( _relativeConfig.ReelPrefab ) as Reel;
+            Reel reel = Instantiate( _config.ReelPrefab ) as Reel;
             reel.Column = i;
 
             reel.OnStop += OnStopListener;
             
             reel.transform.SetParent(_tf );
-            reel.transform.localPosition = Vector3.right * _relativeConfig.ReelSpace * i;
-            reel.Initialize( _relativeConfig );
+            reel.transform.localPosition = Vector3.right * _config.ReelSpace * i;
+            reel.Initialize( _config );
 
             _reels.Add( reel );
         }
@@ -59,7 +61,9 @@ public class ReelContainer : MonoBehaviour
 
     public void Spin()
     {
-        for( var i = 0; i < _relativeConfig.Column; ++i )
+        _nextStopIndex = 0;
+
+        for( var i = 0; i < _config.Column; ++i )
         {
             _reels[i].Spin();
         }
@@ -68,20 +72,32 @@ public class ReelContainer : MonoBehaviour
     public void ReceivedSymbol( ResDTO.Spin.Payout.SpinInfo spinInfo )
     {
         
-        for( var i = 0; i < _relativeConfig.Column; ++i )
+        for( var i = 0; i < _config.Column; ++i )
         {
             _reels[i].ReceivedSymbol( spinInfo );
         }
     }
 
+    
     void OnStopListener( Reel reel )
     {
-        Debug.Log("reel " + reel.Column + " stopped.");
+        ++_nextStopIndex;
 
-        if( false )
+        if( _nextStopIndex < _config.Column )
+        {
+            CheckNextReel();
+        }
+        else
         {
             ReelAllCompleted();
         }
+    }
+
+    void CheckNextReel()
+    {
+        //다음 릴이 lock 이 걸렸는지
+        //고조를 해야 하는지 등등 처리
+        Debug.Log("checkNextReel");
     }
 
     void ReelAllCompleted()

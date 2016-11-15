@@ -174,7 +174,6 @@ public class SlotMachine : MonoBehaviour
 
         SetState(MachineState.ReceivedSymbol);
     }
-
     
     void ReceivedSymbol()
     {
