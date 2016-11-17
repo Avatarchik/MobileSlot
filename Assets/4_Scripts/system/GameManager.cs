@@ -2,10 +2,26 @@
 using System.Collections;
 using lpesign;
 
+using DG.Tweening;
 
 public class GameManager : Singleton<GameManager>
 {
 	public SceneLoader loader;
+
+	override protected void Awake()
+	{
+		base.Awake();
+
+		//general
+		DOTween.Init( recycleAllByDefault: false, useSafeMode: false, logBehaviour: LogBehaviour.Verbose );
+		DOTween.showUnityEditorReport = true; //default false
+		DOTween.timeScale = 1f;
+		DOTween.SetTweensCapacity( 200,50 );
+
+		//applied to newly
+		DOTween.defaultAutoPlay = AutoPlay.None;
+		DOTween.defaultEaseType = Ease.Linear;
+	}
 
 	public void GameLoad( GameItemDTO data )
 	{
