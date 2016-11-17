@@ -42,9 +42,13 @@ public class ShiningSevens : MonoBehaviour
         //spin
         config.DummySymbolCount = 1;
         config.SpiningSymbolCount = 5;
-        config.IncreaseCount = 8;
-        config.SpinCountThreshold = 5;
+        config.IncreaseCount = 5;
+        config.SpinCountThreshold = 4;
         config.SpinSpeedPerSec = 15f;
+        config.DelayEachReel = 0f;
+        config.tweenFirstBackInfo = new MoveTweenInfo( 0.2f, 0.2f );
+        config.tweenLastBackInfo = new MoveTweenInfo( 0.2f, 0.3f );
+
 
         //debug
         config.DebugSymbolArea = false;

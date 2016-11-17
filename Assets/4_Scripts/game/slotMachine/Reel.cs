@@ -22,7 +22,6 @@ public class Reel : MonoBehaviour
     int _symbolNecessaryCount; //화면에 보여야할 심볼 수 ( row ) + 위아래 여유 수 ( dummyCount * 2 )
 
     Transform _symbolContainer;
-    Tweener _spinTween;
     int _spinCount;
     float _spinDis;
 
@@ -30,7 +29,7 @@ public class Reel : MonoBehaviour
     [SerializeField]
     float _symbolStartPosOffset;
 
-    
+
     [SerializeField]
     string[] _lastResultSymbolNames;
 
@@ -81,17 +80,15 @@ public class Reel : MonoBehaviour
 
         AlignSymbols();
 
-        _lastResultSymbolNames = new string[ _config.Row ];
-        for( var i = 0; i < _config.Row; ++i )
+        _lastResultSymbolNames = new string[_config.Row];
+        for (var i = 0; i < _config.Row; ++i)
         {
-            _lastResultSymbolNames[i] = _config.GetStartSymbolAt(_column, _config.DummySymbolCount +  i);
+            _lastResultSymbolNames[i] = _config.GetStartSymbolAt(_column, _config.DummySymbolCount + i);
         }
     }
 
     public void AlignSymbols()
     {
-        _symbolContainer.localPosition = Vector3.zero;
-
         //최종 결과로 3개의 심볼이 릴에 보여진다면 (예를들어 5 by 3 Slot) 3개의 심볼 위아래로 최소 1 이상의 여유 심볼이 필요하다.
         //전달 받은 symbosl 파라메터는 여유 심볼이 포함되어 있는 배열이므로 결과 심볼이 릴에 제대로 보이게 시작 위치를 조정해야한다.
         //각 심볼은 크기가 다를 수 있으니 ( NullSymbol 의 경우 높이가 0이거나 타 심볼의 반이하일 수 있다 ) 실제 심볼 크기를 계산한다.
@@ -159,21 +156,15 @@ public class Reel : MonoBehaviour
     {
         ++_spinCount;
 
-        if (_spinCount == 1)
+        if (_spinCount >= SPIN_COUNT_LIMIT)
         {
-            AddSpiningSymbols(_config.SpiningSymbolCount);
-            TweenFirst();
+            ServerTooLate();
+            return;
         }
-        else if (_spinCount > _config.SpinCountThreshold && _resultSymbolNames != null)
-        {
-            AddSpiningSymbols(_column * _config.IncreaseCount);
-            TweenFinish();
-        }
-        else
-        {
-            AddSpiningSymbols(_config.SpiningSymbolCount);
-            TweenLinear();
-        }
+
+        if (_spinCount == 1) TweenFirst();
+        else if (_spinCount > _config.SpinCountThreshold && _resultSymbolNames != null) TweenLast();
+        else TweenLinear();
     }
 
     void AddSpiningSymbols(int count)
@@ -211,65 +202,96 @@ public class Reel : MonoBehaviour
 
     void TweenFirst()
     {
+        AddSpiningSymbols(_config.SpiningSymbolCount);
+
+        var backPos = _symbolContainer.position + new Vector3(0f, _config.tweenFirstBackInfo.distance, 0f);
+        var tweenBack = _symbolContainer.DOMove(backPos, _config.tweenFirstBackInfo.duration );
+        tweenBack.SetEase( Ease.OutSine );
+
+        _spinDis += _config.tweenFirstBackInfo.distance;
+        var tgPos = _symbolContainer.position - new Vector3(0f, _spinDis, 0f);
+        var duration = _spinDis / _config.SpinSpeedPerSec;
+
+        var tween = _symbolContainer.DOMove(tgPos, duration);
+        tween.SetEase(Ease.InCubic);
+
+        Sequence mySequence = DOTween.Sequence();
+        mySequence.Append(tweenBack);
+        mySequence.Append(tween);
+        mySequence.PrependInterval( _config.DelayEachReel * _column );
+        mySequence.AppendCallback(()=>
+        {
+            RemoveSymbolsExceptNecessary();
+            SpinReel();
+        });
+        mySequence.Play();
+
+    }
+
+    virtual protected void TweenLinear()
+    {
+        AddSpiningSymbols(_config.SpiningSymbolCount);
+
         var duration = _spinDis / _config.SpinSpeedPerSec;
         var tgPos = _symbolContainer.position - new Vector3(0f, _spinDis, 0f);
-        _spinTween = _symbolContainer.DOMove(tgPos, duration);
-        _spinTween.SetEase(Ease.Linear);
-        _spinTween.OnComplete(TweenLinearComplete);
+
+        var tween = _symbolContainer.DOMove(tgPos, duration);
+        tween.OnComplete(() =>
+        {
+            RemoveSymbolsExceptNecessary();
+            SpinReel();
+        });
+        tween.Play();
     }
 
-    void TweenLinear()
+    virtual protected void TweenLast()
     {
-        var duration = _spinDis / _config.SpinSpeedPerSec;
-        var tgPos = _symbolContainer.position - new Vector3(0f, _spinDis, 0f);
-        _spinTween = _symbolContainer.DOMove(tgPos, duration);
-        _spinTween.SetEase(Ease.Linear);
-        _spinTween.OnComplete(TweenLinearComplete);
-    }
-
-    void TweenLinearComplete()
-    {
-        RemoveSymbolsExceptNecessary();
-
-        if (_spinCount == SPIN_COUNT_LIMIT) ServerTooLate();
-        else SpinReel();
-    }
-
-    void TweenFinish()
-    {
-
+        AddSpiningSymbols(_column * _config.IncreaseCount);
         AddInterpolationSymbols();
         AddResultSymbols();
         AddDummySymbols();
 
-        if( _lastResultSymbolNames[0] == NullSymbol.EMPTY && _resultSymbolNames[0] != NullSymbol.EMPTY )
+        if (_lastResultSymbolNames[0] == NullSymbol.EMPTY && _resultSymbolNames[0] != NullSymbol.EMPTY)
         {
             _spinDis -= nullSymbolOffesetY;
         }
-        else if( _lastResultSymbolNames[0] != NullSymbol.EMPTY && _resultSymbolNames[0] == NullSymbol.EMPTY  )
+        else if (_lastResultSymbolNames[0] != NullSymbol.EMPTY && _resultSymbolNames[0] == NullSymbol.EMPTY)
         {
             _spinDis -= nullSymbolOffesetY;
         }
+
+        _spinDis += _config.tweenLastBackInfo.distance;
 
         var duration = _spinDis / _config.SpinSpeedPerSec;
         var tgPos = _symbolContainer.localPosition - new Vector3(0f, _spinDis, 0f);
-        _spinTween = _symbolContainer.DOLocalMove(tgPos, duration);
 
-        _spinTween.SetEase(Ease.Linear);
-        _spinTween.OnComplete(TweenFinishComplete);
+        Tweener tween = _symbolContainer.DOLocalMove(tgPos, duration);
+        tween.SetEase(Ease.Linear);
+        tween.OnComplete(TweenFinishComplete);
+
+        Tweener backOutTween = _symbolContainer.DOLocalMove(Vector3.zero, _config.tweenLastBackInfo.duration );
+        backOutTween.SetEase( Ease.OutBack );
+
+        Sequence mySequence = DOTween.Sequence();
+        mySequence.Append(tween);
+        mySequence.Append(backOutTween);
+        mySequence.Play();
     }
 
     void TweenFinishComplete()
     {
+        Log("finishComplete");
         RemoveSymbolsExceptNecessary();
         AlignSymbols();
 
-        if( _resultSymbolNames != null && _resultSymbolNames.Length > 0 )
+        _symbolContainer.localPosition = new Vector3(0f, -_config.tweenLastBackInfo.distance, 0f);
+
+        if (_resultSymbolNames != null && _resultSymbolNames.Length > 0)
         {
             _lastResultSymbolNames = _resultSymbolNames;
         }
 
-        if( OnStop != null ) OnStop( this );
+        if (OnStop != null) OnStop(this);
     }
 
     void ServerTooLate()
@@ -355,7 +377,7 @@ public class Reel : MonoBehaviour
 
         if (symbol.IsInitialized == false)
         {
-            symbol.Initialize(symbolName, symbol is NullSymbol ? _config.NullSymbolSize : _config.SymbolSize, _config.DebugSymbolArea );
+            symbol.Initialize(symbolName, symbol is NullSymbol ? _config.NullSymbolSize : _config.SymbolSize, _config.DebugSymbolArea);
         }
 
         return symbol;

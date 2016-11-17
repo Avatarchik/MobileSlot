@@ -79,8 +79,12 @@ public class ReelContainer : MonoBehaviour
     }
 
     
+    Reel _lastStoppedReel;
+
     void OnStopListener( Reel reel )
     {
+        _lastStoppedReel = reel;
+
         ++_nextStopIndex;
 
         if( _nextStopIndex < _config.Column )
@@ -97,7 +101,7 @@ public class ReelContainer : MonoBehaviour
     {
         //다음 릴이 lock 이 걸렸는지
         //고조를 해야 하는지 등등 처리
-        Debug.Log("checkNextReel");
+        Debug.Log( "reel " + _lastStoppedReel.Column +  " stopped. checkNextReel");
     }
 
     void ReelAllCompleted()

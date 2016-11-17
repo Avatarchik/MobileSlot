@@ -74,6 +74,9 @@ public class SlotConfig
     public int SpiningSymbolCount;//스핀 한 세트 당 심볼 수
     public int SpinCountThreshold;//서버가 응답이 빠르더라도 최소한 돌아야할 스핀 세트 수 
     public float SpinSpeedPerSec;//스핀 초당 속도
+    public float DelayEachReel;//각 릴 사이의 스핀 시작 딜레이
+    public MoveTweenInfo tweenFirstBackInfo;//첫번재 스핀에 정보
+    public MoveTweenInfo tweenLastBackInfo;//마지막 스핀이 정보
 
     [Header("Debug")]
     public bool DebugSymbolArea;//심볼 영역을 표시할지 여부
