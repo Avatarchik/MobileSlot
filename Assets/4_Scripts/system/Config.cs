@@ -3,6 +3,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+/*
+< namingConvention >
+Event 는 On 접두사를 붙이자
+Event 에 추가된 Delegate 는 Handler 접미사를 붙이자
+
+*/
+
 public class Layers
 {
     public class Physics

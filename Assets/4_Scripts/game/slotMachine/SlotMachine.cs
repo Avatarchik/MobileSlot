@@ -12,7 +12,11 @@ public class SlotMachine : MonoBehaviour
         Idle,
         Spin,
         ReceivedSymbol,
-        ShowResult
+        CheckSpinResult,
+        FreeSpinTrigger,
+        Win,
+        AfterWin,
+        ApplySpinResult
     }
 
     public SlotUI ui;
@@ -21,6 +25,8 @@ public class SlotMachine : MonoBehaviour
 
     SlotModel _model;
 
+    public Stack<MachineState> State {get; private set; }
+
     [SerializeField]
     MachineState _currentState;
 
@@ -28,6 +34,8 @@ public class SlotMachine : MonoBehaviour
 
     void Awake()
     {
+        State = new Stack<MachineState>();
+
         _model = SlotModel.Instance;
         _model.Reset();
 
@@ -54,13 +62,13 @@ public class SlotMachine : MonoBehaviour
 
     protected void SetState(MachineState next)
     {
-        if (_currentState == next) return;
+        if ( _currentState == next ) return;
 
-        //Log(string.Format("STATE CHANGED. {0} >>> {1}", _currentState, next));
+        //Debug.Log(string.Format("STATE CHANGED. {0} >>> {1}", _currentState, next));
 
         _currentState = next;
 
-        switch (_currentState)
+        switch ( _currentState )
         {
             case MachineState.Connecting:
                 ConnectServer();
@@ -78,10 +86,34 @@ public class SlotMachine : MonoBehaviour
                 ReceivedSymbol();
                 break;
 
-            case MachineState.ShowResult:
-                ShowResult();
+            case MachineState.CheckSpinResult:
+                CheckSpinResult();
+                break;
+
+            case MachineState.FreeSpinTrigger:
+                FreeSpinTrigger();
+                break;
+
+            case MachineState.Win:
+                Win();
+                break;
+
+            case MachineState.AfterWin:
+                AfterWin();
+                break;
+
+            case MachineState.ApplySpinResult:
+                ApplySpinResult();
                 break;
         }
+
+
+        if( State.Peek() != MachineState.Connecting && next == MachineState.Idle )
+        {
+            State.Clear();
+        }
+
+        State.Push( next );
     }
 
     void ConnectServer()
@@ -174,20 +206,72 @@ public class SlotMachine : MonoBehaviour
 
         SetState(MachineState.ReceivedSymbol);
     }
-    
+
     void ReceivedSymbol()
     {
-        _reelContainer.ReceivedSymbol( _lastSpinInfo );
+        _reelContainer.ReceivedSymbol(_lastSpinInfo);
     }
 
     void ReelStopComplete()
     {
-        SetState(MachineState.ShowResult);
+        SetState(MachineState.CheckSpinResult);
     }
 
-    void ShowResult()
+    void CheckSpinResult()
     {
-        SetState(MachineState.Idle);
+        //결과 심볼들을 바탕으로 미리 계산 해야 하는 일들이 있다면 여기서 미리 계산한다.
+
+        if( "nudge 시킬 릴이 있다면 넛지" == null )
+        {
+            //do nudge
+        }
+        else if( _model.IsFreeSpinTrigger )
+        {
+            SetState( MachineState.FreeSpinTrigger );
+        }
+        else if( _lastSpinInfo.totalPayout > 0 )
+        {
+            SetState( MachineState.Win );
+        }
+        else
+        {
+            SetState(MachineState.AfterWin);
+        }
+    }
+
+    void FreeSpinTrigger()
+    {
+        Debug.Log("삐리리리리 프리스핀 트리거!" );
+    }
+
+    void Win()
+    {
+
+    }
+
+    void AfterWin()
+    {
+        if( "보너스 스핀 ( 시상이 독립적인 추가 스핀 ) 이 있다면 돌린다" == null )
+        {
+            //do
+        }
+        else if( "프리스핀 진행 중이라면 프리스핀 한다" == null )
+        {
+            //do
+        }
+        else
+        {
+            SetState( MachineState.ApplySpinResult );
+        }
+    }
+
+    void ApplySpinResult()
+    {
+        //모든 연출이 끝났다.
+        //결과를 실제 유저 객체에 반영한다.
+        //반영 후 레벨업이 되었다면 연출한다.
+
+        SetState( MachineState.Idle );
     }
 
     void Log(object message)

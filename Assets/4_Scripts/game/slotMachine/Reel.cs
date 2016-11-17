@@ -71,7 +71,7 @@ public class Reel : MonoBehaviour
 
             if (symbol == null)
             {
-                LogError(sname + " was null");
+                Debug.LogError(sname + " was null");
                 continue;
             }
 
@@ -268,23 +268,22 @@ public class Reel : MonoBehaviour
         Tweener tween = _symbolContainer.DOLocalMove(tgPos, duration);
         tween.SetEase(Ease.Linear);
         tween.OnComplete(TweenFinishComplete);
-
-        Tweener backOutTween = _symbolContainer.DOLocalMove(Vector3.zero, _config.tweenLastBackInfo.duration );
-        backOutTween.SetEase( Ease.OutBack );
-
-        Sequence mySequence = DOTween.Sequence();
-        mySequence.Append(tween);
-        mySequence.Append(backOutTween);
-        mySequence.Play();
+        tween.Play();
     }
 
     void TweenFinishComplete()
     {
-        Log("finishComplete");
         RemoveSymbolsExceptNecessary();
         AlignSymbols();
 
         _symbolContainer.localPosition = new Vector3(0f, -_config.tweenLastBackInfo.distance, 0f);
+
+        if( _config.tweenLastBackInfo.distance != 0 )
+        {
+            var backOutTween = _symbolContainer.DOLocalMove( Vector3.zero, _config.tweenLastBackInfo.duration );
+            backOutTween.SetEase( Ease.OutBack );
+            backOutTween.Play();
+        }
 
         if (_resultSymbolNames != null && _resultSymbolNames.Length > 0)
         {
@@ -404,16 +403,5 @@ public class Reel : MonoBehaviour
             _column = value;
             gameObject.name = "Reel" + _column;
         }
-    }
-
-    void Log(object message)
-    {
-        if (_column != 0) return;
-        Debug.Log("[Reel" + _column + "]" + message.ToString());
-    }
-
-    void LogError(object message)
-    {
-        Debug.LogError("[Reel_" + _column + "]" + message.ToString());
     }
 }

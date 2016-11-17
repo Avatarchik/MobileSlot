@@ -68,7 +68,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         switch (socketEvent.Type)
         {
             case SlotSocket.SocketEvent.EventType.Connect:
-                Log("Server Connected");
+                if( ENABLE_LOG ) Debug.Log("Server Connected");
                 if (OnConnect != null) OnConnect();
                 break;
 
@@ -77,7 +77,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
                 break;
 
             case SlotSocket.SocketEvent.EventType.DisConnect:
-                Log("Server DisConnected");
+                if( ENABLE_LOG ) Debug.Log("Server DisConnected");
                 break;
         }
     }
@@ -93,7 +93,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         var cmd = receivedObj["cmd"].Value<string>();
         var data = receivedObj["data"];
 
-        if( ENABLE_LOG ) Log( "< " + cmd + "\n" + data.ToString());
+        if( ENABLE_LOG ) Debug.Log( "< " + cmd + "\n" + data.ToString());
 
         if( isSuccess == false )
         {
@@ -135,7 +135,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
     {
         if (_socket == null || _socket.Connected == false)
         {
-            Log("Sockt에 먼저 연결 되어야 합니다");
+            if( ENABLE_LOG ) Debug.Log("Sockt에 먼저 연결 되어야 합니다");
             return;
         }
 
@@ -168,7 +168,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 
     void Send(SendData data)
     {
-        if( ENABLE_LOG ) Log( data.cmd + " >\n" +  JsonConvert.SerializeObject( data.data, Formatting.Indented ));
+        if( ENABLE_LOG ) Debug.Log( data.cmd + " >\n" +  JsonConvert.SerializeObject( data.data, Formatting.Indented ));
         Send( JsonConvert.SerializeObject( data, Formatting.Indented ));
     }
 
@@ -193,11 +193,6 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         base.OnDestroy();
         StopCoroutine(_checkRoutine);
         Close(SlotSocket.CloseReason.Destory);
-    }
-
-    void Log( object message )
-    {
-        Debug.Log("[ServerCommunicator] " + message );
     }
 
     void OnApplicationQuit()
