@@ -43,19 +43,21 @@ public class GlobalConfig
 [Serializable]
 public class SlotConfig
 {
-    //------------------------------------------------------------------
-    //게임 전반적인 설정
-    //------------------------------------------------------------------
     public enum FreeSpinRetriggerType
     {
         Add,
         Rollback,
     }
 
+    //------------------------------------------------------------------
+    //게임 전반적인 설정
+    //------------------------------------------------------------------
     static public int ID;
     static public string Host;
     static public int Port;
     static public string Version;
+
+    static public SlotBetting Betting;
 
     //------------------------------------------------------------------
     //게임 내 슬롯 설정 ( 게임 속 다수의 슬롯 머신이 존재할 수 도 있다 )

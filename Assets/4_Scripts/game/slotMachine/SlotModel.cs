@@ -57,6 +57,8 @@ public class SlotModel : SingletonSimple<SlotModel>
     {
         Owner.Update( dto );
 
+        SlotConfig.Betting.Init( dto.min_line_bet, dto.max_line_bet, dto.last_line_bet);
+
         //min, max bet 처리. last_line_bet 보다 우선한다
         //last_line_bet 처리
     }

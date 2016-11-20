@@ -28,6 +28,19 @@ public class ResDTO
 
     public class Spin : ResDTO
     {
+        /*
+		"jackpotPool": 1000017250,
+		"last_line_bet": 1000,
+		"max_line_bet": 5000000,
+		"min_line_bet": 1000,
+		"subjackpotPool": [
+			1318593525,
+			1072501000,
+			1070535000,
+			1030501750
+		],
+        */
+
         public double level_up_bonus;
         public string freeSpinKey;
         public double? jackpotPool;

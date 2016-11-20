@@ -13,6 +13,7 @@ public class ShiningSevens : MonoBehaviour
 
     public const string L0 = NullSymbol.EMPTY;
     public SlotConfig config;
+    public SlotBetting betting;
 
     SlotMachine _machine;
 
@@ -46,8 +47,8 @@ public class ShiningSevens : MonoBehaviour
         config.SpinCountThreshold = 4;
         config.SpinSpeedPerSec = 15f;
         config.DelayEachReel = 0f;
-        config.tweenFirstBackInfo = new MoveTweenInfo( 0.2f, 0.2f );
-        config.tweenLastBackInfo = new MoveTweenInfo( 0.2f, 0.3f );
+        config.tweenFirstBackInfo = new MoveTweenInfo(0.2f, 0.2f);
+        config.tweenLastBackInfo = new MoveTweenInfo(0.2f, 0.3f);
 
 
         //debug
@@ -68,7 +69,7 @@ public class ShiningSevens : MonoBehaviour
         nameMap.AddSymbolToMap("L0", L0);
         config.NameMap = nameMap;
 
-        //strips setting
+        //startSymbol
         config.SetStartSymbols(new string[,]
         {
             { L0, SR, L0, SG, L0 },
@@ -76,12 +77,36 @@ public class ShiningSevens : MonoBehaviour
             { L0, SB, L0, SG, L0 }
         });
 
-        config.NormalStrip = new ReelStrip( new string[,]
+        /*
+        Config.payLineTable = [
+				[1, 1, 1],
+				[0, 0, 0],
+				[2, 2, 2],
+				[0, 1, 2],
+				[2, 1, 0,]
+			];
+            */
+
+        //strips
+        config.NormalStrip = new ReelStrip(new string[,]
         {
             {SG,BG,SB,BR,SB,W0,SG,BR,SB,BR,SG,BR,BG,SB,W0},
             {SG,BR,SB,BR,SB,W0,SG,BG,SB,BG,SG,BG,BR,SB,BG},
             {SG,BG,W0,BR,SB,SR,SB,BR,SB,SG,BR,BG,W0,BR,BR}
-        }, ReelStrip.ReelStripType.USE_NULL );
+        }, ReelStrip.ReelStripType.USE_NULL);
+
+        if (betting == null) betting = new SlotBetting();
+
+
+        //betting
+        betting.BetTable = new double[]
+        {
+            100,200,500,1000,2000,
+            5000,10000,20000,50000,100000,
+            200000,300000,500000,1000000,2000000,
+            3000000,4000000,5000000,10000000,20000000
+        };
+        SlotConfig.Betting = betting;
 
         _machine = FindObjectOfType<SlotMachine>();
         _machine.Config = config;
