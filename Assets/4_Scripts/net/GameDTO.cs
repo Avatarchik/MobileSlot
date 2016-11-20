@@ -11,14 +11,14 @@ public class DTO
 
 public class ResDTO
 {
-    public class Login : DTO
-    {
-        public int levelPercent;
-        public int level;
-        public int gameLevel;
-        public int gameLevelPercent;
-        public double balance;
+    public double balance;
+    public int level;
+    public int levelPercent;
+    public int gameLevel;
+    public int gameLevelPercent;
 
+    public class Login : ResDTO
+    {
         public int min_line_bet;
         public int last_line_bet;
         public int max_line_bet;
@@ -26,16 +26,9 @@ public class ResDTO
         public double? jackpotPool;
     }
 
-    public class Spin : DTO
+    public class Spin : ResDTO
     {
-        public int levelPercent;
-        public int level;
-        public int gameLevel;
-        public int gameLevelPercent;
-        public double balance;
-
         public double level_up_bonus;
-
         public string freeSpinKey;
         public double? jackpotPool;
         public int winID;
@@ -54,7 +47,7 @@ public class ResDTO
 
             public SpinInfo Next()
             {
-                if( spins != null || spins.Count > 0 ) return spins.Dequeue();
+                if (spins != null || spins.Count > 0) return spins.Dequeue();
 
                 return null;
             }
@@ -70,14 +63,14 @@ public class ResDTO
 
                 public bool IsFreeSpinTrigger
                 {
-                    get{ return freeSpinCount > 0; }
+                    get { return freeSpinCount > 0; }
                 }
 
-                public string[] GetReelData( int column, int rowCount )
+                public string[] GetReelData(int column, int rowCount)
                 {
                     var startIndex = column * rowCount;
-                    string[] res = new string[ rowCount ];
-                    for( var i = 0; i < rowCount; ++i )
+                    string[] res = new string[rowCount];
+                    for (var i = 0; i < rowCount; ++i)
                     {
                         res[i] = reel[startIndex + i];
                     }
