@@ -51,11 +51,11 @@ public class SlotMachine : MonoBehaviour
     {
         if (Config == null)
         {
-            LogError("SlotConfig은 반드시 정의 되어야 합니다");
+            Debug.LogError("SlotConfig은 반드시 정의 되어야 합니다");
             return;
         }
 
-        Log("Run SlotMachine");
+        Debug.Log("Run SlotMachine");
 
         SetState(MachineState.Connecting);
     }
@@ -66,7 +66,15 @@ public class SlotMachine : MonoBehaviour
 
         //Debug.Log(string.Format("STATE CHANGED. {0} >>> {1}", _currentState, next));
 
-        _currentState = next;
+        if( State.Count > 0 &&
+            State.Peek() != MachineState.Connecting &&
+            next == MachineState.Idle )
+        {
+            State.Clear();
+        }
+
+        State.Push( next );
+        _currentState = State.Peek();
 
         switch ( _currentState )
         {
@@ -106,14 +114,6 @@ public class SlotMachine : MonoBehaviour
                 ApplySpinResult();
                 break;
         }
-
-
-        if( State.Peek() != MachineState.Connecting && next == MachineState.Idle )
-        {
-            State.Clear();
-        }
-
-        State.Push( next );
     }
 
     void ConnectServer()
@@ -141,7 +141,7 @@ public class SlotMachine : MonoBehaviour
             yield return null;
         }
 
-        Log("Initialize");
+        Debug.Log("Initialize");
 
         _reelContainer.Initialize(Config);
 
@@ -187,7 +187,7 @@ public class SlotMachine : MonoBehaviour
 
     void OpenCoinShop()
     {
-        Log("돈없어. 그지");
+        Debug.Log("돈없어. 그지");
     }
 
     void Spin()
@@ -272,15 +272,5 @@ public class SlotMachine : MonoBehaviour
         //반영 후 레벨업이 되었다면 연출한다.
 
         SetState( MachineState.Idle );
-    }
-
-    void Log(object message)
-    {
-        Debug.Log("[SlotMachine] " + message);
-    }
-
-    void LogError(object message)
-    {
-        Debug.LogError("[SlotMachine] " + message);
     }
 }
