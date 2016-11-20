@@ -26,7 +26,7 @@ public class SendData
 
 public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 {
-    static public bool ENABLE_LOG = false;
+    static public bool ENABLE_LOG = true;
 
     public event Action OnConnect;
     public event Action<ResDTO.Login> OnLogin;

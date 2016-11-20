@@ -7,38 +7,45 @@ public class SlotModel : SingletonSimple<SlotModel>
 {
     public SlotConfig.FreeSpinRetriggerType RetriggerType { get; set; }
 
-    public event UnityAction<double> OnUpdateBalance;
+    public event UnityAction<double> OnUpdateWinBalance;
+
+    public User Owner { get; private set; }
 
     public float TotalBet { get; private set; }
 
-    //freespin
+
+    #region freespin property
     public bool IsFreeSpinTrigger { get; private set; }
     public bool IsFreeSpining { get; private set; }
     public int FreeSpinAddedCount { get; private set; }
     public int FreeSpinCurrentCount { get; private set; }
     public int FreeSpinTotal { get; private set; }
     public int FreeSpinRemain { get { return FreeSpinTotal - FreeSpinCurrentCount; } }
+    #endregion
 
-    public double Balance
+    private double _winBalance;
+    public double WinBalances
     {
-        get { return _balance; }
+        get { return _winBalance; }
         private set
         {
-            _balance = value;
-            if (OnUpdateBalance != null) OnUpdateBalance(_balance);
+            _winBalance = value;
+            if (OnUpdateWinBalance != null) OnUpdateWinBalance(_winBalance);
         }
     }
 
-    double _balance;
     int _spinCount;
+
     ResDTO.Spin _spinDTO;
     ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
-    public ResDTO.Spin.Payout.SpinInfo LastSpinInfo{ get{ return _lastSpinInfo; }}
+    public ResDTO.Spin.Payout.SpinInfo LastSpinInfo { get { return _lastSpinInfo; } }
 
     public void Reset()
     {
+        if (Owner == null) Owner = new User();
+        else Owner.Reset();
+
         _spinCount = 0;
-        _balance = 0;
 
         _spinDTO = null;
 
@@ -48,7 +55,7 @@ public class SlotModel : SingletonSimple<SlotModel>
 
     public void SetLoginData(ResDTO.Login dto)
     {
-        Balance = dto.balance;
+        Owner.Update( dto );
 
         //min, max bet 처리. last_line_bet 보다 우선한다
         //last_line_bet 처리
@@ -56,6 +63,8 @@ public class SlotModel : SingletonSimple<SlotModel>
 
     public void SetSpinData(ResDTO.Spin dto)
     {
+        Owner.Update( dto );
+
         ++_spinCount;
 
         _spinDTO = dto;
@@ -108,6 +117,6 @@ public class SlotModel : SingletonSimple<SlotModel>
 
     public void ApplyBalance()
     {
-        Balance = _spinDTO.balance;
+        Owner.Balance = _spinDTO.balance;
     }
 }

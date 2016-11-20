@@ -19,22 +19,23 @@ public class SlotMachine : MonoBehaviour
         ApplySpinResult
     }
 
-    public SlotUI ui;
 
     public SlotConfig Config { get; set; }
+    public Stack<MachineState> State { get; private set; }
 
+    SlotMachineUI _ui;
     SlotModel _model;
 
-    public Stack<MachineState> State {get; private set; }
 
     [SerializeField]
     MachineState _currentState;
-
     ReelContainer _reelContainer;
 
     void Awake()
     {
         State = new Stack<MachineState>();
+
+        _ui = FindObjectOfType< SlotMachineUI>() as SlotMachineUI;
 
         _model = SlotModel.Instance;
         _model.Reset();
@@ -62,21 +63,21 @@ public class SlotMachine : MonoBehaviour
 
     protected void SetState(MachineState next)
     {
-        if ( _currentState == next ) return;
+        if (_currentState == next) return;
 
         //Debug.Log(string.Format("STATE CHANGED. {0} >>> {1}", _currentState, next));
 
-        if( State.Count > 0 &&
+        if (State.Count > 0 &&
             State.Peek() != MachineState.Connecting &&
-            next == MachineState.Idle )
+            next == MachineState.Idle)
         {
             State.Clear();
         }
 
-        State.Push( next );
+        State.Push(next);
         _currentState = State.Peek();
 
-        switch ( _currentState )
+        switch (_currentState)
         {
             case MachineState.Connecting:
                 ConnectServer();
@@ -152,7 +153,7 @@ public class SlotMachine : MonoBehaviour
 
     void Idle()
     {
-        ui.Idle();
+        _ui.Idle();
     }
 
     public void TrySpin()
@@ -160,7 +161,7 @@ public class SlotMachine : MonoBehaviour
         switch (_currentState)
         {
             case MachineState.Idle:
-                if (_model.Balance < _model.TotalBet)
+                if (_model.Owner.Balance < _model.TotalBet)
                 {
                     OpenCoinShop();
                     return;
@@ -221,17 +222,17 @@ public class SlotMachine : MonoBehaviour
     {
         //결과 심볼들을 바탕으로 미리 계산 해야 하는 일들이 있다면 여기서 미리 계산한다.
 
-        if( "nudge 시킬 릴이 있다면 넛지" == null )
+        if ("nudge 시킬 릴이 있다면 넛지" == null)
         {
             //do nudge
         }
-        else if( _model.IsFreeSpinTrigger )
+        else if (_model.IsFreeSpinTrigger)
         {
-            SetState( MachineState.FreeSpinTrigger );
+            SetState(MachineState.FreeSpinTrigger);
         }
-        else if( _lastSpinInfo.totalPayout > 0 )
+        else if (_lastSpinInfo.totalPayout > 0)
         {
-            SetState( MachineState.Win );
+            SetState(MachineState.Win);
         }
         else
         {
@@ -241,7 +242,7 @@ public class SlotMachine : MonoBehaviour
 
     void FreeSpinTrigger()
     {
-        Debug.Log("삐리리리리 프리스핀 트리거!" );
+        Debug.Log("삐리리리리 프리스핀 트리거!");
     }
 
     void Win()
@@ -251,17 +252,17 @@ public class SlotMachine : MonoBehaviour
 
     void AfterWin()
     {
-        if( "보너스 스핀 ( 시상이 독립적인 추가 스핀 ) 이 있다면 돌린다" == null )
+        if ("보너스 스핀 ( 시상이 독립적인 추가 스핀 ) 이 있다면 돌린다" == null)
         {
             //do
         }
-        else if( "프리스핀 진행 중이라면 프리스핀 한다" == null )
+        else if ("프리스핀 진행 중이라면 프리스핀 한다" == null)
         {
             //do
         }
         else
         {
-            SetState( MachineState.ApplySpinResult );
+            SetState(MachineState.ApplySpinResult);
         }
     }
 
@@ -269,8 +270,10 @@ public class SlotMachine : MonoBehaviour
     {
         //모든 연출이 끝났다.
         //결과를 실제 유저 객체에 반영한다.
+
+        _ui.UpdateBalance();
         //반영 후 레벨업이 되었다면 연출한다.
 
-        SetState( MachineState.Idle );
+        SetState(MachineState.Idle);
     }
 }
