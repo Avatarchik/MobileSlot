@@ -90,12 +90,28 @@ public class ResDTO
                     return res;
                 }
 
+                public Payline GetPaylineAt( int idx )
+                {
+                    if( idx < 0 || payLines.Length <= idx ) return null;
+
+                    return payLines[ idx ];
+                }
+
                 public class Payline
                 {
-                    public double payout;
-                    public int matches;
                     public int line;
+                    public int matches;
+                    public double payout;
+                    public int? winTable;
                     public bool isJackpot;
+
+                    //추가되면 편리할 것 같은 것들
+                    //public byte[] lineRow;//{1, 1, 1}
+                    //public string[] symbolNames;
+                    //public bool containWild;
+
+                    // 라인에 매칭 되었나
+                    public bool IsLineMatched{ get{ return line >= 0; }}
                 }
             }
         }

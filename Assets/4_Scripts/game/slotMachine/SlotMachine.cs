@@ -277,8 +277,9 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator Win_Enter()
     {
-        _reelContainer.DisplayWinSymbols();
-        yield break;
+        yield return _reelContainer.DisplayWin();
+
+        SetState( MachineState.AfterWin );
     }
 
     IEnumerator AfterWin_Enter()

@@ -138,6 +138,11 @@ public class Reel : MonoBehaviour
         _spinCount = 0;
         _currentStrip = _config.NormalStrip;
 
+        foreach( var s in _symbols )
+        {
+            s.Spin();
+        }
+
         SpinReel();
     }
 
@@ -162,9 +167,18 @@ public class Reel : MonoBehaviour
             return;
         }
 
-        if (_spinCount == 1) TweenFirst();
-        else if (_spinCount > _config.SpinCountThreshold && _resultSymbolNames != null) TweenLast();
-        else TweenLinear();
+        if (_spinCount == 1)
+        {
+            TweenFirst();
+        }
+        else if (_spinCount > _config.SpinCountThreshold && _resultSymbolNames != null)
+        {
+            TweenLast();
+        }
+        else
+        {
+            TweenLinear();
+        }
     }
 
     void AddSpiningSymbols(int count)
@@ -291,6 +305,13 @@ public class Reel : MonoBehaviour
         }
 
         if (OnStop != null) OnStop(this);
+    }
+
+    public Symbol GetSymbolAt( int row )
+    {
+        row += _config.DummySymbolCount;
+        if( row < 0 || _symbols.Count <= row ) throw new System.ArgumentOutOfRangeException();
+        return _symbols[ row ];
     }
 
     void ServerTooLate()
