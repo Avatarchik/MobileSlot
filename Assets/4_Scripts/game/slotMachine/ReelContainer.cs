@@ -112,10 +112,14 @@ public class ReelContainer : MonoBehaviour
         if( OnReelStopComplete != null ) OnReelStopComplete();
     }
 
-    public void displayWinSymbols()
+    public void DisplayWinSymbols()
     {
         //scattered, payline 당첨 모두 동일하게 처리
 
         //시상 skip 지원 (threshold 존재해야함)
+
+        //win 한 정보를 시상에 따라 내림차순 정렬
+        
+        //시상이 된 심볼들을 한번에 하이라이트 한다.
     }
 }

@@ -169,19 +169,7 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator Idle_Enter()
     {
-        Debug.Log("entering...");
-
-        yield return new WaitForSeconds(1);
-
         _ui.Idle();
-
-        Debug.Log("after 1");
-        yield break;
-    }
-
-    IEnumerator Idle_Exit()
-    {
-        Debug.Log("Idle exit");
         yield break;
     }
 
@@ -281,9 +269,15 @@ public class SlotMachine : MonoBehaviour
         yield break;
     }
 
+    IEnumerator FreeSpinTrigge_Exit()
+    {
+        //프리스핀 트리거 리셋
+        yield break;
+    }
+
     IEnumerator Win_Enter()
     {
-        _reelContainer.displayWinSymbols();
+        _reelContainer.DisplayWinSymbols();
         yield break;
     }
 
