@@ -49,7 +49,8 @@ public class ShiningSevens : MonoBehaviour
         config.DelayEachReel = 0f;
         config.tweenFirstBackInfo = new MoveTweenInfo(0.2f, 0.2f);
         config.tweenLastBackInfo = new MoveTweenInfo(0.2f, 0.3f);
-
+        //test
+        config.SpinCountThreshold = 1;
 
         //debug
         config.DebugSymbolArea = false;
@@ -77,17 +78,20 @@ public class ShiningSevens : MonoBehaviour
             { L0, SB, L0, SG, L0 }
         });
 
-        /*
-        Config.payLineTable = [
-				[1, 1, 1],
-				[0, 0, 0],
-				[2, 2, 2],
-				[0, 1, 2],
-				[2, 1, 0,]
-			];
-            */
+        //paylineTable
+        int[][] paylineTable =
+        {
+            new int[] {1,1,1},
+            new int[] {0,0,0},
+            new int[] {2,2,2},
+            new int[] {0,1,2},
+            new int[] {2,1,0}
+        };
+        config.paylineTable = paylineTable;
 
         //strips
+        //todo
+        //릴스트립도 가변배열로 고쳐야함
         config.NormalStrip = new ReelStrip(new string[,]
         {
             {SG,BG,SB,BR,SB,W0,SG,BR,SB,BR,SG,BR,BG,SB,W0},

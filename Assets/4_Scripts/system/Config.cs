@@ -70,6 +70,9 @@ public class SlotConfig
 
     public FreeSpinRetriggerType RetriggerType;
 
+    [Header("PaylineTable")]
+    public int[][] paylineTable;
+
     [Header("Reel")]
     public Reel ReelPrefab;
     public Size2D ReelSize;
