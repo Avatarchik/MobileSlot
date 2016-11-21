@@ -23,19 +23,24 @@ public class SlotMachine : MonoBehaviour
     public SlotConfig Config { get; set; }
     public Stack<MachineState> State { get; private set; }
 
-    SlotMachineUI _ui;
-    SlotModel _model;
-
-
     [SerializeField]
     MachineState _currentState;
+    Dictionary<MachineState, Func<IEnumerator>> _stateEnterMap;
+    Dictionary<MachineState, Func<IEnumerator>> _stateExitMap;
+    Func<IEnumerator> _stateEnter;
+    Func<IEnumerator> _stateExit;
+
+    SlotMachineUI _ui;
+    SlotModel _model;
     ReelContainer _reelContainer;
 
     void Awake()
     {
         State = new Stack<MachineState>();
 
-        _ui = FindObjectOfType< SlotMachineUI>() as SlotMachineUI;
+        CacheStateBehaviour();
+
+        _ui = FindObjectOfType<SlotMachineUI>() as SlotMachineUI;
 
         _model = SlotModel.Instance;
         _model.Reset();
@@ -46,6 +51,42 @@ public class SlotMachine : MonoBehaviour
         GameServerCommunicator.Instance.OnConnect += ConnectComplete;
         GameServerCommunicator.Instance.OnLogin += LoginComplete;
         GameServerCommunicator.Instance.OnSpin += SpinComplete;
+    }
+
+    void CacheStateBehaviour()
+    {
+        _stateEnterMap = new Dictionary<MachineState, Func<IEnumerator>>();
+        _stateExitMap = new Dictionary<MachineState, Func<IEnumerator>>();
+
+        var states = Enum.GetValues(typeof(MachineState));
+        foreach (MachineState s in states)
+        {
+            string stateName = s.ToString();
+
+            var enter = FindMethod(stateName + "_Enter");
+            var exit = FindMethod(stateName + "_Exit");
+
+            _stateEnterMap[s] = enter;
+            _stateExitMap[s] = exit;
+        }
+    }
+
+    Func<IEnumerator> FindMethod(string methodName)
+    {
+        System.Reflection.MethodInfo methodInfo = GetType().GetMethod
+        (
+            methodName,
+            System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic
+        );
+
+        if( methodInfo == null) return DoNothing;
+        else return Delegate.CreateDelegate(typeof(Func<IEnumerator>),this, methodInfo) as Func<IEnumerator>;
+    }
+
+    IEnumerator DoNothing()
+    {
+        yield break;
     }
 
     public void Run()
@@ -65,8 +106,6 @@ public class SlotMachine : MonoBehaviour
     {
         if (_currentState == next) return;
 
-        //Debug.Log(string.Format("STATE CHANGED. {0} >>> {1}", _currentState, next));
-
         if (State.Count > 0 &&
             State.Peek() != MachineState.Connecting &&
             next == MachineState.Idle)
@@ -74,52 +113,29 @@ public class SlotMachine : MonoBehaviour
             State.Clear();
         }
 
+        //Debug.Log(string.Format("STATE CHANGED. {0} >>> {1}", _currentState, next));
+
         State.Push(next);
         _currentState = State.Peek();
 
-        switch (_currentState)
-        {
-            case MachineState.Connecting:
-                ConnectServer();
-                break;
-
-            case MachineState.Idle:
-                Idle();
-                break;
-
-            case MachineState.Spin:
-                Spin();
-                break;
-
-            case MachineState.ReceivedSymbol:
-                ReceivedSymbol();
-                break;
-
-            case MachineState.CheckSpinResult:
-                CheckSpinResult();
-                break;
-
-            case MachineState.FreeSpinTrigger:
-                FreeSpinTrigger();
-                break;
-
-            case MachineState.Win:
-                Win();
-                break;
-
-            case MachineState.AfterWin:
-                AfterWin();
-                break;
-
-            case MachineState.ApplySpinResult:
-                ApplySpinResult();
-                break;
-        }
+        StateEnter();
     }
 
-    void ConnectServer()
+    void StateEnter()
+    {
+        if (_stateExit != null) StartCoroutine(_stateExit());
+        
+        _stateEnter = _stateEnterMap[_currentState];
+        _stateExit = _stateExitMap[_currentState];
+        
+        if (_stateEnter != null) StartCoroutine(_stateEnter());
+    }
+
+    IEnumerator Connecting_Enter()
     {
         GameServerCommunicator.Instance.Connect(SlotConfig.Host, SlotConfig.Port);
+
+        yield break;
     }
 
     void ConnectComplete()
@@ -151,9 +167,22 @@ public class SlotMachine : MonoBehaviour
         GameManager.Instance.GameReady();
     }
 
-    void Idle()
+    IEnumerator Idle_Enter()
     {
+        Debug.Log("entering...");
+
+        yield return new WaitForSeconds(1);
+
         _ui.Idle();
+
+        Debug.Log("after 1");
+        yield break;
+    }
+
+    IEnumerator Idle_Exit()
+    {
+        Debug.Log("Idle exit");
+        yield break;
     }
 
     public void TrySpin()
@@ -191,11 +220,13 @@ public class SlotMachine : MonoBehaviour
         Debug.Log("돈없어. 그지");
     }
 
-    void Spin()
+    IEnumerator Spin_Enter()
     {
         //더미 심볼 돌리자
         _reelContainer.Spin();
         GameServerCommunicator.Instance.Spin(10000);
+
+        yield break;
     }
 
     ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
@@ -208,9 +239,11 @@ public class SlotMachine : MonoBehaviour
         SetState(MachineState.ReceivedSymbol);
     }
 
-    void ReceivedSymbol()
+    IEnumerator ReceivedSymbol_Enter()
     {
         _reelContainer.ReceivedSymbol(_lastSpinInfo);
+
+        yield break;
     }
 
     void ReelStopComplete()
@@ -218,7 +251,7 @@ public class SlotMachine : MonoBehaviour
         SetState(MachineState.CheckSpinResult);
     }
 
-    void CheckSpinResult()
+    IEnumerator CheckSpinResult_Enter()
     {
         //결과 심볼들을 바탕으로 미리 계산 해야 하는 일들이 있다면 여기서 미리 계산한다.
 
@@ -238,19 +271,23 @@ public class SlotMachine : MonoBehaviour
         {
             SetState(MachineState.AfterWin);
         }
+
+        yield break;
     }
 
-    void FreeSpinTrigger()
+    IEnumerator FreeSpinTrigger_Enter()
     {
         Debug.Log("삐리리리리 프리스핀 트리거!");
+        yield break;
     }
 
-    void Win()
+    IEnumerator Win_Enter()
     {
-
+        _reelContainer.displayWinSymbols();
+        yield break;
     }
 
-    void AfterWin()
+    IEnumerator AfterWin_Enter()
     {
         if ("보너스 스핀 ( 시상이 독립적인 추가 스핀 ) 이 있다면 돌린다" == null)
         {
@@ -264,9 +301,10 @@ public class SlotMachine : MonoBehaviour
         {
             SetState(MachineState.ApplySpinResult);
         }
+        yield break;
     }
 
-    void ApplySpinResult()
+    IEnumerator ApplySpinResult_Enter()
     {
         //모든 연출이 끝났다.
         //결과를 실제 유저 객체에 반영한다.
@@ -275,5 +313,6 @@ public class SlotMachine : MonoBehaviour
         //반영 후 레벨업이 되었다면 연출한다.
 
         SetState(MachineState.Idle);
+        yield break;
     }
 }

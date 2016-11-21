@@ -111,4 +111,11 @@ public class ReelContainer : MonoBehaviour
         Debug.Log( "ReelAllCompleted" );
         if( OnReelStopComplete != null ) OnReelStopComplete();
     }
+
+    public void displayWinSymbols()
+    {
+        //scattered, payline 당첨 모두 동일하게 처리
+
+        //시상 skip 지원 (threshold 존재해야함)
+    }
 }
