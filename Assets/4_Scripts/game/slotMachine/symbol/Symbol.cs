@@ -10,14 +10,16 @@ public abstract class Symbol : MonoBehaviour
     Transform _tf;
     Transform _content;
     SpriteRenderer _displayArea;
+    SpriteRenderer _sprite;
 
     virtual protected void Awake()
     {
         _tf = transform;
         _content = _tf.Find("content");
+        _sprite = _tf.Find("content/sprite").GetComponent<SpriteRenderer>();
     }
 
-    public void Initialize(string symbolName, Size2D areaSize, bool dipslayArea = false )
+    public void Initialize(string symbolName, Size2D areaSize, bool dipslayArea = false)
     {
         if (IsInitialized) return;
 
@@ -26,7 +28,7 @@ public abstract class Symbol : MonoBehaviour
         Area = areaSize;
         SymbolName = symbolName;
 
-        if ( dipslayArea )
+        if (dipslayArea)
         {
             _displayArea = CreateDisplayArea();
         }
@@ -43,7 +45,7 @@ public abstract class Symbol : MonoBehaviour
         renderer.sortingOrder = -1;
         renderer.sprite = Resources.Load<Sprite>("textures/Square");
 
-        renderer.color = ColorHSV.GetRandomColor(Random.Range(0.0f, 360f),0.75f);
+        renderer.color = ColorHSV.GetRandomColor(Random.Range(0.0f, 360f), 0.75f);
         return renderer;
     }
 
@@ -58,6 +60,18 @@ public abstract class Symbol : MonoBehaviour
         Y = ypos;
 
         if (asFirst) _tf.SetAsFirstSibling();
+    }
+
+    public void Win()
+    {
+        _content.localScale = new Vector3(1.25f, 1.25f, 1.25f);
+        _sprite.sortingLayerName = Layers.Sorting.WIN;
+    }
+
+    public void Spin()
+    {
+        _content.localScale = Vector3.one;
+        _sprite.sortingLayerName = Layers.Sorting.SYMBOL;
     }
 
     public void Clear()
