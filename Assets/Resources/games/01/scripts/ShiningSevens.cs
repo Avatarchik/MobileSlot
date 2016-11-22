@@ -99,10 +99,8 @@ public class ShiningSevens : MonoBehaviour
             {SG,BG,W0,BR,SB,SR,SB,BR,SB,SG,BR,BG,W0,BR,BR}
         }, ReelStrip.ReelStripType.USE_NULL);
 
-        if (betting == null) betting = new SlotBetting();
-
-
         //betting
+        if (betting == null) betting = new SlotBetting();
         betting.BetTable = new double[]
         {
             100,200,500,1000,2000,
@@ -110,6 +108,7 @@ public class ShiningSevens : MonoBehaviour
             200000,300000,500000,1000000,2000000,
             3000000,4000000,5000000,10000000,20000000
         };
+        betting.PaylineNum = config.paylineTable.Length;
         SlotConfig.Betting = betting;
 
         _machine = FindObjectOfType<SlotMachine>();

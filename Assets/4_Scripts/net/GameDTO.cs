@@ -20,8 +20,8 @@ public class ResDTO
     public class Login : ResDTO
     {
         public int min_line_bet;
-        public int last_line_bet;
         public int max_line_bet;
+        public int last_line_bet;
 
         public double? jackpotPool;
     }
