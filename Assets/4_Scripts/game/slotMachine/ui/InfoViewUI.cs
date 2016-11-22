@@ -3,6 +3,8 @@ using UnityEngine.UI;
 
 using System.Collections;
 
+using DG.Tweening;
+
 
 public class InfoViewUI : MonoBehaviour
 {
@@ -13,6 +15,10 @@ public class InfoViewUI : MonoBehaviour
 
     SlotModel _model;
     SlotBetting _betting;
+
+    double _lineBet;
+    double _totalBet;
+    double _win;
 
     void Awake()
     {
@@ -30,30 +36,56 @@ public class InfoViewUI : MonoBehaviour
         _betting.OnUpdateLineBetIndex += OnUpdateLineBetHandler;
 
         SetLineNum(slot.Config.paylineTable.Length);
-        SetWin( 0 );
+        SetWin(0);
 
         OnUpdateLineBetHandler();
     }
 
     void OnUpdateLineBetHandler()
     {
-        SetLineBet(_betting.CurrentLineBet);
-        SetTotalBet(_betting.CurrentTotalBet);
+        SetLineBet(_betting.LineBet);
+        SetTotalBet(_betting.TotalBet);
     }
 
-    void SetLineBet(double balance, float duration = 0.5f)
+    public void SetWin(double win, float duration = 0f)
     {
-        txtBet.text = balance.ToString("#,##0");
+        if (win == _win || duration == 0f) UpdateWin(win);
+        else DOTween.To(() => _win, x => UpdateWin(x), win, duration).Play();
     }
 
-    void SetTotalBet(double balance, float duration = 0.5f)
+    public void AddWin(double increment, float duration = 0.3f)
     {
-        txtTotalBet.text = balance.ToString("#,##0");
+        SetWin(_win + increment, duration);
     }
 
-    void SetWin(double balance, float duration = 0.5f)
+    void UpdateWin(double win)
     {
-        txtWin.text = balance.ToString("#,##0");
+        _win = win;
+        txtWin.text = _win.ToString("#,##0");
+    }
+
+    void SetLineBet(double bet, float duration = 0.2f)
+    {
+        if (_lineBet == 0 || bet <= _lineBet || duration == 0f) UpdateLineBet(bet);
+        else DOTween.To(() => _lineBet, x => UpdateLineBet(x), bet, duration).Play();
+    }
+
+    void UpdateLineBet(double bet)
+    {
+        _lineBet = bet;
+        txtBet.text = bet.ToString("#,##0");
+    }
+
+    void SetTotalBet(double bet, float duration = 0.2f)
+    {
+        if (_totalBet == 0 || bet <= _totalBet || duration == 0f) UpdateTotalBet(bet);
+        else DOTween.To(() => _win, x => UpdateTotalBet(x), bet, duration).Play();
+    }
+
+    void UpdateTotalBet(double bet)
+    {
+        _totalBet = bet;
+        txtTotalBet.text = bet.ToString("#,##0");
     }
 
     void SetLineNum(int num)

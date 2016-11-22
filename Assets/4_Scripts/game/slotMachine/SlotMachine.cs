@@ -177,7 +177,7 @@ public class SlotMachine : MonoBehaviour
         switch (_currentState)
         {
             case MachineState.Idle:
-                if (_model.Owner.Balance < _betting.CurrentTotalBet)
+                if (_model.Owner.Balance < _betting.TotalBet)
                 {
                     OpenCoinShop();
                     return;
@@ -209,7 +209,7 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator Spin_Enter()
     {
-        //더미 심볼 돌리자
+        _ui.Spin();
         _reelContainer.Spin();
         GameServerCommunicator.Instance.Spin(10000);
 
@@ -276,8 +276,13 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator Win_Enter()
     {
-        yield return _reelContainer.DisplayWin();
+        yield return _reelContainer.DisplayWinSymbols();
 
+        //빅윈,메가윈,잭팟, progressive 등을 체크하자
+        //경우에 따라 팝업 을 띄워야 할 수도 있음.
+
+        yield return _ui.AddWinBalance( _lastSpinInfo.totalPayout );
+        
         SetState(MachineState.AfterWin);
     }
 

@@ -192,7 +192,6 @@ public abstract class Symbol : MonoBehaviour
         _fallbackAnimSequence.Append(_content.DOScale(toScale, duration).SetEase(Ease.OutCubic));
         _fallbackAnimSequence.AppendInterval(interval);
         _fallbackAnimSequence.Append(_content.DOScale(fromScale, duration).SetEase(Ease.InCubic));
-        _fallbackAnimSequence.AppendCallback(() => Debug.Log("winAnimComplete"));
         _fallbackAnimSequence.Play();
     }
 

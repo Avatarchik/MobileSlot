@@ -11,9 +11,6 @@ public class SlotBetting
 
     [SerializeField]
     double[] _betTable;
-    public double[] BetTable { set { _betTable = value; } }
-
-    public int PaylineNum{ get;set;}
 
     [SerializeField]
     double _minLineBet;
@@ -26,7 +23,14 @@ public class SlotBetting
 
     [SerializeField]
     int _currentLinBetIndex;
-    public int CurrentLineBetIndex
+
+    #region Property
+
+    public double[] BetTable { set { _betTable = value; } }
+
+    public int PaylineNum { get; set; }
+
+    public int LineBetIndex
     {
         get { return _currentLinBetIndex; }
         set
@@ -40,16 +44,42 @@ public class SlotBetting
         }
     }
 
-    public double CurrentLineBet
+    public double LineBet
     {
         get { return _betTable[_currentLinBetIndex]; }
-
-        // TotalBet = _betting.CurrentLineBet * _config.paylineTable.Length;
     }
 
-    public double CurrentTotalBet
+    public double TotalBet
     {
-        get{ return CurrentLineBet * PaylineNum; }
+        get { return LineBet * PaylineNum; }
+    }
+
+    public bool IsFirstBet
+    {
+        get { return _currentLinBetIndex <= 0; }
+    }
+
+    public bool IsLastBet
+    {
+        get { return _currentLinBetIndex >= _betTable.Length - 1; }
+    }
+
+    #endregion
+
+
+    #region API
+    public void Decrease()
+    {
+        if (IsFirstBet) return;
+
+        LineBetIndex = _currentLinBetIndex - 1;
+    }
+
+    public void Increase()
+    {
+        if (IsLastBet) return;
+
+        LineBetIndex = _currentLinBetIndex + 1;
     }
 
     public void Init(double min, double max, double last)
@@ -72,7 +102,7 @@ public class SlotBetting
         //최초 벳 결정
         CheckFirstBet();
     }
-
+    #endregion
 
 
     void CheckMinBet()
@@ -106,12 +136,12 @@ public class SlotBetting
     {
         if (_lastLineBet <= 0)
         {
-            CurrentLineBetIndex = 0;
+            LineBetIndex = 0;
             return;
         }
 
         var betIndex = Array.IndexOf(_betTable, _lastLineBet);
-        if (betIndex < 0) CurrentLineBetIndex = 0;
-        else CurrentLineBetIndex = betIndex;
+        if (betIndex < 0) LineBetIndex = 0;
+        else LineBetIndex = betIndex;
     }
 }

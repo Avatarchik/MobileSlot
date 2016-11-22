@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-
+using System.Collections;
 public class SlotMachineUI : MonoBehaviour
 {
     public Text TxtBalance;
@@ -22,7 +22,7 @@ public class SlotMachineUI : MonoBehaviour
         CanvasUtil.CanvasSetting(GetComponent<Canvas>());
 
         _info = GetComponentInChildren<InfoViewUI>();
-        if( _info == null ) Debug.LogError("can't find InfoViewUI");
+        if (_info == null) Debug.LogError("can't find InfoViewUI");
     }
 
     void Start()
@@ -30,9 +30,11 @@ public class SlotMachineUI : MonoBehaviour
         SetBalance(0);
     }
 
+    SlotBetting _betting;
     public void Initialize(SlotMachine slot)
     {
         _slot = slot;
+        _betting = _slot.Config.Common.Betting;
 
         InitInfo();
         InitButtons();
@@ -40,7 +42,7 @@ public class SlotMachineUI : MonoBehaviour
 
     void InitInfo()
     {
-        _info.Init( _slot );
+        _info.Init(_slot);
     }
 
     void InitButtons()
@@ -52,34 +54,78 @@ public class SlotMachineUI : MonoBehaviour
 
         btnBetDecrease.onClick.AddListener(() =>
         {
-            Debug.Log("---");
+            _betting.Decrease();
         });
 
         btnBetIncrease.onClick.AddListener(() =>
         {
-            Debug.Log("+++");
+            _betting.Increase();
         });
 
         btnFast.onClick.AddListener(() =>
         {
-            Debug.Log("fast");
+            //Debug.Log("fast");
         });
 
         btnAuto.onClick.AddListener(() =>
         {
-            Debug.Log("auto");
+            //Debug.Log("auto");
         });
 
         btnSpin.onClick.AddListener(() =>
         {
-            Debug.Log("spin");
             _slot.TrySpin();
         });
+
+        _betting.OnUpdateLineBetIndex += () =>
+        {
+            UpdateButtonState();
+        };
+
+        UpdateButtonState();
+    }
+
+    void UpdateButtonState()
+    {
+        if (_betting.IsFirstBet)
+        {
+            btnBetDecrease.interactable = false;
+            btnBetIncrease.interactable = true;
+        }
+        else if (_betting.IsLastBet)
+        {
+            btnBetDecrease.interactable = true;
+            btnBetIncrease.interactable = false;
+        }
+        else
+        {
+            btnBetDecrease.interactable = true;
+            btnBetIncrease.interactable = true;
+        }
     }
 
     public void Idle()
     {
         UpdateBalance();
+    }
+
+    public void Spin()
+    {
+        _info.SetWin(0);
+    }
+
+    public Coroutine AddWinBalance(double win)
+    {
+        return StartCoroutine(AddWinBalanceRoutine(win));
+    }
+
+    IEnumerator AddWinBalanceRoutine(double win)
+    {
+        //float skipDelay = 0.5f;
+        float duration = 1f;
+        _info.AddWin(win,duration);
+
+        yield return new WaitForSeconds( duration );
     }
 
     public void UpdateBalance()

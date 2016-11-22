@@ -31,7 +31,7 @@ public class ReelContainer : MonoBehaviour
         }
     }
 
-    public void Initialize( SlotMachine slot )
+    public void Initialize(SlotMachine slot)
     {
         _config = slot.Config;
 
@@ -88,7 +88,7 @@ public class ReelContainer : MonoBehaviour
     {
         _lastStoppedReel = reel;
 
-        Debug.Log("reel " + _lastStoppedReel.Column + " stopped");
+        //Debug.Log("reel " + _lastStoppedReel.Column + " stopped");
 
         ++_nextStopIndex;
 
@@ -111,16 +111,15 @@ public class ReelContainer : MonoBehaviour
 
     void ReelAllCompleted()
     {
-        Debug.Log("ReelAllCompleted");
         if (OnReelStopComplete != null) OnReelStopComplete();
     }
 
-    public Coroutine DisplayWin()
+    public Coroutine DisplayWinSymbols()
     {
-        return StartCoroutine( DisplayWinRoutine() );
+        return StartCoroutine(DisplayWinSymbolsRoutine());
     }
 
-    IEnumerator DisplayWinRoutine()
+    IEnumerator DisplayWinSymbolsRoutine()
     {
         //scattered, payline 당첨 모두 동일하게 처리
         //시상 skip 지원 (threshold 존재해야함)
@@ -128,30 +127,27 @@ public class ReelContainer : MonoBehaviour
 
         FindAllWinInfo();
 
-        //경우에 따라 스택 심볼의 병합된 이미지라던지
-        //팝업이라던지
-        //기타등등을 보여줘야할 경우가 있따
-        yield return StartCoroutine( PlaySpecialWinDirection() );
+        yield return StartCoroutine(PlaySpecialWinDirection());
 
-        DisplayAllWinSymbol();
-
-        yield return new WaitForSeconds(1f);
+        PlayAllSymbols();
     }
 
+    //경우에 따라 스택 심볼의 병합된 이미지라던지
+    //팝업이라던지
+    //기타등등을 보여줘야할 경우가 있따
     IEnumerator PlaySpecialWinDirection()
     {
         yield break;
     }
 
-    public void DisplayAllWinSymbol()
+    public void PlayAllSymbols()
     {
-        Debug.Log("DisplayAllWinSymbol");
         //필요한 경우 여기서 winsymbol 의 수와 종류를 파악. 사운드 재생등을 커스텀 시킨다.
 
         var count = _allSymbol.Count;
-        for( var i = 0; i < count; ++i )
+        for (var i = 0; i < count; ++i)
         {
-            _allSymbol[i].SetState( Symbol.SymbolState.Win );
+            _allSymbol[i].SetState(Symbol.SymbolState.Win);
         }
     }
 
@@ -177,9 +173,8 @@ public class ReelContainer : MonoBehaviour
         _allSymbol.Clear();
         _winInfos.Clear();
 
-        //win 한 정보를 시상에 따라 내림차순 정렬
-
-        Debug.LogFormat("find {0} win info",_lastSpinInfo.payLines.Length );
+        //todo
+        //win 한 정보를 시상에 따라 내림차순 정렬해야함
 
         for (var i = 0; i < _lastSpinInfo.payLines.Length; ++i)
         {
@@ -208,7 +203,7 @@ public class ReelContainer : MonoBehaviour
             }
 
             RegisterWinSymbol(winInfo);
-            _winInfos.Add( winInfo );
+            _winInfos.Add(winInfo);
         }
     }
 }

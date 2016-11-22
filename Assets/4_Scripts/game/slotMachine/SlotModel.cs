@@ -5,11 +5,8 @@ using lpesign;
 
 public class SlotModel : SingletonSimple<SlotModel>
 {
-    public SlotConfig.FreeSpinRetriggerType RetriggerType { get; set; }
 
     public event Action<double> OnUpdateWinBalance;
-
-    public User Owner { get; private set; }
 
 
     #region freespin property
@@ -19,7 +16,9 @@ public class SlotModel : SingletonSimple<SlotModel>
     public int FreeSpinCurrentCount { get; private set; }
     public int FreeSpinTotal { get; private set; }
     public int FreeSpinRemain { get { return FreeSpinTotal - FreeSpinCurrentCount; } }
-    #endregion
+
+    public SlotConfig.FreeSpinRetriggerType RetriggerType { get; set; }
+    public User Owner { get; private set; }
 
     double _winBalance;
     public double WinBalances
@@ -27,21 +26,24 @@ public class SlotModel : SingletonSimple<SlotModel>
         get { return _winBalance; }
         private set
         {
+            if (_winBalance == value) return;
+
             _winBalance = value;
             if (OnUpdateWinBalance != null) OnUpdateWinBalance(_winBalance);
         }
     }
 
+    ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
+    public ResDTO.Spin.Payout.SpinInfo LastSpinInfo { get { return _lastSpinInfo; } }
+    #endregion
+
     int _spinCount;
 
     ResDTO.Spin _spinDTO;
-    ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
-    public ResDTO.Spin.Payout.SpinInfo LastSpinInfo { get { return _lastSpinInfo; } }
 
     SlotBetting _betting;
 
     SlotConfig _config;
-
 
     public void Reset()
     {
@@ -55,7 +57,7 @@ public class SlotModel : SingletonSimple<SlotModel>
         IsFreeSpinTrigger = false;
     }
 
-    public void Initialize(SlotMachine slot, ResDTO.Login dto )
+    public void Initialize(SlotMachine slot, ResDTO.Login dto)
     {
         Reset();
 
@@ -63,7 +65,7 @@ public class SlotModel : SingletonSimple<SlotModel>
 
         _betting = _config.Common.Betting;
 
-        SetLoginData( dto );
+        SetLoginData(dto);
     }
 
     public void SetLoginData(ResDTO.Login dto)
