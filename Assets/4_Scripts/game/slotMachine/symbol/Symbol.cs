@@ -162,6 +162,12 @@ public abstract class Symbol : MonoBehaviour
 
     void Reset()
     {
+        if (_fallbackAnimSequence != null)
+        {
+            _fallbackAnimSequence.Kill();
+            _fallbackAnimSequence = null;
+        }
+        
         //stop anim
         // _content scale alpha ...etc reset
         // _sprite scale alpha ...etc reset

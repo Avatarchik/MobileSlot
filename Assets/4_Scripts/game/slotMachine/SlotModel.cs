@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using UnityEngine.Events;
+using System;
 using System.Collections;
 using lpesign;
 
@@ -7,11 +7,9 @@ public class SlotModel : SingletonSimple<SlotModel>
 {
     public SlotConfig.FreeSpinRetriggerType RetriggerType { get; set; }
 
-    public event UnityAction<double> OnUpdateWinBalance;
+    public event Action<double> OnUpdateWinBalance;
 
     public User Owner { get; private set; }
-
-    public float TotalBet { get; private set; }
 
 
     #region freespin property
@@ -23,7 +21,7 @@ public class SlotModel : SingletonSimple<SlotModel>
     public int FreeSpinRemain { get { return FreeSpinTotal - FreeSpinCurrentCount; } }
     #endregion
 
-    private double _winBalance;
+    double _winBalance;
     public double WinBalances
     {
         get { return _winBalance; }
@@ -40,6 +38,11 @@ public class SlotModel : SingletonSimple<SlotModel>
     ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
     public ResDTO.Spin.Payout.SpinInfo LastSpinInfo { get { return _lastSpinInfo; } }
 
+    SlotBetting _betting;
+
+    SlotConfig _config;
+
+
     public void Reset()
     {
         if (Owner == null) Owner = new User();
@@ -49,23 +52,30 @@ public class SlotModel : SingletonSimple<SlotModel>
 
         _spinDTO = null;
 
-        TotalBet = 0;
         IsFreeSpinTrigger = false;
+    }
+
+    public void Initialize(SlotMachine slot, ResDTO.Login dto )
+    {
+        Reset();
+
+        _config = slot.Config;
+
+        _betting = SlotConfig.Betting;
+
+        SetLoginData( dto );
     }
 
     public void SetLoginData(ResDTO.Login dto)
     {
-        Owner.Update( dto );
+        Owner.Update(dto);
 
-        SlotConfig.Betting.Init( dto.min_line_bet, dto.max_line_bet, dto.last_line_bet);
-
-        //min, max bet 처리. last_line_bet 보다 우선한다
-        //last_line_bet 처리
+        _betting.Init(dto.min_line_bet, dto.max_line_bet, dto.last_line_bet);
     }
 
     public void SetSpinData(ResDTO.Spin dto)
     {
-        Owner.Update( dto );
+        Owner.Update(dto);
 
         ++_spinCount;
 

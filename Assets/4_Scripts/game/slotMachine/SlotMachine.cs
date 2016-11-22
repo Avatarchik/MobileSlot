@@ -33,6 +33,7 @@ public class SlotMachine : MonoBehaviour
     SlotMachineUI _ui;
     SlotModel _model;
     ReelContainer _reelContainer;
+    SlotBetting _betting;
 
     void Awake()
     {
@@ -41,9 +42,9 @@ public class SlotMachine : MonoBehaviour
         CacheStateBehaviour();
 
         _ui = FindObjectOfType<SlotMachineUI>() as SlotMachineUI;
+        if (_ui == null) Debug.LogError("can't find ui");
 
         _model = SlotModel.Instance;
-        _model.Reset();
 
         _reelContainer = GetComponentInChildren<ReelContainer>();
         _reelContainer.OnReelStopComplete += ReelStopComplete;
@@ -80,8 +81,8 @@ public class SlotMachine : MonoBehaviour
             System.Reflection.BindingFlags.NonPublic
         );
 
-        if( methodInfo == null) return DoNothing;
-        else return Delegate.CreateDelegate(typeof(Func<IEnumerator>),this, methodInfo) as Func<IEnumerator>;
+        if (methodInfo == null) return DoNothing;
+        else return Delegate.CreateDelegate(typeof(Func<IEnumerator>), this, methodInfo) as Func<IEnumerator>;
     }
 
     IEnumerator DoNothing()
@@ -113,8 +114,6 @@ public class SlotMachine : MonoBehaviour
             State.Clear();
         }
 
-        //Debug.Log(string.Format("STATE CHANGED. {0} >>> {1}", _currentState, next));
-
         State.Push(next);
         _currentState = State.Peek();
 
@@ -124,10 +123,10 @@ public class SlotMachine : MonoBehaviour
     void StateEnter()
     {
         if (_stateExit != null) StartCoroutine(_stateExit());
-        
+
         _stateEnter = _stateEnterMap[_currentState];
         _stateExit = _stateExitMap[_currentState];
-        
+
         if (_stateEnter != null) StartCoroutine(_stateEnter());
     }
 
@@ -145,22 +144,22 @@ public class SlotMachine : MonoBehaviour
 
     void LoginComplete(ResDTO.Login dto)
     {
-        _model.SetLoginData(dto);
-
-        StartCoroutine(Initialize());
+        StartCoroutine(Initialize( dto ));
     }
 
-    IEnumerator Initialize()
+    IEnumerator Initialize( ResDTO.Login dto )
     {
         //필요한 리소스 Pool 들의 preload 가 완료 되길 기다린다.
         while (GamePool.Instance.IsReady == false)
         {
             yield return null;
         }
+        
+        _betting = SlotConfig.Betting;
 
-        Debug.Log("Initialize");
-
-        _reelContainer.Initialize(Config);
+        _model.Initialize( this, dto );
+        _ui.Initialize(this);
+        _reelContainer.Initialize(this);
 
         SetState(MachineState.Idle);
 
@@ -178,7 +177,7 @@ public class SlotMachine : MonoBehaviour
         switch (_currentState)
         {
             case MachineState.Idle:
-                if (_model.Owner.Balance < _model.TotalBet)
+                if (_model.Owner.Balance < _betting.CurrentTotalBet)
                 {
                     OpenCoinShop();
                     return;
@@ -279,7 +278,7 @@ public class SlotMachine : MonoBehaviour
     {
         yield return _reelContainer.DisplayWin();
 
-        SetState( MachineState.AfterWin );
+        SetState(MachineState.AfterWin);
     }
 
     IEnumerator AfterWin_Enter()

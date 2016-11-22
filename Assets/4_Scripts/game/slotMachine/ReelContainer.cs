@@ -31,9 +31,9 @@ public class ReelContainer : MonoBehaviour
         }
     }
 
-    public void Initialize(SlotConfig config)
+    public void Initialize( SlotMachine slot )
     {
-        _config = config;
+        _config = slot.Config;
 
         CreateReels();
     }
