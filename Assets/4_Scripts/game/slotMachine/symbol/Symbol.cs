@@ -74,8 +74,23 @@ public abstract class Symbol : MonoBehaviour
         _sprite.sortingLayerName = Layers.Sorting.SYMBOL;
     }
 
+    void Reset()
+    {
+        //stop anim
+        // _content scale alpha ...etc reset
+        // _sprite scale alpha ...etc reset
+        // reset blur
+    }
+
+    protected void PlayAnimation()
+    {
+        // if (mAnim == null) return;
+        // mAnim.PlayAnimation(animName, loop, layerIndex);
+    }
+
     public void Clear()
     {
+        Reset();
         GamePool.Instance.DespawnSymbol(this);
     }
 
