@@ -5,6 +5,18 @@ using DG.Tweening;
 
 public abstract class Symbol : MonoBehaviour
 {
+    public enum SymbolState
+    {
+        Null,
+        Idle,
+        Spin,
+        Stop,
+        Scatter,
+        Trigger,
+        Win,
+        Lock
+    }
+
     public Size2D Area { get; private set; }
     public string SymbolName { get; private set; }
     public bool IsInitialized { get; private set; }
@@ -14,11 +26,16 @@ public abstract class Symbol : MonoBehaviour
     SpriteRenderer _displayArea;
     SpriteRenderer _sprite;
 
+    AnimControl _anim;
+    Sequence _fallbackAnimSequence;
+
     virtual protected void Awake()
     {
         _tf = transform;
         _content = _tf.Find("content");
         _sprite = _tf.Find("content/sprite").GetComponent<SpriteRenderer>();
+
+        _anim = GetComponentInChildren<AnimControl>();
     }
 
     public void Initialize(string symbolName, Size2D areaSize, bool dipslayArea = false)
@@ -30,10 +47,7 @@ public abstract class Symbol : MonoBehaviour
         Area = areaSize;
         SymbolName = symbolName;
 
-        if (dipslayArea)
-        {
-            _displayArea = CreateDisplayArea();
-        }
+        if (dipslayArea) _displayArea = CreateDisplayArea();
     }
 
     SpriteRenderer CreateDisplayArea()
@@ -64,25 +78,86 @@ public abstract class Symbol : MonoBehaviour
         if (asFirst) _tf.SetAsFirstSibling();
     }
 
-    Sequence _defaulAnimSequence;
-    public void Win()
+    SymbolState _currentState;
+
+    public void SetState(SymbolState nextState, bool useOverlap = true)
     {
-        _sprite.sortingLayerName = Layers.Sorting.WIN;
+        if (useOverlap == false && _currentState == nextState) return;
 
-        if (_defaulAnimSequence != null) _defaulAnimSequence.Kill();
+        _currentState = nextState;
 
-        _defaulAnimSequence = DOTween.Sequence();
-        _defaulAnimSequence.Append(_content.DOScale(1.25f, 0.4f).SetEase(Ease.OutCubic));
-        _defaulAnimSequence.AppendInterval(0.2f);
-        _defaulAnimSequence.Append(_content.DOScale(1.0f, 0.3f).SetEase(Ease.InCubic));
-        _defaulAnimSequence.AppendCallback(() => Debug.Log("winAnimComplete"));
-        _defaulAnimSequence.Play();
+        switch (_currentState)
+        {
+            case SymbolState.Null:
+                Reset();
+                break;
+
+            case SymbolState.Idle:
+                Idle();
+                break;
+
+            case SymbolState.Spin:
+                Spin();
+                break;
+
+            case SymbolState.Stop:
+                Stop();
+                break;
+
+            case SymbolState.Scatter:
+                Scatter();
+                break;
+
+            case SymbolState.Trigger:
+                Trigger();
+                break;
+
+            case SymbolState.Win:
+                Win();
+                break;
+
+            case SymbolState.Lock:
+                Lock();
+                break;
+        }
     }
 
-    public void Spin()
+    void Idle()
+    {
+
+    }
+
+    void Spin()
     {
         _sprite.sortingLayerName = Layers.Sorting.SYMBOL;
         _content.localScale = Vector3.one;
+    }
+
+    void Stop()
+    {
+
+    }
+
+    void Scatter()
+    {
+
+    }
+
+    void Trigger()
+    {
+
+    }
+
+    void Win()
+    {
+        _sprite.sortingLayerName = Layers.Sorting.WIN;
+
+        if (PlayAnimation("Win") == false) MotionScale();
+    }
+
+    void Lock()
+    {
+
     }
 
     void Reset()
@@ -93,15 +168,31 @@ public abstract class Symbol : MonoBehaviour
         // reset blur
     }
 
-    protected void PlayAnimation()
+    protected bool PlayAnimation(string animName, bool loop = true, int layerIndex = 0)
     {
         // if (mAnim == null) return;
         // mAnim.PlayAnimation(animName, loop, layerIndex);
+
+        return false;
+    }
+
+    void MotionScale(float fromScale = 1.0f, float toScale = 1.25f, float duration = 0.3f, float interval = 0.2f)
+    {
+        _content.localScale = Vector3.one * fromScale;
+
+        if (_fallbackAnimSequence != null) _fallbackAnimSequence.Kill();
+
+        _fallbackAnimSequence = DOTween.Sequence();
+        _fallbackAnimSequence.Append(_content.DOScale(toScale, duration).SetEase(Ease.OutCubic));
+        _fallbackAnimSequence.AppendInterval(interval);
+        _fallbackAnimSequence.Append(_content.DOScale(fromScale, duration).SetEase(Ease.InCubic));
+        _fallbackAnimSequence.AppendCallback(() => Debug.Log("winAnimComplete"));
+        _fallbackAnimSequence.Play();
     }
 
     public void Clear()
     {
-        Reset();
+        SetState(SymbolState.Null);
         GamePool.Instance.DespawnSymbol(this);
     }
 

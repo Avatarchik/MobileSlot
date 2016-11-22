@@ -151,8 +151,7 @@ public class ReelContainer : MonoBehaviour
         var count = _allSymbol.Count;
         for( var i = 0; i < count; ++i )
         {
-            var symbol = _allSymbol[i];
-            symbol.Win();
+            _allSymbol[i].SetState( Symbol.SymbolState.Win );
         }
     }
 

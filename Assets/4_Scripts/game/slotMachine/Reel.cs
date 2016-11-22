@@ -138,12 +138,18 @@ public class Reel : MonoBehaviour
         _spinCount = 0;
         _currentStrip = _config.NormalStrip;
 
-        foreach( var s in _symbols )
-        {
-            s.Spin();
-        }
-
+        UpdateSymbolState( Symbol.SymbolState.Spin );
+        
         SpinReel();
+    }
+
+    void UpdateSymbolState( Symbol.SymbolState state )
+    {
+        var count = _symbols.Count;
+        for( var i = 0; i < count; ++i )
+        {
+            _symbols[i].SetState( state );
+        }
     }
 
     public void ReceivedSymbol(ResDTO.Spin.Payout.SpinInfo spinInfo)
@@ -219,8 +225,8 @@ public class Reel : MonoBehaviour
         AddSpiningSymbols(_config.SpiningSymbolCount);
 
         var backPos = _symbolContainer.position + new Vector3(0f, _config.tweenFirstBackInfo.distance, 0f);
-        var tweenBack = _symbolContainer.DOMove(backPos, _config.tweenFirstBackInfo.duration );
-        tweenBack.SetEase( Ease.OutSine );
+        var tweenBack = _symbolContainer.DOMove(backPos, _config.tweenFirstBackInfo.duration);
+        tweenBack.SetEase(Ease.OutSine);
 
         _spinDis += _config.tweenFirstBackInfo.distance;
         var tgPos = _symbolContainer.position - new Vector3(0f, _spinDis, 0f);
@@ -232,8 +238,8 @@ public class Reel : MonoBehaviour
         Sequence mySequence = DOTween.Sequence();
         mySequence.Append(tweenBack);
         mySequence.Append(tween);
-        mySequence.PrependInterval( _config.DelayEachReel * _column );
-        mySequence.AppendCallback(()=>
+        mySequence.PrependInterval(_config.DelayEachReel * _column);
+        mySequence.AppendCallback(() =>
         {
             RemoveSymbolsExceptNecessary();
             SpinReel();
@@ -292,10 +298,10 @@ public class Reel : MonoBehaviour
 
         _symbolContainer.localPosition = new Vector3(0f, -_config.tweenLastBackInfo.distance, 0f);
 
-        if( _config.tweenLastBackInfo.distance != 0 )
+        if (_config.tweenLastBackInfo.distance != 0)
         {
-            var backOutTween = _symbolContainer.DOLocalMove( Vector3.zero, _config.tweenLastBackInfo.duration );
-            backOutTween.SetEase( Ease.OutBack );
+            var backOutTween = _symbolContainer.DOLocalMove(Vector3.zero, _config.tweenLastBackInfo.duration);
+            backOutTween.SetEase(Ease.OutBack);
             backOutTween.Play();
         }
 
@@ -307,11 +313,11 @@ public class Reel : MonoBehaviour
         if (OnStop != null) OnStop(this);
     }
 
-    public Symbol GetSymbolAt( int row )
+    public Symbol GetSymbolAt(int row)
     {
         row += _config.DummySymbolCount;
-        if( row < 0 || _symbols.Count <= row ) throw new System.ArgumentOutOfRangeException();
-        return _symbols[ row ];
+        if (row < 0 || _symbols.Count <= row) throw new System.ArgumentOutOfRangeException();
+        return _symbols[row];
     }
 
     void ServerTooLate()
