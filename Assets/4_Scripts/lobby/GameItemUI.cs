@@ -45,7 +45,7 @@ public class GameItemUI : MonoBehaviour
 				break;
 		}
 
-		sprite.sprite = Resources.Load<Sprite>("Sprite/game_icon_" + _data.ID.ToString("00"));
+		sprite.sprite = Resources.Load<Sprite>("lobby/game_icon_" + _data.ID.ToString("00"));
     }
 
 	void OnClicked()
