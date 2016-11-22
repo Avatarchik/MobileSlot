@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+using DG.Tweening;
+
 public abstract class Symbol : MonoBehaviour
 {
     public Size2D Area { get; private set; }
@@ -62,16 +64,25 @@ public abstract class Symbol : MonoBehaviour
         if (asFirst) _tf.SetAsFirstSibling();
     }
 
+    Sequence _defaulAnimSequence;
     public void Win()
     {
-        _content.localScale = new Vector3(1.25f, 1.25f, 1.25f);
         _sprite.sortingLayerName = Layers.Sorting.WIN;
+
+        if (_defaulAnimSequence != null) _defaulAnimSequence.Kill();
+
+        _defaulAnimSequence = DOTween.Sequence();
+        _defaulAnimSequence.Append(_content.DOScale(1.25f, 0.4f).SetEase(Ease.OutCubic));
+        _defaulAnimSequence.AppendInterval(0.2f);
+        _defaulAnimSequence.Append(_content.DOScale(1.0f, 0.3f).SetEase(Ease.InCubic));
+        _defaulAnimSequence.AppendCallback(() => Debug.Log("winAnimComplete"));
+        _defaulAnimSequence.Play();
     }
 
     public void Spin()
     {
-        _content.localScale = Vector3.one;
         _sprite.sortingLayerName = Layers.Sorting.SYMBOL;
+        _content.localScale = Vector3.one;
     }
 
     void Reset()
