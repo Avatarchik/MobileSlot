@@ -132,7 +132,7 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator Connecting_Enter()
     {
-        GameServerCommunicator.Instance.Connect(SlotConfig.Host, SlotConfig.Port);
+        GameServerCommunicator.Instance.Connect( Config.Common.Host, Config.Common.Port);
 
         yield break;
     }
@@ -155,7 +155,7 @@ public class SlotMachine : MonoBehaviour
             yield return null;
         }
         
-        _betting = SlotConfig.Betting;
+        _betting = Config.Common.Betting;
 
         _model.Initialize( this, dto );
         _ui.Initialize(this);

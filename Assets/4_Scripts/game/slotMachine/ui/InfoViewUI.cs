@@ -26,7 +26,7 @@ public class InfoViewUI : MonoBehaviour
     {
         _model = SlotModel.Instance;
 
-        _betting = SlotConfig.Betting;
+        _betting = slot.Config.Common.Betting;
         _betting.OnUpdateLineBetIndex += OnUpdateLineBetHandler;
 
         SetLineNum(slot.Config.paylineTable.Length);

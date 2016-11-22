@@ -40,6 +40,13 @@ public class GlobalConfig
     static public int PixelPerUnit = 100;
 }
 
+
+
+/// <summary>
+/// 슬롯 게임에 대한 설정
+/// 한 슬롯 게임 내부에 다수의 머신이 존재할 수 있다.
+/// 모든 머신의 공통적인 설정과 개별 설정을 분리해서 정의한다.
+/// </summary>
 [Serializable]
 public class SlotConfig
 {
@@ -50,24 +57,33 @@ public class SlotConfig
     }
 
     //------------------------------------------------------------------
-    //게임 전반적인 설정
+    //게임 속 머신 공통 설정
     //------------------------------------------------------------------
-    static public int ID;
-    static public string Host;
-    static public int Port;
-    static public string Version;
+    [Serializable]
+    public class CommonConfig
+    {
+        public int ID;
+        public string Host;
+        public int Port;
+        public string Version;
+        public SlotBetting Betting;
+    }
 
-    static public SlotBetting Betting;
+    //------------------------------------------------------------------
+    //게임 속 머신 개별
+    //------------------------------------------------------------------
+    [Header("Global")]
+    public CommonConfig Common;
 
-    //------------------------------------------------------------------
-    //게임 내 슬롯 설정 ( 게임 속 다수의 슬롯 머신이 존재할 수 도 있다 )
-    //------------------------------------------------------------------
+    [Header("Base")]
     public int Row;
     public int Column;
 
+    [Header("Symbol")]
     public Size2D SymbolSize;
     public Size2D NullSymbolSize;
 
+    [Header("Options")]
     public FreeSpinRetriggerType RetriggerType;
 
     [Header("PaylineTable")]
@@ -90,10 +106,11 @@ public class SlotConfig
     public MoveTweenInfo tweenFirstBackInfo;//첫번재 스핀에 정보
     public MoveTweenInfo tweenLastBackInfo;//마지막 스핀이 정보
 
+    [Header("NameMap")]
+    public SymbolNameMap NameMap;
+
     [Header("Debug")]
     public bool DebugSymbolArea;//심볼 영역을 표시할지 여부
-
-    public SymbolNameMap NameMap;
 
     //startSymbols
     string[,] _startSymbolNames;
@@ -159,7 +176,7 @@ public class ReelStrip
 
     string[,] _strip;
 
-    public ReelStrip(string[,] strip, ReelStripType type = ReelStripType.NORMAL )
+    public ReelStrip(string[,] strip, ReelStripType type = ReelStripType.NORMAL)
     {
         _strip = strip;
         this.type = type;
