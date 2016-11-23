@@ -13,7 +13,7 @@ public class GameManager : Singleton<GameManager>
 		base.Awake();
 
 		//general
-		DOTween.Init( recycleAllByDefault: false, useSafeMode: false, logBehaviour: LogBehaviour.Verbose );
+		DOTween.Init( recycleAllByDefault: false, useSafeMode: false, logBehaviour: LogBehaviour.ErrorsOnly );
 		DOTween.showUnityEditorReport = true; //default false
 		DOTween.timeScale = 1f;
 		DOTween.SetTweensCapacity( 200,50 );
