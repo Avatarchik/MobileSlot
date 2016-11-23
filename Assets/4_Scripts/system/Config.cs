@@ -27,6 +27,7 @@ public class Layers
         public const string DEFAULT = "Default";
         public const string FOREGROUND = "GameForeGround";
         public const string WIN = "WinLayer";
+        public const string PAYLINE = "Payline";
         public const string TOPBOARD = "Topboard";
         public const string UI = "UI";
     }

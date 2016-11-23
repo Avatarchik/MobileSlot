@@ -20,6 +20,8 @@ public class SlotMachine : MonoBehaviour
     }
 
 
+    const float TRANSITION_PLAYALL_TO_BALANCE = 0F;
+
     public SlotConfig Config { get; set; }
     public Stack<MachineState> State { get; private set; }
 
@@ -32,6 +34,8 @@ public class SlotMachine : MonoBehaviour
 
     SlotMachineUI _ui;
     SlotModel _model;
+
+    PaylineDrawer _paylineDrawer;
     ReelContainer _reelContainer;
     SlotBetting _betting;
 
@@ -45,6 +49,8 @@ public class SlotMachine : MonoBehaviour
         if (_ui == null) Debug.LogError("can't find ui");
 
         _model = SlotModel.Instance;
+
+        _paylineDrawer = GetComponentInChildren<PaylineDrawer>();
 
         _reelContainer = GetComponentInChildren<ReelContainer>();
         _reelContainer.OnReelStopComplete += ReelStopComplete;
@@ -132,7 +138,7 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator Connecting_Enter()
     {
-        GameServerCommunicator.Instance.Connect( Config.Common.Host, Config.Common.Port);
+        GameServerCommunicator.Instance.Connect(Config.Common.Host, Config.Common.Port);
 
         yield break;
     }
@@ -144,20 +150,20 @@ public class SlotMachine : MonoBehaviour
 
     void LoginComplete(ResDTO.Login dto)
     {
-        StartCoroutine(Initialize( dto ));
+        StartCoroutine(Initialize(dto));
     }
 
-    IEnumerator Initialize( ResDTO.Login dto )
+    IEnumerator Initialize(ResDTO.Login dto)
     {
         //필요한 리소스 Pool 들의 preload 가 완료 되길 기다린다.
         while (GamePool.Instance.IsReady == false)
         {
             yield return null;
         }
-        
+
         _betting = Config.Common.Betting;
 
-        _model.Initialize( this, dto );
+        _model.Initialize(this, dto);
         _ui.Initialize(this);
         _reelContainer.Initialize(this);
 
@@ -209,6 +215,8 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator Spin_Enter()
     {
+        _paylineDrawer.Clear();
+
         _ui.Spin();
         _reelContainer.Spin();
         GameServerCommunicator.Instance.Spin(10000);
@@ -276,13 +284,21 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator Win_Enter()
     {
-        yield return _reelContainer.DisplayWinSymbols();
+        var payInfos = _reelContainer.FindAllWinPayInfo();
 
         //빅윈,메가윈,잭팟, progressive 등을 체크하자
         //경우에 따라 팝업 을 띄워야 할 수도 있음.
 
-        yield return _ui.AddWinBalance( _lastSpinInfo.totalPayout );
-        
+        yield return _reelContainer.PlaySpecialWinDirection();
+
+        _reelContainer.PlayAllSymbols();
+        if (_paylineDrawer != null) _paylineDrawer.DrawAll(payInfos);
+
+        yield return new WaitForSeconds(TRANSITION_PLAYALL_TO_BALANCE);
+
+        var balanceInfo = GetWinBalanceInfo();
+        yield return _ui.AddWinBalance(balanceInfo);
+
         SetState(MachineState.AfterWin);
     }
 
@@ -313,5 +329,58 @@ public class SlotMachine : MonoBehaviour
 
         SetState(MachineState.Idle);
         yield break;
+    }
+
+    WinBalanceInfo GetWinBalanceInfo()
+    {
+        //시상에 따라 길게 보여줄 수도 있다
+        return new WinBalanceInfo(_lastSpinInfo.totalPayout, 1f, 0f);
+    }
+}
+
+public struct WinBalanceInfo
+{
+    public double balance;
+    public float duration;
+    public float skipDelay;
+
+    public WinBalanceInfo(double balance, float duration, float skipDelay)
+    {
+        this.balance = balance;
+        this.duration = duration;
+        this.skipDelay = skipDelay;
+    }
+}
+
+public class WinPayInfo
+{
+    public enum WinType
+    {
+        Progressive,
+        Payline
+    }
+
+    public WinType Type { get; set; }
+    public int[] PaylineRows { get; set; }
+    public int? PaylineIndex { get; set; }
+    public double Payout { get; set; }
+
+    List<Symbol> _symbols;
+    public WinPayInfo()
+    {
+
+    }
+
+    public void AddSymbol(Symbol symbol)
+    {
+        if (_symbols == null) _symbols = new List<Symbol>();
+
+        _symbols.Add(symbol);
+    }
+
+    public List<Symbol> Symbols
+    {
+        get { return _symbols; }
+        set { _symbols = value; }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
+
 public class SlotMachineUI : MonoBehaviour
 {
     public Text TxtBalance;
@@ -114,18 +116,16 @@ public class SlotMachineUI : MonoBehaviour
         _info.SetWin(0);
     }
 
-    public Coroutine AddWinBalance(double win)
+    public Coroutine AddWinBalance(WinBalanceInfo info)
     {
-        return StartCoroutine(AddWinBalanceRoutine(win));
+        return StartCoroutine(AddWinBalanceRoutine(info));
     }
 
-    IEnumerator AddWinBalanceRoutine(double win)
+    IEnumerator AddWinBalanceRoutine(WinBalanceInfo info)
     {
-        //float skipDelay = 0.5f;
-        float duration = 1f;
-        _info.AddWin(win,duration);
+        _info.AddWin( info.balance, info.duration);
 
-        yield return new WaitForSeconds( duration );
+        yield return new WaitForSeconds( info.duration);
     }
 
     public void UpdateBalance()

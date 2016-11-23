@@ -19,6 +19,9 @@ public class ReelContainer : MonoBehaviour
 
     Reel _lastStoppedReel;
 
+    List<WinPayInfo> _payInfos = new List<WinPayInfo>();
+    List<Symbol> _allSymbol = new List<Symbol>();
+
     void Awake()
     {
         _tf = transform;
@@ -114,28 +117,15 @@ public class ReelContainer : MonoBehaviour
         if (OnReelStopComplete != null) OnReelStopComplete();
     }
 
-    public Coroutine DisplayWinSymbols()
+    public Coroutine PlaySpecialWinDirection()
     {
-        return StartCoroutine(DisplayWinSymbolsRoutine());
-    }
-
-    IEnumerator DisplayWinSymbolsRoutine()
-    {
-        //scattered, payline 당첨 모두 동일하게 처리
-        //시상 skip 지원 (threshold 존재해야함)
-        //시상이 된 심볼들을 한번에 하이라이트 한다.
-
-        FindAllWinInfo();
-
-        yield return StartCoroutine(PlaySpecialWinDirection());
-
-        PlayAllSymbols();
+        return StartCoroutine(PlaySpecialWinDirectionRoutine());
     }
 
     //경우에 따라 스택 심볼의 병합된 이미지라던지
     //팝업이라던지
     //기타등등을 보여줘야할 경우가 있따
-    IEnumerator PlaySpecialWinDirection()
+    IEnumerator PlaySpecialWinDirectionRoutine()
     {
         yield break;
     }
@@ -151,16 +141,13 @@ public class ReelContainer : MonoBehaviour
         }
     }
 
-    List<PayWinInfo> _winInfos = new List<PayWinInfo>();
-    List<Symbol> _allSymbol = new List<Symbol>();
-
-    public void RegisterWinSymbol(PayWinInfo winInfo)
+    public void RegisterWinSymbol(WinPayInfo payInfo)
     {
-        var count = winInfo.Symbols.Count;
+        var count = payInfo.Symbols.Count;
 
         for (var i = 0; i < count; ++i)
         {
-            var symbol = winInfo.Symbols[i];
+            var symbol = payInfo.Symbols[i];
 
             if (symbol == null || _allSymbol.Contains(symbol)) continue;
 
@@ -168,71 +155,49 @@ public class ReelContainer : MonoBehaviour
         }
     }
 
-    void FindAllWinInfo()
+    public List<WinPayInfo> FindAllWinPayInfo()
     {
         _allSymbol.Clear();
-        _winInfos.Clear();
+        _payInfos.Clear();
 
         //todo
         //win 한 정보를 시상에 따라 내림차순 정렬해야함
 
         for (var i = 0; i < _lastSpinInfo.payLines.Length; ++i)
         {
-            var winInfo = new PayWinInfo();
-
             var lineData = _lastSpinInfo.payLines[i];
+
+            var payInfo = new WinPayInfo();
+            payInfo.Payout = lineData.payout;
+
             if (lineData.IsLineMatched == false)
             {
-                //todo 게임 별 override 가 필요할 것 같다.
-                winInfo.Type = PayWinInfo.WinType.Progressive;
-                winInfo.Payline = null;
-                winInfo.SetSymbols(null);
+                //todo
+                //게임 별 override 가 필요할 것 같다.
+                payInfo.Type = WinPayInfo.WinType.Progressive;
+                payInfo.PaylineRows = null;
+                payInfo.Symbols = null;
+                payInfo.PaylineIndex = null;
             }
             else
             {
-                winInfo.Type = PayWinInfo.WinType.Payline;
-                winInfo.Payline = _config.paylineTable[lineData.line];
+                payInfo.Type = WinPayInfo.WinType.Payline;
+                payInfo.PaylineRows = _config.paylineTable[lineData.line];
+                payInfo.PaylineIndex = lineData.line;
 
                 for (var col = 0; col < lineData.matches; ++col)
                 {
-                    var row = winInfo.Payline[col];
+                    var row = payInfo.PaylineRows[col];
                     var reel = _reels[col];
                     var symbol = reel.GetSymbolAt(row);
-                    winInfo.AddSymbol(symbol);
+                    payInfo.AddSymbol(symbol);
                 }
             }
 
-            RegisterWinSymbol(winInfo);
-            _winInfos.Add(winInfo);
+            RegisterWinSymbol(payInfo);
+            _payInfos.Add(payInfo);
         }
-    }
-}
 
-public class PayWinInfo
-{
-    public enum WinType
-    {
-        Progressive,
-        Payline
-    }
-
-    public WinType Type { get; set; }
-    public int[] Payline { get; set; }
-
-    List<Symbol> _symbols;
-    public List<Symbol> Symbols { get { return _symbols; } }
-    public PayWinInfo()
-    {
-        _symbols = new List<Symbol>();
-    }
-
-    public void AddSymbol(Symbol symbol)
-    {
-        _symbols.Add(symbol);
-    }
-
-    public void SetSymbols(List<Symbol> symbols)
-    {
-        _symbols = symbols;
+        return _payInfos;
     }
 }
