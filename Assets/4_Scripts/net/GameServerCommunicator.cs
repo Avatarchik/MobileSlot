@@ -18,12 +18,6 @@ public class Command
     public const string SPIN = "spin";
 }
 
-public class SendData
-{
-    public string cmd;
-    public ReqDTO data;
-}
-
 public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 {
     static public bool ENABLE_LOG = false;
@@ -68,7 +62,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         switch (socketEvent.Type)
         {
             case SlotSocket.SocketEvent.EventType.Connect:
-                if( ENABLE_LOG ) Debug.Log("Server Connected");
+                if (ENABLE_LOG) Debug.Log("Server Connected");
                 if (OnConnect != null) OnConnect();
                 break;
 
@@ -77,7 +71,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
                 break;
 
             case SlotSocket.SocketEvent.EventType.DisConnect:
-                if( ENABLE_LOG ) Debug.Log("Server DisConnected");
+                if (ENABLE_LOG) Debug.Log("Server DisConnected");
                 break;
         }
     }
@@ -93,9 +87,9 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         var cmd = receivedObj["cmd"].Value<string>();
         var data = receivedObj["data"];
 
-        if( ENABLE_LOG ) Debug.Log( "< " + cmd + "\n" + data.ToString());
+        if (ENABLE_LOG) Debug.Log("< " + cmd + "\n" + data.ToString());
 
-        if( isSuccess == false )
+        if (isSuccess == false)
         {
             HandleServerError();
             return;
@@ -131,49 +125,48 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         _socket.Connect(host, port);
     }
 
+    bool CheckConnection()
+    {
+        return _socket == null || _socket.Connected == false;
+    }
+
     public void Login(int userID, string signedRequest)
     {
-        if (_socket == null || _socket.Connected == false)
+        Send(GameCommand.LOGIN, new ReqDTO.Login()
         {
-            if( ENABLE_LOG ) Debug.Log("Sockt에 먼저 연결 되어야 합니다");
-            return;
-        }
-
-        SendData data = new SendData()
-        {
-            cmd = "login",
-            data = new ReqDTO.Login()
-            {
-                userID = userID,
-                signedRequest = signedRequest
-            }
-        };
-
-        Send(data);
+            userID = userID,
+            signedRequest = signedRequest
+        });
     }
 
     public void Spin(float linebet)
     {
-        SendData data = new SendData()
+        Send(GameCommand.SPIN, new ReqDTO.Spin()
         {
-            cmd = "spin",
-            data = new ReqDTO.Spin()
-            {
-                lineBet = linebet
-            }
-        };
-
-        Send(data);
+            lineBet = linebet
+        });
     }
 
-    void Send(SendData data)
+    void Send(string command, ReqDTO dto)
     {
-        if( ENABLE_LOG ) Debug.Log( data.cmd + " >\n" +  JsonConvert.SerializeObject( data.data, Formatting.Indented ));
-        Send( JsonConvert.SerializeObject( data, Formatting.Indented ));
+        SendData data = new SendData()
+        {
+            cmd = command,
+            data = dto
+        };
+
+        if (ENABLE_LOG) Debug.Log(command + " >\n" + JsonConvert.SerializeObject(dto, Formatting.Indented));
+        Send(JsonConvert.SerializeObject(data, Formatting.Indented));
     }
 
     void Send(string data)
     {
+        if (CheckConnection() == false)
+        {
+            if (ENABLE_LOG) Debug.Log("Sockt에 먼저 연결 되어야 합니다");
+            return;
+        }
+
         _socket.Send(data);
     }
 
@@ -199,4 +192,16 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
     {
         Close(SlotSocket.CloseReason.ApplicationQuit);
     }
+}
+
+public class GameCommand
+{
+    public const string LOGIN = "login";
+    public const string SPIN = "spin";
+}
+
+public class SendData
+{
+    public string cmd;
+    public ReqDTO data;
 }
