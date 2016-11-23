@@ -23,7 +23,6 @@ public abstract class Symbol : MonoBehaviour
 
     Transform _tf;
     Transform _content;
-    SpriteRenderer _displayArea;
     SpriteRenderer _sprite;
 
     AnimControl _anim;
@@ -47,7 +46,7 @@ public abstract class Symbol : MonoBehaviour
         Area = areaSize;
         SymbolName = symbolName;
 
-        if (dipslayArea) _displayArea = CreateDisplayArea();
+        if (dipslayArea) CreateDisplayArea();
     }
 
     SpriteRenderer CreateDisplayArea()
@@ -176,10 +175,11 @@ public abstract class Symbol : MonoBehaviour
 
     protected bool PlayAnimation(string animName, bool loop = true, int layerIndex = 0)
     {
-        // if (mAnim == null) return;
-        // mAnim.PlayAnimation(animName, loop, layerIndex);
+        if( _anim == null || _anim.HasAnim( animName ) == false ) return false;
 
-        return false;
+        _anim.PlayAnimation( animName );
+        
+        return true;
     }
 
     void MotionScale(float fromScale = 1.0f, float toScale = 1.25f, float duration = 0.3f, float interval = 0.2f)

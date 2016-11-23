@@ -8,16 +8,16 @@ public abstract class AnimControl : MonoBehaviour
 
     }
 
-    virtual public void PlayAnimation(string animName, bool loop, int layerIndex)
+    virtual public void PlayAnimation(string animName, bool loop = false, int layerIndex = 0)
     {
     }
 
-    virtual public bool HasAnim(string animName, int layerIndex = 0 )
+    virtual public bool HasAnim(string animName, int layerIndex = 0)
     {
         return false;
     }
 
-    virtual public void CurrentAnimationTimeScale( float timeScale )
+    virtual public void CurrentAnimationTimeScale(float timeScale)
     {
 
     }

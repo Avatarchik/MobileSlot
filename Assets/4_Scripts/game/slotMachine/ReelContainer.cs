@@ -17,6 +17,8 @@ public class ReelContainer : MonoBehaviour
 
     ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
 
+    Reel _lastStoppedReel;
+
     void Awake()
     {
         _tf = transform;
@@ -81,8 +83,6 @@ public class ReelContainer : MonoBehaviour
         }
     }
 
-
-    Reel _lastStoppedReel;
 
     void OnStopListener(Reel reel)
     {

@@ -33,7 +33,7 @@ public class AnimControlAnimator : AnimControl
 
     }
 
-    override public void PlayAnimation(string animName, bool loop, int layerIndex)
+    override public void PlayAnimation(string animName, bool loop = false, int layerIndex = 0)
     {
         if (HasAnim(animName, layerIndex) == false)
         {
@@ -49,7 +49,7 @@ public class AnimControlAnimator : AnimControl
 
     override public bool HasAnim(string animName, int layerIndex = 0)
     {
-        return mMap.ContainsKey( animName );
+        return mMap.ContainsKey(animName);
         /*
         var stateID = Animator.StringToHash(animName);
         return mAnim.HasState(0, stateID);

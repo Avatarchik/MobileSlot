@@ -13,7 +13,6 @@ public class InfoViewUI : MonoBehaviour
     public Text txtTotalBet;
     public Text txtWin;
 
-    SlotModel _model;
     SlotBetting _betting;
 
     double _lineBet;
@@ -30,8 +29,6 @@ public class InfoViewUI : MonoBehaviour
 
     public void Init(SlotMachine slot)
     {
-        _model = SlotModel.Instance;
-
         _betting = slot.Config.Common.Betting;
         _betting.OnUpdateLineBetIndex += OnUpdateLineBetHandler;
 
