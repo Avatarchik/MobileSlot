@@ -33,7 +33,7 @@ public class Reel : MonoBehaviour
     [SerializeField]
     string[] _lastResultSymbolNames;
 
-    string[] _resultSymbolNames;
+    string[] _receivedSymbolNames;
 
     void Awake()
     {
@@ -56,7 +56,7 @@ public class Reel : MonoBehaviour
 
         CreateStartSymbols();
 
-        _resultSymbolNames = null;
+        _receivedSymbolNames = null;
 
     }
 
@@ -155,11 +155,11 @@ public class Reel : MonoBehaviour
     public void ReceivedSymbol(ResDTO.Spin.Payout.SpinInfo spinInfo)
     {
         string[] reelData = spinInfo.GetReelData(_column, _config.Row);
-        _resultSymbolNames = new string[reelData.Length];
+        _receivedSymbolNames = new string[reelData.Length];
 
         for (var i = 0; i < reelData.Length; ++i)
         {
-            _resultSymbolNames[i] = _config.NameMap.GetSymbolName(reelData[i]);
+            _receivedSymbolNames[i] = _config.NameMap.GetSymbolName(reelData[i]);
         }
     }
 
@@ -177,7 +177,7 @@ public class Reel : MonoBehaviour
         {
             TweenFirst();
         }
-        else if (_spinCount > _config.SpinCountThreshold && _resultSymbolNames != null)
+        else if (_spinCount > _config.SpinCountThreshold && _receivedSymbolNames != null)
         {
             TweenLast();
         }
@@ -271,11 +271,11 @@ public class Reel : MonoBehaviour
         AddResultSymbols();
         AddDummySymbols();
 
-        if (_lastResultSymbolNames[0] == NullSymbol.EMPTY && _resultSymbolNames[0] != NullSymbol.EMPTY)
+        if (_lastResultSymbolNames[0] == NullSymbol.EMPTY && _receivedSymbolNames[0] != NullSymbol.EMPTY)
         {
             _spinDis -= nullSymbolOffesetY;
         }
-        else if (_lastResultSymbolNames[0] != NullSymbol.EMPTY && _resultSymbolNames[0] == NullSymbol.EMPTY)
+        else if (_lastResultSymbolNames[0] != NullSymbol.EMPTY && _receivedSymbolNames[0] == NullSymbol.EMPTY)
         {
             _spinDis -= nullSymbolOffesetY;
         }
@@ -294,6 +294,7 @@ public class Reel : MonoBehaviour
     void TweenFinishComplete()
     {
         RemoveSymbolsExceptNecessary();
+
         AlignSymbols();
 
         _symbolContainer.localPosition = new Vector3(0f, -_config.tweenLastBackInfo.distance, 0f);
@@ -305,9 +306,10 @@ public class Reel : MonoBehaviour
             backOutTween.Play();
         }
 
-        if (_resultSymbolNames != null && _resultSymbolNames.Length > 0)
+        if (_receivedSymbolNames != null && _receivedSymbolNames.Length > 0)
         {
-            _lastResultSymbolNames = _resultSymbolNames;
+            _lastResultSymbolNames = _receivedSymbolNames;
+            _receivedSymbolNames = null;
         }
 
         if (OnStop != null) OnStop(this);
@@ -328,10 +330,10 @@ public class Reel : MonoBehaviour
 
     void AddResultSymbols()
     {
-        var count = _resultSymbolNames.Length;
+        var count = _receivedSymbolNames.Length;
         while (count-- > 0)
         {
-            var symbolName = _resultSymbolNames[count];
+            var symbolName = _receivedSymbolNames[count];
             var symbol = GetSymbol(symbolName);
             var h = symbol.Height;
             var ypos = _symbols[0].Y + h;
@@ -346,7 +348,7 @@ public class Reel : MonoBehaviour
     //null 심볼이나 stack 심볼, big 심볼등이 있을 수 있다
     virtual protected void AddInterpolationSymbols()
     {
-        string lastResultName = _resultSymbolNames[_resultSymbolNames.Length - 1];
+        string lastResultName = _receivedSymbolNames[_receivedSymbolNames.Length - 1];
         string topSpiningName = _symbols[0].SymbolName;
 
         List<string> addedNames = new List<string>();

@@ -186,7 +186,7 @@ public abstract class Symbol : MonoBehaviour
     {
         _content.localScale = Vector3.one * fromScale;
 
-        if (_fallbackAnimSequence != null) _fallbackAnimSequence.Kill();
+        if (_fallbackAnimSequence != null && _fallbackAnimSequence.IsPlaying() )_fallbackAnimSequence.Kill();
 
         _fallbackAnimSequence = DOTween.Sequence();
         _fallbackAnimSequence.Append(_content.DOScale(toScale, duration).SetEase(Ease.OutCubic));
