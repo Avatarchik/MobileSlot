@@ -147,7 +147,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         });
     }
 
-    void Send(string command, ReqDTO dto)
+    public void Send(string command, ReqDTO dto)
     {
         SendData data = new SendData()
         {
