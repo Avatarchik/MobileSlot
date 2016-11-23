@@ -4,19 +4,19 @@ using System.Collections.Generic;
 
 public class AnimControlAnimator : AnimControl
 {
-    Animator mAnim;
+    Animator _anim;
 
-    Dictionary<string, AnimationClip> mMap;
+    Dictionary<string, AnimationClip> _map;
 
-    AnimationClip mCurrentClip;
+    AnimationClip _currentClip;
 
     void Awake()
     {
-        mMap = new Dictionary<string, AnimationClip>();
+        _map = new Dictionary<string, AnimationClip>();
 
-        mAnim = GetComponent<Animator>();
+        _anim = GetComponent<Animator>();
 
-        AnimatorController ac = mAnim.runtimeAnimatorController as AnimatorController;
+        AnimatorController ac = _anim.runtimeAnimatorController as AnimatorController;
         ChildAnimatorState[] stateArr = ac.layers[0].stateMachine.states;
 
         foreach (var child in stateArr)
@@ -24,7 +24,7 @@ public class AnimControlAnimator : AnimControl
             if (child.state == null) continue;
             var clip = child.state.motion as AnimationClip;
 
-            mMap.Add(child.state.name, clip);
+            _map.Add(child.state.name, clip);
         }
     }
 
@@ -41,15 +41,15 @@ public class AnimControlAnimator : AnimControl
             return;
         }
 
-        mAnim.Play(animName, layerIndex);
-        mCurrentClip = mMap[animName];
+        _anim.Play(animName, layerIndex);
+        _currentClip = _map[animName];
 
         //Debug.Log("state:" + animName + ", clip:" + CurrentAnimationClipName + ", t: " + CurrentAnimationDuration);
     }
 
     override public bool HasAnim(string animName, int layerIndex = 0)
     {
-        return mMap.ContainsKey(animName);
+        return _map.ContainsKey(animName);
         /*
         var stateID = Animator.StringToHash(animName);
         return mAnim.HasState(0, stateID);
@@ -60,22 +60,22 @@ public class AnimControlAnimator : AnimControl
     {
         get
         {
-            if (mCurrentClip == null) return "null";
-            else return mCurrentClip.name;
+            if (_currentClip == null) return "null";
+            else return _currentClip.name;
         }
     }
 
     override public void CurrentAnimationTimeScale(float timeScale)
     {
-        mAnim.speed = timeScale;
+        _anim.speed = timeScale;
     }
 
     override public float CurrentAnimationDuration
     {
         get
         {
-            if (mCurrentClip == null) return 0f;
-            else return mCurrentClip.length;
+            if (_currentClip == null) return 0f;
+            else return _currentClip.length;
         }
     }
 }
