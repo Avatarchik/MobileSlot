@@ -9,7 +9,7 @@ public class DTO
 
 }
 
-public class ResDTO
+public class ResDTO: DTO
 {
     public double balance;
     public int level;
@@ -119,15 +119,15 @@ public class ResDTO
 }
 
 
-public class ReqDTO
+public class ReqDTO: DTO
 {
-    public class Login : DTO
+    public class Login : ReqDTO
     {
         public int userID { get; set; }
         public string signedRequest { get; set; }
     }
 
-    public class Spin : DTO
+    public class Spin : ReqDTO
     {
         public double lineBet { get; set; }
     }

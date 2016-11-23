@@ -21,7 +21,7 @@ public class Command
 public class SendData
 {
     public string cmd;
-    public DTO data;
+    public ReqDTO data;
 }
 
 public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
