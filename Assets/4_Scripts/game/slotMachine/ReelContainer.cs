@@ -6,6 +6,8 @@ using System.Collections.Generic;
 public class ReelContainer : MonoBehaviour
 {
     public event Action OnReelStopComplete;
+    public event Action<WinItemList> OnPlayAllWin;
+    public event Action<WinItemList.Item> OnPlayEachWin;
 
     SlotConfig _config;
 
@@ -19,8 +21,7 @@ public class ReelContainer : MonoBehaviour
 
     Reel _lastStoppedReel;
 
-    List<WinPayInfo> _payInfos = new List<WinPayInfo>();
-    List<Symbol> _allSymbol = new List<Symbol>();
+    WinItemList _winItemList;
 
     void Awake()
     {
@@ -130,35 +131,29 @@ public class ReelContainer : MonoBehaviour
         yield break;
     }
 
-    public void PlayAllSymbols()
+    public void PlayAllWin()
     {
         //필요한 경우 여기서 winsymbol 의 수와 종류를 파악. 사운드 재생등을 커스텀 시킨다.
 
-        var count = _allSymbol.Count;
+        var count = _winItemList.AllSymbols.Count;
         for (var i = 0; i < count; ++i)
         {
-            _allSymbol[i].SetState(Symbol.SymbolState.Win);
+            _winItemList.AllSymbols[i].SetState(Symbol.SymbolState.Win);
         }
+
+        if (OnPlayAllWin != null) OnPlayAllWin(_winItemList);
     }
 
-    public void RegisterWinSymbol(WinPayInfo payInfo)
+    public void PlayEachWin()
     {
-        var count = payInfo.Symbols.Count;
 
-        for (var i = 0; i < count; ++i)
-        {
-            var symbol = payInfo.Symbols[i];
-
-            if (symbol == null || _allSymbol.Contains(symbol)) continue;
-
-            _allSymbol.Add(symbol);
-        }
     }
 
-    public List<WinPayInfo> FindAllWinPayInfo()
+    public WinItemList FindAllWinPayInfo()
     {
-        _allSymbol.Clear();
-        _payInfos.Clear();
+        if (_winItemList == null) _winItemList = new WinItemList();
+
+        _winItemList.Clear();
 
         //todo
         //win 한 정보를 시상에 따라 내림차순 정렬해야함
@@ -167,37 +162,35 @@ public class ReelContainer : MonoBehaviour
         {
             var lineData = _lastSpinInfo.payLines[i];
 
-            var payInfo = new WinPayInfo();
-            payInfo.Payout = lineData.payout;
+            var winItem = new WinItemList.Item();
+            winItem.Payout = lineData.payout;
 
             if (lineData.IsLineMatched == false)
             {
                 //todo
                 //게임 별 override 가 필요할 것 같다.
-                payInfo.Type = WinPayInfo.WinType.Progressive;
-                payInfo.PaylineRows = null;
-                payInfo.Symbols = null;
-                payInfo.PaylineIndex = null;
+                winItem.Type = WinItemList.Item.ItemType.Progressive;
+                winItem.PaylineRows = null;
+                winItem.PaylineIndex = null;
             }
             else
             {
-                payInfo.Type = WinPayInfo.WinType.Payline;
-                payInfo.PaylineRows = _config.paylineTable[lineData.line];
-                payInfo.PaylineIndex = lineData.line;
+                winItem.Type = WinItemList.Item.ItemType.Payline;
+                winItem.PaylineRows = _config.paylineTable[lineData.line];
+                winItem.PaylineIndex = lineData.line;
 
                 for (var col = 0; col < lineData.matches; ++col)
                 {
-                    var row = payInfo.PaylineRows[col];
+                    var row = winItem.PaylineRows[col];
                     var reel = _reels[col];
                     var symbol = reel.GetSymbolAt(row);
-                    payInfo.AddSymbol(symbol);
+                    winItem.AddSymbol(symbol);
                 }
             }
 
-            RegisterWinSymbol(payInfo);
-            _payInfos.Add(payInfo);
+            _winItemList.AddItem(winItem);
         }
 
-        return _payInfos;
+        return _winItemList;
     }
 }

@@ -21,6 +21,11 @@ public class Payline : MonoBehaviour
         }
     }
 
+    void Start()
+    {
+        Hide();
+    }
+
     public void Show()
     {
         _renderer.enabled = true;

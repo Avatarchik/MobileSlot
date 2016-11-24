@@ -17,6 +17,8 @@ public class SlotModel : SingletonSimple<SlotModel>
     public int FreeSpinTotal { get; private set; }
     public int FreeSpinRemain { get { return FreeSpinTotal - FreeSpinCurrentCount; } }
 
+    public bool AutoSpin{get;set;}
+
     public SlotConfig.FreeSpinRetriggerType RetriggerType { get; set; }
     public User Owner { get; private set; }
 

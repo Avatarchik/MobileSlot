@@ -127,7 +127,8 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 
     bool CheckConnection()
     {
-        return _socket == null || _socket.Connected == false;
+        if( _socket == null || _socket.Connected == false ) return false;
+        return true;
     }
 
     public void Login(int userID, string signedRequest)

@@ -53,7 +53,9 @@ public class SlotMachine : MonoBehaviour
         _paylineDrawer = GetComponentInChildren<PaylineDrawer>();
 
         _reelContainer = GetComponentInChildren<ReelContainer>();
-        _reelContainer.OnReelStopComplete += ReelStopComplete;
+        _reelContainer.OnPlayAllWin += OnPlayAllWinHandler;
+        _reelContainer.OnPlayEachWin += OnPlayEachWinHandler;
+        _reelContainer.OnReelStopComplete += OnReelStopCompleteHandler;
 
         GameServerCommunicator.Instance.OnConnect += ConnectComplete;
         GameServerCommunicator.Instance.OnLogin += LoginComplete;
@@ -241,7 +243,7 @@ public class SlotMachine : MonoBehaviour
         yield break;
     }
 
-    void ReelStopComplete()
+    void OnReelStopCompleteHandler()
     {
         SetState(MachineState.CheckSpinResult);
     }
@@ -284,15 +286,14 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator Win_Enter()
     {
-        var payInfos = _reelContainer.FindAllWinPayInfo();
+        _reelContainer.FindAllWinPayInfo();
 
         //빅윈,메가윈,잭팟, progressive 등을 체크하자
         //경우에 따라 팝업 을 띄워야 할 수도 있음.
 
         yield return _reelContainer.PlaySpecialWinDirection();
 
-        _reelContainer.PlayAllSymbols();
-        if (_paylineDrawer != null) _paylineDrawer.DrawAll(payInfos);
+        _reelContainer.PlayAllWin();
 
         yield return new WaitForSeconds(TRANSITION_PLAYALL_TO_BALANCE);
 
@@ -300,6 +301,16 @@ public class SlotMachine : MonoBehaviour
         yield return _ui.AddWinBalance(balanceInfo);
 
         SetState(MachineState.AfterWin);
+    }
+
+    void OnPlayAllWinHandler(WinItemList info)
+    {
+        if (_paylineDrawer != null) _paylineDrawer.DrawAll(info);
+    }
+
+    void OnPlayEachWinHandler(WinItemList.Item item)
+    {
+
     }
 
     IEnumerator AfterWin_Enter()
@@ -323,6 +334,8 @@ public class SlotMachine : MonoBehaviour
     {
         //모든 연출이 끝났다.
         //결과를 실제 유저 객체에 반영한다.
+
+        if (_model.AutoSpin == false) _reelContainer.PlayEachWin();
 
         _ui.UpdateBalance();
         //반영 후 레벨업이 되었다면 연출한다.
@@ -352,35 +365,79 @@ public struct WinBalanceInfo
     }
 }
 
-public class WinPayInfo
+public class WinItemList
 {
-    public enum WinType
+    List<WinItemList.Item> _items;
+    public int ItemCount { get { return _items.Count; } }
+
+    List<Symbol> _allSymbols;
+    public List<Symbol> AllSymbols { get { return _allSymbols; } }
+
+    public WinItemList()
     {
-        Progressive,
-        Payline
+        _items = new List<WinItemList.Item>();
+        _allSymbols = new List<Symbol>();
     }
 
-    public WinType Type { get; set; }
-    public int[] PaylineRows { get; set; }
-    public int? PaylineIndex { get; set; }
-    public double Payout { get; set; }
-
-    List<Symbol> _symbols;
-    public WinPayInfo()
+    public void AddItem(WinItemList.Item item)
     {
+        if (item == null || _items.Contains(item)) return;
 
+        _items.Add(item);
+
+        IncludeSymbols(item.Symbols);
     }
 
-    public void AddSymbol(Symbol symbol)
+    void IncludeSymbols(List<Symbol> symbols)
     {
-        if (_symbols == null) _symbols = new List<Symbol>();
+        if (symbols == null) return;
+        var count = symbols.Count;
 
-        _symbols.Add(symbol);
+        for (var i = 0; i < count; ++i)
+        {
+            var symbol = symbols[i];
+            if (symbol == null || _allSymbols.Contains(symbol)) continue;
+            _allSymbols.Add(symbol);
+        }
     }
 
-    public List<Symbol> Symbols
+    public WinItemList.Item GetItem(int idx)
     {
-        get { return _symbols; }
-        set { _symbols = value; }
+        if (idx < 0 || idx >= _items.Count) return null;
+        else return _items[idx];
+    }
+
+    public void Clear()
+    {
+        _items.Clear();
+        AllSymbols.Clear();
+    }
+
+    public class Item
+    {
+        public enum ItemType
+        {
+            Progressive,
+            Payline
+        }
+
+        public ItemType Type { get; set; }
+        public int[] PaylineRows { get; set; }
+        public int? PaylineIndex { get; set; }
+        public double Payout { get; set; }
+
+        List<Symbol> _symbols;
+        public List<Symbol> Symbols { get { return _symbols; } }
+
+        public Item()
+        {
+            _symbols = new List<Symbol>();
+        }
+
+        public void AddSymbol(Symbol symbol)
+        {
+            if (symbol == null || _symbols.Contains(symbol)) return;
+            _symbols.Add(symbol);
+        }
     }
 }

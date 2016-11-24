@@ -5,32 +5,37 @@ using System.Linq;
 
 public class PaylineDrawer : MonoBehaviour
 {
-    public Payline[] _paylines;
-    public List<Payline> _drawnLines;
+    [SerializeField]
+    Payline[] _paylines;
+    List<Payline> _drawnLines;
+
     void Awake()
     {
         _paylines = GetComponentsInChildren<Payline>().OrderBy(p => p.LineIndex).ToArray();
-		foreach( var p in _paylines ) p.Hide();
-
         _drawnLines = new List<Payline>();
     }
 
-    public void DrawAll(List<WinPayInfo> winInfos)
+    public void DrawAll(WinItemList winInfo)
     {
-        var count = winInfos.Count;
+        int count = winInfo.ItemCount;
         for (var i = 0; i < count; ++i)
         {
-            DrawLine(winInfos[i], true);
+            DrawLine(winInfo.GetItem(i), true);
         }
     }
 
-    void DrawLine(WinPayInfo info, bool drawOver = false)
+    public void DrawEach()
     {
-        if (info.PaylineIndex == null) return;
+
+    }
+
+    void DrawLine(WinItemList.Item item, bool drawOver = false)
+    {
+        if (item.PaylineIndex == null) return;
 
         if (drawOver == false) Clear();
 
-        var payline = GetLine(info.PaylineIndex.Value);
+        var payline = GetLine(item.PaylineIndex.Value);
         payline.Show();
 
         _drawnLines.Add(payline);
