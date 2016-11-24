@@ -74,7 +74,7 @@ public class SlotConfig
     //게임 속 머신 개별
     //------------------------------------------------------------------
     [Header("Global")]
-    public CommonConfig Common;
+    public CommonConfig COMMON;
 
     [Header("Base")]
     public int Row;
@@ -106,6 +106,10 @@ public class SlotConfig
     public float DelayEachReel;//각 릴 사이의 스핀 시작 딜레이
     public MoveTweenInfo tweenFirstBackInfo;//첫번재 스핀에 정보
     public MoveTweenInfo tweenLastBackInfo;//마지막 스핀이 정보
+
+    [Header("Transition")]
+    public Transition transition;
+
 
     [Header("NameMap")]
     public SymbolNameMap NameMap;
@@ -189,4 +193,13 @@ public class ReelStrip
         int randomIndex = UnityEngine.Random.Range(0, leng);
         return _strip[column, randomIndex];
     }
+}
+
+[Serializable]
+public class Transition
+{
+    public float ReelStopCompleteAfterDealy = 0.5f;
+    public float PlayAllSymbols_WinBalance = 0f;
+    public float EachWin = 1f;
+    public float EachWinSummary = 1f;
 }
