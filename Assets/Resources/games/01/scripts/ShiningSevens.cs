@@ -24,6 +24,8 @@ public class ShiningSevens : MonoBehaviour
 
         SlotConfig.CommonConfig commonInfo = new SlotConfig.CommonConfig()
         {
+            IsDebug = true,
+
             ID = 1,
             Host = "182.252.135.251",
             Port = 13100,
@@ -134,5 +136,10 @@ public class ShiningSevens : MonoBehaviour
         if (_machine == null) Debug.LogError("Can't find SlotMachine.");
 
         _machine.Run(mainSlotConfig);
+
+        if( mainSlotConfig.COMMON.IsDebug )
+        {
+            gameObject.AddComponent<DebugHelper>();
+        }
     }
 }

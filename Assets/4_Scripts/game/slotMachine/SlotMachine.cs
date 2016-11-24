@@ -26,6 +26,7 @@ public class SlotMachine : MonoBehaviour
 
     [SerializeField]
     MachineState _currentState;
+    public MachineState CurrentState { get { return _currentState; } }
     Dictionary<MachineState, Func<IEnumerator>> _stateEnterMap;
     Dictionary<MachineState, Func<IEnumerator>> _stateExitMap;
     Func<IEnumerator> _stateEnter;
@@ -181,7 +182,9 @@ public class SlotMachine : MonoBehaviour
         yield break;
     }
 
-    public void TrySpin()
+    SendData _testSendData;
+
+    public void TrySpin(SendData testSendData = null)
     {
         switch (_currentState)
         {
@@ -193,6 +196,7 @@ public class SlotMachine : MonoBehaviour
                 }
                 else
                 {
+                    _testSendData = testSendData;
                     SetState(MachineState.Spin);
                 }
 
@@ -222,7 +226,17 @@ public class SlotMachine : MonoBehaviour
 
         _ui.Spin();
         _reelContainer.Spin();
-        GameServerCommunicator.Instance.Spin(10000);
+
+        if (_testSendData != null)
+        {
+            GameServerCommunicator.Instance.Send(_testSendData);
+            _testSendData = null;
+        }
+        else
+        {
+            GameServerCommunicator.Instance.Spin(_betting.LineBet);
+        }
+
 
         yield break;
     }

@@ -23,6 +23,8 @@ public class SlotConfig
     [Serializable]
     public class CommonConfig
     {
+        public bool IsDebug;
+
         public int ID;
         public string Host;
         public int Port;

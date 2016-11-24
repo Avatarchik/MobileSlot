@@ -127,7 +127,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 
     bool CheckConnection()
     {
-        if( _socket == null || _socket.Connected == false ) return false;
+        if (_socket == null || _socket.Connected == false) return false;
         return true;
     }
 
@@ -140,7 +140,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         });
     }
 
-    public void Spin(float linebet)
+    public void Spin(double linebet)
     {
         Send(GameCommand.SPIN, new ReqDTO.Spin()
         {
@@ -150,17 +150,22 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 
     public void Send(string command, ReqDTO dto)
     {
-        SendData data = new SendData()
+        SendData sendData = new SendData()
         {
             cmd = command,
             data = dto
         };
 
-        if (ENABLE_LOG) Debug.Log(command + " >\n" + JsonConvert.SerializeObject(dto, Formatting.Indented));
-        Send(JsonConvert.SerializeObject(data, Formatting.Indented));
+        Send(sendData);
     }
 
-    void Send(string data)
+    public void Send(SendData sendData)
+    {
+        if (ENABLE_LOG) Debug.Log(sendData.cmd + " >\n" + JsonConvert.SerializeObject(sendData.data, Formatting.Indented));
+        Send(JsonConvert.SerializeObject(sendData, Formatting.Indented));
+    }
+
+    public void Send(string data)
     {
         if (CheckConnection() == false)
         {
