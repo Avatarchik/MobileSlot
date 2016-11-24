@@ -29,7 +29,7 @@ public class InfoViewUI : MonoBehaviour
 
     public void Init(SlotMachine slot)
     {
-        _betting = slot.Config.Common.Betting;
+        _betting = slot.Config.COMMON.Betting;
         _betting.OnUpdateLineBetIndex += OnUpdateLineBetHandler;
 
         SetLineNum(slot.Config.paylineTable.Length);

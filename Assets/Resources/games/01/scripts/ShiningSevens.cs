@@ -18,7 +18,10 @@ public class ShiningSevens : MonoBehaviour
 
     void Awake()
     {
-        //define Common info
+        //------------------------------------------------------------------------------------
+        // define Common info
+        //------------------------------------------------------------------------------------
+
         SlotConfig.CommonConfig commonInfo = new SlotConfig.CommonConfig()
         {
             ID = 1,
@@ -41,8 +44,8 @@ public class ShiningSevens : MonoBehaviour
 
         //slot setting
         mainSlotConfig = new SlotConfig();
-        mainSlotConfig.Common = commonInfo;
-        
+        mainSlotConfig.COMMON = commonInfo;
+
         //base
         mainSlotConfig.Row = 3;
         mainSlotConfig.Column = 3;
@@ -61,16 +64,20 @@ public class ShiningSevens : MonoBehaviour
         mainSlotConfig.DummySymbolCount = 1;
         mainSlotConfig.SpiningSymbolCount = 5;
         mainSlotConfig.IncreaseCount = 5;
-        mainSlotConfig.SpinCountThreshold = 4;
+        mainSlotConfig.SpinCountThreshold = 1;
         mainSlotConfig.SpinSpeedPerSec = 15f;
         mainSlotConfig.DelayEachReel = 0f;
         mainSlotConfig.tweenFirstBackInfo = new MoveTweenInfo(0.2f, 0.2f);
         mainSlotConfig.tweenLastBackInfo = new MoveTweenInfo(0.2f, 0.3f);
-        //test
-        mainSlotConfig.SpinCountThreshold = 1;
 
-        //debug
-        mainSlotConfig.DebugSymbolArea = false;
+        //transition
+        mainSlotConfig.transition = new Transition()
+        {
+            ReelStopCompleteAfterDealy = 0.5f,
+            PlayAllSymbols_WinBalance = 0,
+            EachWin = 1f,
+            EachWinSummary = 1f
+        };
 
         //symbolNameMap
         SymbolNameMap nameMap = new SymbolNameMap();
@@ -106,6 +113,7 @@ public class ShiningSevens : MonoBehaviour
         };
         mainSlotConfig.paylineTable = paylineTable;
 
+
         //strips
         //todo
         //릴스트립도 가변배열로 고쳐야함
@@ -116,12 +124,15 @@ public class ShiningSevens : MonoBehaviour
             {SG,BG,W0,BR,SB,SR,SB,BR,SB,SG,BR,BG,W0,BR,BR}
         }, ReelStrip.ReelStripType.USE_NULL);
 
-        _machine = FindObjectOfType<SlotMachine>();
-        _machine.Config = mainSlotConfig;
+        //debug
+        mainSlotConfig.DebugSymbolArea = false;
     }
 
     void Start()
     {
-        _machine.Run();
+        _machine = FindObjectOfType<SlotMachine>();
+        if (_machine == null) Debug.LogError("Can't find SlotMachine.");
+
+        _machine.Run(mainSlotConfig);
     }
 }

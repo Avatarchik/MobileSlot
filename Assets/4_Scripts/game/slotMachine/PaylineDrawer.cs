@@ -24,12 +24,7 @@ public class PaylineDrawer : MonoBehaviour
         }
     }
 
-    public void DrawEach()
-    {
-
-    }
-
-    void DrawLine(WinItemList.Item item, bool drawOver = false)
+    public void DrawLine(WinItemList.Item item, bool drawOver = false)
     {
         if (item.PaylineIndex == null) return;
 

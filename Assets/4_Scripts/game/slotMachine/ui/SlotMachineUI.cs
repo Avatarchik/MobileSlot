@@ -36,7 +36,7 @@ public class SlotMachineUI : MonoBehaviour
     public void Initialize(SlotMachine slot)
     {
         _slot = slot;
-        _betting = _slot.Config.Common.Betting;
+        _betting = _slot.Config.COMMON.Betting;
 
         InitInfo();
         InitButtons();

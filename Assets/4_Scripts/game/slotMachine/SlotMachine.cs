@@ -19,10 +19,9 @@ public class SlotMachine : MonoBehaviour
         ApplySpinResult
     }
 
+    SlotConfig _config;
+    public SlotConfig Config { get { return _config; } }
 
-    const float TRANSITION_PLAYALL_TO_BALANCE = 0F;
-
-    public SlotConfig Config { get; set; }
     public Stack<MachineState> State { get; private set; }
 
     [SerializeField]
@@ -98,9 +97,11 @@ public class SlotMachine : MonoBehaviour
         yield break;
     }
 
-    public void Run()
+    public void Run(SlotConfig config)
     {
-        if (Config == null)
+        _config = config;
+
+        if (_config == null)
         {
             Debug.LogError("SlotConfig은 반드시 정의 되어야 합니다");
             return;
@@ -140,7 +141,7 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator Connecting_Enter()
     {
-        GameServerCommunicator.Instance.Connect(Config.Common.Host, Config.Common.Port);
+        GameServerCommunicator.Instance.Connect(_config.COMMON.Host, _config.COMMON.Port);
 
         yield break;
     }
@@ -163,7 +164,7 @@ public class SlotMachine : MonoBehaviour
             yield return null;
         }
 
-        _betting = Config.Common.Betting;
+        _betting = _config.COMMON.Betting;
 
         _model.Initialize(this, dto);
         _ui.Initialize(this);
@@ -288,6 +289,8 @@ public class SlotMachine : MonoBehaviour
     {
         _reelContainer.FindAllWinPayInfo();
 
+        yield return new WaitForSeconds(_config.transition.ReelStopCompleteAfterDealy);
+
         //빅윈,메가윈,잭팟, progressive 등을 체크하자
         //경우에 따라 팝업 을 띄워야 할 수도 있음.
 
@@ -295,7 +298,7 @@ public class SlotMachine : MonoBehaviour
 
         _reelContainer.PlayAllWin();
 
-        yield return new WaitForSeconds(TRANSITION_PLAYALL_TO_BALANCE);
+        yield return new WaitForSeconds(_config.transition.PlayAllSymbols_WinBalance);
 
         var balanceInfo = GetWinBalanceInfo();
         yield return _ui.AddWinBalance(balanceInfo);
@@ -310,7 +313,7 @@ public class SlotMachine : MonoBehaviour
 
     void OnPlayEachWinHandler(WinItemList.Item item)
     {
-
+        if (_paylineDrawer != null) _paylineDrawer.DrawLine(item);
     }
 
     IEnumerator AfterWin_Enter()
@@ -365,7 +368,7 @@ public struct WinBalanceInfo
     }
 }
 
-public class WinItemList
+public class WinItemList : IEnumerable<WinItemList.Item>
 {
     List<WinItemList.Item> _items;
     public int ItemCount { get { return _items.Count; } }
@@ -401,16 +404,14 @@ public class WinItemList
         }
     }
 
-    public WinItemList.Item GetItem(int idx)
+    public IEnumerator<WinItemList.Item> GetEnumerator()
     {
-        if (idx < 0 || idx >= _items.Count) return null;
-        else return _items[idx];
+        return new WinItemListEnumerator(_items);
     }
 
-    public void Clear()
+    IEnumerator IEnumerable.GetEnumerator()
     {
-        _items.Clear();
-        AllSymbols.Clear();
+        return this.GetEnumerator();
     }
 
     public class Item
@@ -439,5 +440,64 @@ public class WinItemList
             if (symbol == null || _symbols.Contains(symbol)) return;
             _symbols.Add(symbol);
         }
+    }
+
+    class WinItemListEnumerator : IEnumerator<WinItemList.Item>
+    {
+        List<WinItemList.Item> _items;
+        int _position = -1;
+
+        public WinItemListEnumerator(List<WinItemList.Item> items)
+        {
+            _items = items;
+        }
+        public bool MoveNext()
+        {
+            ++_position;
+            return (_position < _items.Count);
+        }
+
+        object IEnumerator.Current
+        {
+            get { return Current; }
+        }
+
+        public WinItemList.Item Current
+        {
+            get
+            {
+                try
+                {
+                    return _items[_position];
+                }
+                catch (IndexOutOfRangeException)
+                {
+                    throw new InvalidOperationException();
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+
+        }
+
+        public void Reset()
+        {
+            _position = -1;
+        }
+    }
+
+
+    public WinItemList.Item GetItem(int idx)
+    {
+        if (idx < 0 || idx >= _items.Count) return null;
+        else return _items[idx];
+    }
+
+    public void Clear()
+    {
+        _items.Clear();
+        AllSymbols.Clear();
     }
 }

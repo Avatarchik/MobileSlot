@@ -65,7 +65,7 @@ public class SlotModel : SingletonSimple<SlotModel>
 
         _config = slot.Config;
 
-        _betting = _config.Common.Betting;
+        _betting = _config.COMMON.Betting;
 
         SetLoginData(dto);
     }

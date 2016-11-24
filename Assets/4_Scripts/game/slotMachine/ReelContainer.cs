@@ -41,6 +41,8 @@ public class ReelContainer : MonoBehaviour
     {
         _config = slot.Config;
 
+        _winItemList = new WinItemList();
+
         CreateReels();
     }
 
@@ -67,9 +69,22 @@ public class ReelContainer : MonoBehaviour
         }
     }
 
+    void Reset()
+    {
+        if (_eachWin != null)
+        {
+            StopCoroutine(_eachWin);
+            _eachWin = null;
+        }
+
+        _winItemList.Clear();
+
+        _nextStopIndex = 0;
+    }
+
     public void Spin()
     {
-        _nextStopIndex = 0;
+        Reset();
 
         for (var i = 0; i < _config.Column; ++i)
         {
@@ -135,26 +150,54 @@ public class ReelContainer : MonoBehaviour
     {
         //필요한 경우 여기서 winsymbol 의 수와 종류를 파악. 사운드 재생등을 커스텀 시킨다.
 
-        var count = _winItemList.AllSymbols.Count;
-        for (var i = 0; i < count; ++i)
-        {
-            _winItemList.AllSymbols[i].SetState(Symbol.SymbolState.Win);
-        }
-
+        SetSymbolsToWin(_winItemList.AllSymbols);
         if (OnPlayAllWin != null) OnPlayAllWin(_winItemList);
     }
 
+    Coroutine _eachWin;
+
     public void PlayEachWin()
     {
+        if (_winItemList.ItemCount <= 1) return;
 
+        _eachWin = StartCoroutine(PlayEachWinRoutine());
+    }
+
+    IEnumerator PlayEachWinRoutine()
+    {
+        var enume = _winItemList.GetEnumerator();
+
+        while (true)
+        {
+            if (enume.MoveNext())
+            {
+                var item = enume.Current;
+                SetSymbolsToWin(item.Symbols);
+                if (OnPlayEachWin != null) OnPlayEachWin(item);
+
+                yield return new WaitForSeconds(_config.transition.EachWin);
+            }
+            else
+            {
+                PlayAllWin();
+                enume.Reset();
+
+                yield return new WaitForSeconds(_config.transition.EachWinSummary);
+            }
+        }
+    }
+
+    void SetSymbolsToWin(List<Symbol> symbols)
+    {
+        var count = symbols.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            symbols[i].SetState(Symbol.SymbolState.Win);
+        }
     }
 
     public WinItemList FindAllWinPayInfo()
     {
-        if (_winItemList == null) _winItemList = new WinItemList();
-
-        _winItemList.Clear();
-
         //todo
         //win 한 정보를 시상에 따라 내림차순 정렬해야함
 
