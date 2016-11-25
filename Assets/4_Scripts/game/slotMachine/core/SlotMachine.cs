@@ -290,6 +290,7 @@ public class SlotMachine : MonoBehaviour
     IEnumerator FreeSpinTrigger_Enter()
     {
         Debug.Log("삐리리리리 프리스핀 트리거!");
+        _reelContainer.FreeSpinTrigger();
         yield break;
     }
 

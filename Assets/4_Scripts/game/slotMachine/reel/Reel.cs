@@ -28,10 +28,12 @@ public class Reel : MonoBehaviour
 
     protected string[] _receivedSymbolNames;
 
-    int _symbolNecessaryCount; //화면에 보여야할 심볼 수 ( row ) + 위아래 여유 수 ( dummyCount * 2 )
+    protected ReelStrip _currentStrip;
+
+    [SerializeField]
     int _spinCount;
 
-    protected ReelStrip _currentStrip;
+    int _symbolNecessaryCount; //화면에 보여야할 심볼 수 ( row ) + 위아래 여유 수 ( marinCount * 2 )
 
     void Awake()
     {
@@ -280,7 +282,7 @@ public class Reel : MonoBehaviour
     {
         var symbol = CreateSymbol(symbolname);
         var h = symbol.Height;
-        
+
         AddSymbolToHead(symbol, _symbols[0].Y + h);
         _spinDis += h;
     }
@@ -305,6 +307,12 @@ public class Reel : MonoBehaviour
     virtual protected string GetSpiningSymbolName()
     {
         return _currentStrip.GetRandom(_column);
+    }
+
+
+    public void FreeSpinTrigger()
+    {
+        
     }
 
     protected Symbol CreateSymbol(string symbolName)

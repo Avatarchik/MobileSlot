@@ -7,7 +7,7 @@ public class EmptySymbol : Symbol
 
     override public void Initialize(string symbolName, SlotConfig config)
     {
-        Initialize(symbolName, config.NullSymbolSize, config.DebugSymbolArea);
+        Initialize(symbolName, config.NullSymbolSize, config.COMMON.DebugSymbolArea);
     }
 
     override public void SetState(SymbolState nextState, bool useOverlap = true)

@@ -23,13 +23,13 @@ public class SlotConfig
     [Serializable]
     public class CommonConfig
     {
-        public bool IsDebug;
-
         public int ID;
         public string Host;
         public int Port;
         public string Version;
         public SlotBetting Betting;
+        public bool DebugSymbolArea;//심볼 영역을 표시할지 여부
+        public bool DebugTestSpin;//심볼 영역을 표시할지 여부
     }
 
     //------------------------------------------------------------------
@@ -75,9 +75,6 @@ public class SlotConfig
 
     [Header("NameMap")]
     public SymbolNameMap NameMap;
-
-    [Header("Debug")]
-    public bool DebugSymbolArea;//심볼 영역을 표시할지 여부
 
     //startSymbols
     string[,] _startSymbolNames;

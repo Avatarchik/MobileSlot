@@ -24,8 +24,6 @@ public class ShiningSevens : MonoBehaviour
 
         SlotConfig.CommonConfig commonInfo = new SlotConfig.CommonConfig()
         {
-            IsDebug = true,
-
             ID = 1,
             Host = "182.252.135.251",
             Port = 13100,
@@ -41,7 +39,10 @@ public class ShiningSevens : MonoBehaviour
                     3000000,4000000,5000000,10000000,20000000
                 },
                 PaylineNum = 5
-            }
+            },
+
+            DebugSymbolArea = false,
+            DebugTestSpin = true
         };
 
         //slot setting
@@ -125,9 +126,6 @@ public class ShiningSevens : MonoBehaviour
             {SG,BR,SB,BR,SB,W0,SG,BG,SB,BG,SG,BG,BR,SB,BG},
             {SG,BG,W0,BR,SB,SR,SB,BR,SB,SG,BR,BG,W0,BR,BR}
         }, ReelStrip.ReelStripType.USE_NULL);
-
-        //debug
-        mainSlotConfig.DebugSymbolArea = false;
     }
 
     void Start()
@@ -137,7 +135,7 @@ public class ShiningSevens : MonoBehaviour
 
         _machine.Run(mainSlotConfig);
 
-        if( mainSlotConfig.COMMON.IsDebug )
+        if (mainSlotConfig.COMMON.DebugTestSpin)
         {
             gameObject.AddComponent<DebugHelper>();
         }

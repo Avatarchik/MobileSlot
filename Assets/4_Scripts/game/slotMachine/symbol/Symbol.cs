@@ -5,6 +5,17 @@ using DG.Tweening;
 
 public abstract class Symbol : MonoBehaviour
 {
+    public enum SymbolType
+    {
+        Low,
+        Middle,
+        High,
+        Wild,
+        FreeSpinScatter,
+        ProgressiveScatter,
+        Empty
+    }
+
     public enum SymbolState
     {
         Null,
@@ -20,6 +31,10 @@ public abstract class Symbol : MonoBehaviour
     public Size2D Area { get; private set; }
     public string SymbolName { get; private set; }
     public bool IsInitialized { get; private set; }
+
+    [SerializeField]
+    SymbolType _symbolType;
+    public SymbolType Type { get { return _symbolType; } }
 
     protected SymbolState _currentState;
 
@@ -43,7 +58,7 @@ public abstract class Symbol : MonoBehaviour
 
     virtual public void Initialize(string symbolName, SlotConfig config)
     {
-        Initialize(symbolName, config.SymbolSize, config.DebugSymbolArea);
+        Initialize(symbolName, config.SymbolSize, config.COMMON.DebugSymbolArea);
     }
 
     protected void Initialize(string symbolName, Size2D areaSize, bool dipslayArea = false)

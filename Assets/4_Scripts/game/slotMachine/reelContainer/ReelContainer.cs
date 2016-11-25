@@ -133,6 +133,53 @@ public class ReelContainer : MonoBehaviour
         if (OnReelStopComplete != null) OnReelStopComplete();
     }
 
+    public void FreeSpinTrigger()
+    {
+        var count = _config.Column;
+        while( count-- > 0 ) _reels[ count ].FreeSpinTrigger();
+    }
+
+    public WinItemList FindAllWinPayInfo()
+    {
+        //todo
+        //win 한 정보를 시상에 따라 내림차순 정렬해야함
+
+        for (var i = 0; i < _lastSpinInfo.payLines.Length; ++i)
+        {
+            var lineData = _lastSpinInfo.payLines[i];
+
+            var winItem = new WinItemList.Item();
+            winItem.Payout = lineData.payout;
+
+            if (lineData.IsLineMatched == false)
+            {
+                //todo
+                //게임 별 override 가 필요할 것 같다.
+                winItem.Type = WinItemList.Item.ItemType.Progressive;
+                winItem.PaylineRows = null;
+                winItem.PaylineIndex = null;
+            }
+            else
+            {
+                winItem.Type = WinItemList.Item.ItemType.Payline;
+                winItem.PaylineRows = _config.paylineTable[lineData.line];
+                winItem.PaylineIndex = lineData.line;
+
+                for (var col = 0; col < lineData.matches; ++col)
+                {
+                    var row = winItem.PaylineRows[col];
+                    var reel = _reels[col];
+                    var symbol = reel.GetSymbolAt(row);
+                    winItem.AddSymbol(symbol);
+                }
+            }
+
+            _winItemList.AddItem(winItem);
+        }
+
+        return _winItemList;
+    }
+
     public Coroutine PlaySpecialWinDirection()
     {
         return StartCoroutine(PlaySpecialWinDirectionRoutine());
@@ -194,46 +241,5 @@ public class ReelContainer : MonoBehaviour
         {
             symbols[i].SetState(Symbol.SymbolState.Win);
         }
-    }
-
-    public WinItemList FindAllWinPayInfo()
-    {
-        //todo
-        //win 한 정보를 시상에 따라 내림차순 정렬해야함
-
-        for (var i = 0; i < _lastSpinInfo.payLines.Length; ++i)
-        {
-            var lineData = _lastSpinInfo.payLines[i];
-
-            var winItem = new WinItemList.Item();
-            winItem.Payout = lineData.payout;
-
-            if (lineData.IsLineMatched == false)
-            {
-                //todo
-                //게임 별 override 가 필요할 것 같다.
-                winItem.Type = WinItemList.Item.ItemType.Progressive;
-                winItem.PaylineRows = null;
-                winItem.PaylineIndex = null;
-            }
-            else
-            {
-                winItem.Type = WinItemList.Item.ItemType.Payline;
-                winItem.PaylineRows = _config.paylineTable[lineData.line];
-                winItem.PaylineIndex = lineData.line;
-
-                for (var col = 0; col < lineData.matches; ++col)
-                {
-                    var row = winItem.PaylineRows[col];
-                    var reel = _reels[col];
-                    var symbol = reel.GetSymbolAt(row);
-                    winItem.AddSymbol(symbol);
-                }
-            }
-
-            _winItemList.AddItem(winItem);
-        }
-
-        return _winItemList;
     }
 }
