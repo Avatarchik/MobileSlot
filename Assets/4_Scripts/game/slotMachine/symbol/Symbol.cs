@@ -33,6 +33,7 @@ public abstract class Symbol : MonoBehaviour
         _tf = transform;
         _content = _tf.Find("content");
         _sprite = _tf.Find("content/sprite").GetComponent<SpriteRenderer>();
+        if( _sprite != null ) _sprite.sortingLayerName = Layers.Sorting.SYMBOL;
 
         _anim = GetComponentInChildren<AnimControl>();
     }

@@ -24,6 +24,7 @@ public class Layers
         public const string BACKGROUND = "GameBackground";
         public const string REEL = "Reel";
         public const string SYMBOL = "Symbol";
+        public const string REEL_COVER = "ReelCover";
         public const string DEFAULT = "Default";
         public const string FOREGROUND = "GameForeGround";
         public const string WIN = "WinLayer";
