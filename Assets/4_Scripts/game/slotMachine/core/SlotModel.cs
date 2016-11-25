@@ -17,7 +17,7 @@ public class SlotModel : SingletonSimple<SlotModel>
     public int FreeSpinTotal { get; private set; }
     public int FreeSpinRemain { get { return FreeSpinTotal - FreeSpinCurrentCount; } }
 
-    public bool AutoSpin{get;set;}
+    public bool AutoSpin { get; set; }
 
     public SlotConfig.FreeSpinRetriggerType RetriggerType { get; set; }
     public User Owner { get; private set; }
@@ -90,7 +90,9 @@ public class SlotModel : SingletonSimple<SlotModel>
 
     ResDTO.Spin.Payout.SpinInfo NextSpin()
     {
-        _lastSpinInfo = _spinDTO.payouts.Next();
+        _lastSpinInfo = _spinDTO.payouts.MoveNext();
+
+        if (_lastSpinInfo == null) throw new System.NullReferenceException("SpinInfo can't be null");
 
         IsFreeSpinTrigger = _lastSpinInfo.IsFreeSpinTrigger;
 
@@ -120,6 +122,16 @@ public class SlotModel : SingletonSimple<SlotModel>
         }
 
         return _lastSpinInfo;
+    }
+
+    public bool HasBonusSpin
+    {
+        get
+        {
+            var next = _spinDTO.payouts.Next();
+            if (next == null) return false;
+            else return next.isBonusSpin;
+        }
     }
 
     public ResDTO.Spin.Payout.SpinInfo UseFreeSpin()

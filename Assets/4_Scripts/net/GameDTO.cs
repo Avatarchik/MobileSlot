@@ -9,7 +9,7 @@ public class DTO
 
 }
 
-public class ResDTO: DTO
+public class ResDTO : DTO
 {
     public double balance;
     public int level;
@@ -58,11 +58,16 @@ public class ResDTO: DTO
             public bool isJackpot;
             public Queue<SpinInfo> spins;
 
+            public SpinInfo MoveNext()
+            {
+                if (spins != null && spins.Count > 0) return spins.Dequeue();
+                else return null;
+            }
+
             public SpinInfo Next()
             {
-                if (spins != null || spins.Count > 0) return spins.Dequeue();
-
-                return null;
+                if (spins != null && spins.Count > 0) return spins.Peek();
+                else return null;
             }
 
             public class SpinInfo
@@ -73,6 +78,7 @@ public class ResDTO: DTO
                 public bool isNormal;
                 public int[] fixedreel;
                 public Payline[] payLines;
+                public bool isBonusSpin;
 
                 public bool IsFreeSpinTrigger
                 {
@@ -90,11 +96,11 @@ public class ResDTO: DTO
                     return res;
                 }
 
-                public Payline GetPaylineAt( int idx )
+                public Payline GetPaylineAt(int idx)
                 {
-                    if( idx < 0 || payLines.Length <= idx ) return null;
+                    if (idx < 0 || payLines.Length <= idx) return null;
 
-                    return payLines[ idx ];
+                    return payLines[idx];
                 }
 
                 public class Payline
@@ -111,7 +117,7 @@ public class ResDTO: DTO
                     //public bool containWild;
 
                     // 라인에 매칭 되었나
-                    public bool IsLineMatched{ get{ return line >= 0; }}
+                    public bool IsLineMatched { get { return line >= 0; } }
                 }
             }
         }
@@ -119,7 +125,7 @@ public class ResDTO: DTO
 }
 
 
-public class ReqDTO: DTO
+public class ReqDTO : DTO
 {
     public class Login : ReqDTO
     {

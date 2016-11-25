@@ -16,6 +16,7 @@ public class SlotMachine : MonoBehaviour
         FreeSpinTrigger,
         Win,
         AfterWin,
+        BonusSpin,
         ApplySpinResult
     }
 
@@ -333,9 +334,9 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator AfterWin_Enter()
     {
-        if ("보너스 스핀 ( 시상이 독립적인 추가 스핀 ) 이 있다면 돌린다" == null)
+        if (_model.HasBonusSpin)
         {
-            //do
+            SetState(MachineState.BonusSpin);
         }
         else if ("프리스핀 진행 중이라면 프리스핀 한다" == null)
         {
@@ -345,6 +346,12 @@ public class SlotMachine : MonoBehaviour
         {
             SetState(MachineState.ApplySpinResult);
         }
+        yield break;
+    }
+
+    IEnumerator BonusSpin_Enter()
+    {
+        Debug.Log("bonus spin~~~");
         yield break;
     }
 
