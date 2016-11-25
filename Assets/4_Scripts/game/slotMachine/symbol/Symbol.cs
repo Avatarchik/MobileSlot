@@ -21,6 +21,8 @@ public abstract class Symbol : MonoBehaviour
     public string SymbolName { get; private set; }
     public bool IsInitialized { get; private set; }
 
+    protected SymbolState _currentState;
+
     Transform _tf;
     Transform _content;
     SpriteRenderer _sprite;
@@ -33,7 +35,7 @@ public abstract class Symbol : MonoBehaviour
         _tf = transform;
         _content = _tf.Find("content");
         _sprite = _tf.Find("content/sprite").GetComponent<SpriteRenderer>();
-        if( _sprite != null ) _sprite.sortingLayerName = Layers.Sorting.SYMBOL;
+        if (_sprite != null) _sprite.sortingLayerName = Layers.Sorting.SYMBOL;
 
         _anim = GetComponentInChildren<AnimControl>();
     }
@@ -46,6 +48,8 @@ public abstract class Symbol : MonoBehaviour
 
         Area = areaSize;
         SymbolName = symbolName;
+
+        _content.localPosition = new Vector3(Width * 0.5f, Height * -0.5f, 0f);
 
         if (dipslayArea) CreateDisplayArea();
     }
@@ -65,10 +69,16 @@ public abstract class Symbol : MonoBehaviour
         return renderer;
     }
 
-    void Start()
+    void BringToFront()
     {
-        _content.localPosition = new Vector3(Width * 0.5f, Height * -0.5f, 0f);
+        _sprite.sortingLayerName = Layers.Sorting.WIN;
     }
+
+    void BackFromFront()
+    {
+        _sprite.sortingLayerName = Layers.Sorting.SYMBOL;
+    }
+
 
     public void SetParent(Transform parent, float ypos, bool asFirst = false)
     {
@@ -78,9 +88,7 @@ public abstract class Symbol : MonoBehaviour
         if (asFirst) _tf.SetAsFirstSibling();
     }
 
-    SymbolState _currentState;
-
-    public void SetState(SymbolState nextState, bool useOverlap = true)
+    virtual public void SetState(SymbolState nextState, bool useOverlap = true)
     {
         if (useOverlap == false && _currentState == nextState) return;
 
@@ -150,8 +158,6 @@ public abstract class Symbol : MonoBehaviour
 
     void Win()
     {
-        _sprite.sortingLayerName = Layers.Sorting.WIN;
-
         if (PlayAnimation("Win") == false) MotionScale();
     }
 
@@ -167,7 +173,7 @@ public abstract class Symbol : MonoBehaviour
             _fallbackAnimSequence.Kill();
             _fallbackAnimSequence = null;
         }
-        
+
         //stop anim
         // _content scale alpha ...etc reset
         // _sprite scale alpha ...etc reset
@@ -176,10 +182,10 @@ public abstract class Symbol : MonoBehaviour
 
     protected bool PlayAnimation(string animName, bool loop = true, int layerIndex = 0)
     {
-        if( _anim == null || _anim.HasAnim( animName ) == false ) return false;
+        if (_anim == null || _anim.HasAnim(animName) == false) return false;
 
-        _anim.PlayAnimation( animName );
-        
+        _anim.PlayAnimation(animName);
+
         return true;
     }
 
@@ -187,12 +193,20 @@ public abstract class Symbol : MonoBehaviour
     {
         _content.localScale = Vector3.one * fromScale;
 
-        if (_fallbackAnimSequence != null && _fallbackAnimSequence.IsPlaying() )_fallbackAnimSequence.Kill();
+        if (_fallbackAnimSequence != null && _fallbackAnimSequence.IsPlaying()) _fallbackAnimSequence.Kill();
 
         _fallbackAnimSequence = DOTween.Sequence();
-        _fallbackAnimSequence.Append(_content.DOScale(toScale, duration).SetEase(Ease.OutCubic));
+
+        _fallbackAnimSequence.Append(_content.DOScale(toScale, duration)
+                                     .SetEase(Ease.OutCubic)
+                                     .OnStart(BringToFront));
+
         _fallbackAnimSequence.AppendInterval(interval);
-        _fallbackAnimSequence.Append(_content.DOScale(fromScale, duration).SetEase(Ease.InCubic));
+
+        _fallbackAnimSequence.Append(_content.DOScale(fromScale, duration)
+                                     .SetEase(Ease.InCubic)
+                                     .OnStart(BackFromFront));
+
         _fallbackAnimSequence.Play();
     }
 
