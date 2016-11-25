@@ -41,7 +41,12 @@ public abstract class Symbol : MonoBehaviour
         _anim = GetComponentInChildren<AnimControl>();
     }
 
-    public void Initialize(string symbolName, Size2D areaSize, bool dipslayArea = false)
+    virtual public void Initialize(string symbolName, SlotConfig config)
+    {
+        Initialize(symbolName, config.SymbolSize, config.DebugSymbolArea);
+    }
+
+    protected void Initialize(string symbolName, Size2D areaSize, bool dipslayArea = false)
     {
         if (IsInitialized) return;
 

@@ -11,7 +11,7 @@ public class ShiningSevens : MonoBehaviour
     public const string BG = "M1";
     public const string BR = "M2";
 
-    public const string L0 = NullSymbol.EMPTY;
+    public const string L0 = EmptySymbol.EMPTY;
     public SlotConfig mainSlotConfig;
 
     SlotMachine _machine;
