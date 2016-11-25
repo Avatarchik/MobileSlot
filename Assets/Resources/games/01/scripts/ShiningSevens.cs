@@ -63,7 +63,7 @@ public class ShiningSevens : MonoBehaviour
         mainSlotConfig.ReelGap = 0.3f;
 
         //spin
-        mainSlotConfig.DummySymbolCount = 1;
+        mainSlotConfig.MarginSymbolCount = 1;
         mainSlotConfig.SpiningSymbolCount = 5;
         mainSlotConfig.IncreaseCount = 5;
         mainSlotConfig.SpinCountThreshold = 1;

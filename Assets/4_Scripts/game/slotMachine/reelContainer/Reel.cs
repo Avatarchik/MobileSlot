@@ -22,6 +22,7 @@ public class Reel : MonoBehaviour
     int _symbolNecessaryCount; //화면에 보여야할 심볼 수 ( row ) + 위아래 여유 수 ( dummyCount * 2 )
 
     Transform _symbolContainer;
+    public Transform SymbolContainer { get { return _symbolContainer; } }
     int _spinCount;
     float _spinDis;
 
@@ -49,7 +50,7 @@ public class Reel : MonoBehaviour
     public void Initialize(SlotConfig config)
     {
         _config = config;
-        _symbolNecessaryCount = _config.Row + _config.DummySymbolCount * 2;
+        _symbolNecessaryCount = _config.Row + _config.MarginSymbolCount * 2;
 
         nullSymbolOffesetY = (_config.ReelSize.height - (_config.SymbolSize.height + _config.NullSymbolSize.height * 2)) * 0.5f;
 
@@ -83,7 +84,7 @@ public class Reel : MonoBehaviour
         _lastResultSymbolNames = new string[_config.Row];
         for (var i = 0; i < _config.Row; ++i)
         {
-            _lastResultSymbolNames[i] = _config.GetStartSymbolAt(_column, _config.DummySymbolCount + i);
+            _lastResultSymbolNames[i] = _config.GetStartSymbolAt(_column, _config.MarginSymbolCount + i);
         }
     }
 
@@ -93,11 +94,11 @@ public class Reel : MonoBehaviour
         //전달 받은 symbosl 파라메터는 여유 심볼이 포함되어 있는 배열이므로 결과 심볼이 릴에 제대로 보이게 시작 위치를 조정해야한다.
         //각 심볼은 크기가 다를 수 있으니 ( NullSymbol 의 경우 높이가 0이거나 타 심볼의 반이하일 수 있다 ) 실제 심볼 크기를 계산한다.
 
-        Symbol firstSymbol = _symbols[_config.DummySymbolCount];
+        Symbol firstSymbol = _symbols[_config.MarginSymbolCount];
 
         _symbolStartPosOffset = 0f;
 
-        for (var i = 0; i < _config.DummySymbolCount; ++i)
+        for (var i = 0; i < _config.MarginSymbolCount; ++i)
         {
             _symbolStartPosOffset += _symbols[i].Height;
         }
@@ -122,13 +123,13 @@ public class Reel : MonoBehaviour
     void AddSymbolToHead(Symbol symbol, float ypos = 0f)
     {
         _symbols.Insert(0, symbol);
-        symbol.SetParent(_symbolContainer, ypos, true);
+        symbol.SetParent(this, ypos, true);
     }
 
     void AddSymbolToTail(Symbol symbol, float ypos = 0f)
     {
         _symbols.Add(symbol);
-        symbol.SetParent(_symbolContainer, ypos);
+        symbol.SetParent(this, ypos);
     }
 
     public void Spin()
@@ -138,17 +139,17 @@ public class Reel : MonoBehaviour
         _spinCount = 0;
         _currentStrip = _config.NormalStrip;
 
-        UpdateSymbolState( Symbol.SymbolState.Spin );
-        
+        UpdateSymbolState(Symbol.SymbolState.Spin);
+
         SpinReel();
     }
 
-    void UpdateSymbolState( Symbol.SymbolState state )
+    void UpdateSymbolState(Symbol.SymbolState state)
     {
         var count = _symbols.Count;
-        for( var i = 0; i < count; ++i )
+        for (var i = 0; i < count; ++i)
         {
-            _symbols[i].SetState( state );
+            _symbols[i].SetState(state);
         }
     }
 
@@ -165,62 +166,38 @@ public class Reel : MonoBehaviour
 
     void SpinReel()
     {
-        ++_spinCount;
-
         if (_spinCount >= SPIN_COUNT_LIMIT)
         {
             ServerTooLate();
             return;
         }
 
+        RemoveSymbolsExceptNecessary();
+
+        _spinDis = 0;
+        ++_spinCount;
+
         if (_spinCount == 1)
         {
             TweenFirst();
         }
-        else if (_spinCount > _config.SpinCountThreshold && _receivedSymbolNames != null)
-        {
-            TweenLast();
-        }
-        else
+        else if (_spinCount <= _config.SpinCountThreshold || _receivedSymbolNames == null)
         {
             TweenLinear();
         }
-    }
-
-    void AddSpiningSymbols(int count)
-    {
-        _spinDis = 0;
-
-        bool nullOrder = _symbols[0] is NullSymbol == false;
-
-        while (count-- > 0)
+        else
         {
-            var symbolName = nullOrder ? NullSymbol.EMPTY : _currentStrip.GetRandom(_column);
-            var symbol = GetSymbol(symbolName);
-            var h = symbol.Height;
-
-            AddSymbolToHead(symbol, _symbols[0].Y + h);
-
-            _spinDis += h;
-
-            nullOrder = !nullOrder;
+            TweenLast();
         }
     }
 
-    void RemoveSymbolsExceptNecessary()
+    void ServerTooLate()
     {
-        //필요조건 수 를 제외하고 모두 지운다.
-        int count = _symbols.Count - _symbolNecessaryCount;
-        while (count-- > 0)
-        {
-            var idx = _symbols.Count - 1;
-            var symbol = _symbols[idx];
-            _symbols.RemoveAt(idx);
-            GamePool.Instance.DespawnSymbol(symbol);
-        }
+        //데이터 어디갔니?
+        //뭔가 문제가 일어남. 설정한 최대 스핀이 돌동안 서버로부터 응답이 안왔음
     }
 
-    void TweenFirst()
+    virtual protected void TweenFirst()
     {
         AddSpiningSymbols(_config.SpiningSymbolCount);
 
@@ -241,7 +218,6 @@ public class Reel : MonoBehaviour
         mySequence.PrependInterval(_config.DelayEachReel * _column);
         mySequence.AppendCallback(() =>
         {
-            RemoveSymbolsExceptNecessary();
             SpinReel();
         });
         mySequence.Play();
@@ -258,7 +234,6 @@ public class Reel : MonoBehaviour
         var tween = _symbolContainer.DOMove(tgPos, duration);
         tween.OnComplete(() =>
         {
-            RemoveSymbolsExceptNecessary();
             SpinReel();
         });
         tween.Play();
@@ -269,7 +244,7 @@ public class Reel : MonoBehaviour
         AddSpiningSymbols(_column * _config.IncreaseCount);
         AddInterpolationSymbols();
         AddResultSymbols();
-        AddDummySymbols();
+        AddSpiningSymbols(_config.MarginSymbolCount);
 
         if (_lastResultSymbolNames[0] == NullSymbol.EMPTY && _receivedSymbolNames[0] != NullSymbol.EMPTY)
         {
@@ -315,17 +290,42 @@ public class Reel : MonoBehaviour
         if (OnStop != null) OnStop(this);
     }
 
-    public Symbol GetSymbolAt(int row)
+    void AddSpiningSymbols(int count)
     {
-        row += _config.DummySymbolCount;
-        if (row < 0 || _symbols.Count <= row) throw new System.ArgumentOutOfRangeException();
-        return _symbols[row];
+        bool nullOrder = _symbols[0] is NullSymbol == false;
+
+        while (count-- > 0)
+        {
+            var symbolName = nullOrder ? NullSymbol.EMPTY : _currentStrip.GetRandom(_column);
+            var symbol = GetSymbol(symbolName);
+            var h = symbol.Height;
+
+            AddSymbolToHead(symbol, _symbols[0].Y + h);
+
+            _spinDis += h;
+
+            nullOrder = !nullOrder;
+        }
     }
 
-    void ServerTooLate()
+    void RemoveSymbolsExceptNecessary()
     {
-        //데이터 어디갔니?
-        //뭔가 문제가 일어남. 설정한 최대 스핀이 돌동안 서버로부터 응답이 안왔음
+        //필요조건 수 를 제외하고 모두 지운다.
+        int count = _symbols.Count - _symbolNecessaryCount;
+        while (count-- > 0)
+        {
+            var idx = _symbols.Count - 1;
+            var symbol = _symbols[idx];
+            _symbols.RemoveAt(idx);
+            GamePool.Instance.DespawnSymbol(symbol);
+        }
+    }
+
+    public Symbol GetSymbolAt(int row)
+    {
+        row += _config.MarginSymbolCount;
+        if (row < 0 || _symbols.Count <= row) throw new System.ArgumentOutOfRangeException();
+        return _symbols[row];
     }
 
     void AddResultSymbols()
@@ -374,28 +374,6 @@ public class Reel : MonoBehaviour
             AddSymbolToHead(symbol, _symbols[0].Y + h);
 
             _spinDis += h;
-        }
-    }
-
-    //todo
-    //AddSpiningSymbols 와 중복. 리팩토링 필요
-    virtual protected void AddDummySymbols()
-    {
-        int count = _config.DummySymbolCount;
-
-        bool nullOrder = _symbols[0] is NullSymbol == false;
-
-        while (count-- > 0)
-        {
-            var symbolName = nullOrder ? NullSymbol.EMPTY : _currentStrip.GetRandom(_column);
-            var symbol = GetSymbol(symbolName);
-            var h = symbol.Height;
-
-            AddSymbolToHead(symbol, _symbols[0].Y + h);
-
-            _spinDis += h;
-
-            nullOrder = !nullOrder;
         }
     }
 

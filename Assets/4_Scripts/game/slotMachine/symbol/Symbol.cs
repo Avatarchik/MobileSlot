@@ -28,7 +28,8 @@ public abstract class Symbol : MonoBehaviour
     SpriteRenderer _sprite;
 
     AnimControl _anim;
-    Sequence _fallbackAnimSequence;
+    Sequence _fallbackAnim;
+    Reel _relativeReel;
 
     virtual protected void Awake()
     {
@@ -79,10 +80,10 @@ public abstract class Symbol : MonoBehaviour
         _sprite.sortingLayerName = Layers.Sorting.SYMBOL;
     }
 
-
-    public void SetParent(Transform parent, float ypos, bool asFirst = false)
+    public void SetParent(Reel reel, float ypos, bool asFirst = false)
     {
-        _tf.SetParent(parent);
+        _relativeReel = reel;
+        _tf.SetParent(_relativeReel.SymbolContainer);
         Y = ypos;
 
         if (asFirst) _tf.SetAsFirstSibling();
@@ -130,6 +131,22 @@ public abstract class Symbol : MonoBehaviour
         }
     }
 
+    void Reset()
+    {
+        if (_fallbackAnim != null)
+        {
+            _fallbackAnim.Kill();
+            _fallbackAnim = null;
+        }
+
+        _relativeReel = null;
+
+        //stop anim
+        // _content scale alpha ...etc reset
+        // _sprite scale alpha ...etc reset
+        // reset blur
+    }
+
     void Idle()
     {
 
@@ -166,20 +183,6 @@ public abstract class Symbol : MonoBehaviour
 
     }
 
-    void Reset()
-    {
-        if (_fallbackAnimSequence != null)
-        {
-            _fallbackAnimSequence.Kill();
-            _fallbackAnimSequence = null;
-        }
-
-        //stop anim
-        // _content scale alpha ...etc reset
-        // _sprite scale alpha ...etc reset
-        // reset blur
-    }
-
     protected bool PlayAnimation(string animName, bool loop = true, int layerIndex = 0)
     {
         if (_anim == null || _anim.HasAnim(animName) == false) return false;
@@ -193,21 +196,21 @@ public abstract class Symbol : MonoBehaviour
     {
         _content.localScale = Vector3.one * fromScale;
 
-        if (_fallbackAnimSequence != null && _fallbackAnimSequence.IsPlaying()) _fallbackAnimSequence.Kill();
+        if (_fallbackAnim != null && _fallbackAnim.IsPlaying()) _fallbackAnim.Kill();
 
-        _fallbackAnimSequence = DOTween.Sequence();
+        _fallbackAnim = DOTween.Sequence();
 
-        _fallbackAnimSequence.Append(_content.DOScale(toScale, duration)
+        _fallbackAnim.Append(_content.DOScale(toScale, duration)
                                      .SetEase(Ease.OutCubic)
                                      .OnStart(BringToFront));
 
-        _fallbackAnimSequence.AppendInterval(interval);
+        _fallbackAnim.AppendInterval(interval);
 
-        _fallbackAnimSequence.Append(_content.DOScale(fromScale, duration)
+        _fallbackAnim.Append(_content.DOScale(fromScale, duration)
                                      .SetEase(Ease.InCubic)
                                      .OnStart(BackFromFront));
 
-        _fallbackAnimSequence.Play();
+        _fallbackAnim.Play();
     }
 
     public void Clear()
