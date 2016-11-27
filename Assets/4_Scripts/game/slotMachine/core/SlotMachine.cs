@@ -238,7 +238,6 @@ public class SlotMachine : MonoBehaviour
             GameServerCommunicator.Instance.Spin(_betting.LineBet);
         }
 
-
         yield break;
     }
 
@@ -247,7 +246,7 @@ public class SlotMachine : MonoBehaviour
     void SpinComplete(ResDTO.Spin dto)
     {
         _model.SetSpinData(dto);
-        _lastSpinInfo = _model.LastSpinInfo;
+        _lastSpinInfo = _model.NextSpin();
 
         SetState(MachineState.ReceivedSymbol);
     }
@@ -351,7 +350,15 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator BonusSpin_Enter()
     {
-        Debug.Log("bonus spin~~~");
+        _paylineDrawer.Clear();
+        _lastSpinInfo = _model.NextSpin();
+
+        yield return _reelContainer.LockReel( _lastSpinInfo.fixedreel );
+
+        //전광판 보너스 스핀 연출
+
+        _reelContainer.BonusSpin( _lastSpinInfo );
+
         yield break;
     }
 

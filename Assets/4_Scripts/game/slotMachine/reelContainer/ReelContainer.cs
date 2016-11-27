@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -15,13 +16,19 @@ public class ReelContainer : MonoBehaviour
 
     Transform _tf;
 
-    int _nextStopIndex;
+    int[] _defaltOrder;
+    int[] _spinStartOrder;
+    int _nextSpinIndex;
 
     ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
 
     Reel _lastStoppedReel;
 
     WinItemList _winItemList;
+
+    Coroutine _eachWin;
+
+
 
     void Awake()
     {
@@ -43,7 +50,27 @@ public class ReelContainer : MonoBehaviour
 
         _winItemList = new WinItemList();
 
+        CreateSpinOrder();
         CreateReels();
+    }
+
+    void CreateSpinOrder()
+    {
+        _defaltOrder = new int[_config.Column];
+        for (var i = 0; i < _config.Column; ++i)
+        {
+            _defaltOrder[i] = i;
+        }
+    }
+
+    void UpdateStartOrder(int[] startOrder = null)
+    {
+        _spinStartOrder = startOrder ?? _defaltOrder;
+    }
+
+    void DescSpinOrder(out int[] spinOrder)
+    {
+        spinOrder = _defaltOrder.OrderByDescending(i => i).ToArray();
     }
 
     void CreateReels()
@@ -79,17 +106,26 @@ public class ReelContainer : MonoBehaviour
 
         _winItemList.Clear();
 
-        _nextStopIndex = 0;
+        _nextSpinIndex = 0;
     }
 
     public void Spin()
     {
         Reset();
 
+        UpdateStartOrder();
+        // DescSpinOrder( out _spinStartOrder );        //시작 순서를 반대로 할 수 있다.
+        // UpdateStartOrder(new int[] { 2, 1, 0 });     //시작 순서를 커스텀 시킬 수 있다.
+
         for (var i = 0; i < _config.Column; ++i)
         {
-            _reels[i].Spin();
+            var reelIndex = _spinStartOrder[i];
+            var reel = _reels[reelIndex];
+            reel.StartOrder = i;
+            reel.Spin();
         }
+
+        CheckNextReel();
     }
 
     public void ReceivedSymbol(ResDTO.Spin.Payout.SpinInfo spinInfo)
@@ -102,30 +138,97 @@ public class ReelContainer : MonoBehaviour
         }
     }
 
+    public Coroutine LockReel(int[] fixedReel)
+    {
+        return StartCoroutine(LockReelRoutine(fixedReel));
+    }
+
+    IEnumerator LockReelRoutine(int[] fixedReel)
+    {
+        for (var i = 0; i < fixedReel.Length; ++i)
+        {
+            if (fixedReel[i] == 1)
+            {
+                if (i > 0) yield return new WaitForSeconds(_config.transition.EachLockReel);
+
+                _reels[i].Lock();
+            }
+        }
+
+        yield return new WaitForSeconds(_config.transition.LockReel_BonusSpin);
+    }
+
+    public void BonusSpin(ResDTO.Spin.Payout.SpinInfo spinInfo)
+    {
+        Reset();
+
+        _lastSpinInfo = spinInfo;
+
+        UpdateStartOrder();
+
+        for (var i = 0; i < _config.Column; ++i)
+        {
+            var continueCount = 0;
+            var reelIndex = _spinStartOrder[i];
+            var reel = _reels[reelIndex];
+
+            if (reel.IsLocked)
+            {
+                ++continueCount;
+                continue;
+            }
+
+            reel.StartOrder = i - continueCount;
+            reel.BonusSpin( spinInfo );
+        }
+
+        CheckNextReel();
+    }
 
     void OnStopListener(Reel reel)
     {
+        // Debug.Log("reel " + reel.Column + " stopped");
         _lastStoppedReel = reel;
 
-        //Debug.Log("reel " + _lastStoppedReel.Column + " stopped");
+        PlayStopEffect();
 
-        ++_nextStopIndex;
+        ++_nextSpinIndex;
 
-        if (_nextStopIndex < _config.Column)
-        {
-            CheckNextReel();
-        }
-        else
-        {
-            ReelAllCompleted();
-        }
+        CheckNextReel();
+    }
+
+    void PlayStopEffect()
+    {
+
     }
 
     void CheckNextReel()
     {
-        //다음 릴이 lock 이 걸렸는지
-        //고조를 해야 하는지 등등 처리
+        if (_nextSpinIndex >= _config.Column)
+        {
+            ReelAllCompleted();
+            return;
+        }
 
+        var nextOrder = _spinStartOrder[_nextSpinIndex];
+        var nextReel = _reels[nextOrder];
+
+        if (nextReel.IsLocked)
+        {
+            ++_nextSpinIndex;
+            CheckNextReel();
+            return;
+        }
+
+        if ("돌아가야 할 릴이 고조라면" == null)
+        {
+            //해당 릴을 고조한다.
+            //해당 릴 이후의 릴들은 고조가 끝날 때까지 스핀을 loop 시킨다
+        }
+        else if ("돌아가야 할 릴이 고조가 아니고 이전이 고조 였다면" == null)
+        {
+            //해당릴 이후의 릴들의 스핀 loop를 해제한다.
+        }
     }
 
     void ReelAllCompleted()
@@ -136,7 +239,7 @@ public class ReelContainer : MonoBehaviour
     public void FreeSpinTrigger()
     {
         var count = _config.Column;
-        while( count-- > 0 ) _reels[ count ].FreeSpinTrigger();
+        while (count-- > 0) _reels[count].FreeSpinTrigger();
     }
 
     public WinItemList FindAllWinPayInfo()
@@ -200,8 +303,6 @@ public class ReelContainer : MonoBehaviour
         SetSymbolsToWin(_winItemList.AllSymbols);
         if (OnPlayAllWin != null) OnPlayAllWin(_winItemList);
     }
-
-    Coroutine _eachWin;
 
     public void PlayEachWin()
     {

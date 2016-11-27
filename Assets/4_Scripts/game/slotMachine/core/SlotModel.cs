@@ -36,7 +36,6 @@ public class SlotModel : SingletonSimple<SlotModel>
     }
 
     ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
-    public ResDTO.Spin.Payout.SpinInfo LastSpinInfo { get { return _lastSpinInfo; } }
     #endregion
 
     int _spinCount;
@@ -84,11 +83,9 @@ public class SlotModel : SingletonSimple<SlotModel>
         ++_spinCount;
 
         _spinDTO = dto;
-
-        NextSpin();
     }
 
-    ResDTO.Spin.Payout.SpinInfo NextSpin()
+    public ResDTO.Spin.Payout.SpinInfo NextSpin()
     {
         _lastSpinInfo = _spinDTO.payouts.MoveNext();
 

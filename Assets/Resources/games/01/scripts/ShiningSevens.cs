@@ -69,7 +69,7 @@ public class ShiningSevens : MonoBehaviour
         mainSlotConfig.IncreaseCount = 5;
         mainSlotConfig.SpinCountThreshold = 1;
         mainSlotConfig.SpinSpeedPerSec = 15f;
-        mainSlotConfig.DelayEachReel = 0f;
+        mainSlotConfig.DelayEachReel = 0.1f;
         mainSlotConfig.tweenFirstBackInfo = new MoveTweenInfo(0.2f, 0.2f);
         mainSlotConfig.tweenLastBackInfo = new MoveTweenInfo(0.2f, 0.3f);
 
@@ -79,7 +79,9 @@ public class ShiningSevens : MonoBehaviour
             ReelStopCompleteAfterDealy = 0.5f,
             PlayAllSymbols_WinBalance = 0,
             EachWin = 1f,
-            EachWinSummary = 1f
+            EachWinSummary = 1f,
+            EachLockReel = 0.2f,
+            LockReel_BonusSpin = 1f
         };
 
         //symbolNameMap

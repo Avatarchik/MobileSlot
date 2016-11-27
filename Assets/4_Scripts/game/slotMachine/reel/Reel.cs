@@ -35,6 +35,9 @@ public class Reel : MonoBehaviour
 
     int _symbolNecessaryCount; //화면에 보여야할 심볼 수 ( row ) + 위아래 여유 수 ( marinCount * 2 )
 
+    public bool IsLocked { get; private set; }
+    public int StartOrder { get; set; }
+
     void Awake()
     {
         _symbols = new List<Symbol>();
@@ -95,25 +98,22 @@ public class Reel : MonoBehaviour
         return res;
     }
 
-    public void Spin()
+    public void Spin(ResDTO.Spin.Payout.SpinInfo spinInfo = null)
     {
-        //Log("Spin");
-
         _spinCount = 0;
-        _currentStrip = _config.NormalStrip;
+        _currentStrip = GetCurrentStrip();
+
+        if (spinInfo != null) ReceivedSymbol(spinInfo);
 
         UpdateSymbolState(Symbol.SymbolState.Spin);
 
         SpinReel();
     }
 
-    void UpdateSymbolState(Symbol.SymbolState state)
+    public void BonusSpin(ResDTO.Spin.Payout.SpinInfo spinInfo)
     {
-        var count = _symbols.Count;
-        for (var i = 0; i < count; ++i)
-        {
-            _symbols[i].SetState(state);
-        }
+        Spin(spinInfo);
+        //연출
     }
 
     public void ReceivedSymbol(ResDTO.Spin.Payout.SpinInfo spinInfo)
@@ -164,6 +164,8 @@ public class Reel : MonoBehaviour
     {
         AddSpiningSymbols(_config.SpiningSymbolCount);
 
+        var startDelay = StartOrder * _config.DelayEachReel;
+
         var backPos = _symbolContainer.position + new Vector3(0f, _config.tweenFirstBackInfo.distance, 0f);
         var tweenBack = _symbolContainer.DOMove(backPos, _config.tweenFirstBackInfo.duration);
         tweenBack.SetEase(Ease.OutSine);
@@ -176,9 +178,9 @@ public class Reel : MonoBehaviour
         tween.SetEase(Ease.InCubic);
 
         Sequence mySequence = DOTween.Sequence();
+        mySequence.PrependInterval(startDelay);
         mySequence.Append(tweenBack);
         mySequence.Append(tween);
-        mySequence.PrependInterval(_config.DelayEachReel * _column);
         mySequence.AppendCallback(() =>
         {
             SpinReel();
@@ -219,7 +221,7 @@ public class Reel : MonoBehaviour
 
     virtual protected void ComposeLastSpiningSymbols()
     {
-        AddSpiningSymbols(_column * _config.IncreaseCount);
+        AddSpiningSymbols(StartOrder * _config.IncreaseCount);
         AddInterpolationSymbols();
         AddResultSymbols();
         AddSpiningSymbols(_config.MarginSymbolCount);
@@ -240,13 +242,25 @@ public class Reel : MonoBehaviour
             backOutTween.Play();
         }
 
-        if (_receivedSymbolNames != null && _receivedSymbolNames.Length > 0)
-        {
-            _lastResultSymbolNames = _receivedSymbolNames;
-            _receivedSymbolNames = null;
-        }
+        _lastResultSymbolNames = _receivedSymbolNames;
+        _receivedSymbolNames = null;
 
         if (OnStop != null) OnStop(this);
+    }
+
+
+    public void Lock()
+    {
+        IsLocked = true;
+    }
+
+    void UpdateSymbolState(Symbol.SymbolState state)
+    {
+        var count = _symbols.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            _symbols[i].SetState(state);
+        }
     }
 
     void RemoveSymbolsExceptNecessary()
@@ -312,7 +326,7 @@ public class Reel : MonoBehaviour
 
     public void FreeSpinTrigger()
     {
-        
+
     }
 
     protected Symbol CreateSymbol(string symbolName)
@@ -329,6 +343,11 @@ public class Reel : MonoBehaviour
         row += _config.MarginSymbolCount;
         if (row < 0 || _symbols.Count <= row) throw new System.ArgumentOutOfRangeException();
         return _symbols[row];
+    }
+
+    ReelStrip GetCurrentStrip()
+    {
+        return _config.NormalStrip;
     }
 
     string GetAddedSymbolNames()

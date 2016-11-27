@@ -161,6 +161,9 @@ public class Transition
     public float PlayAllSymbols_WinBalance = 0f;
     public float EachWin = 1f;
     public float EachWinSummary = 1f;
+
+    public float EachLockReel = 1f;
+    public float LockReel_BonusSpin = 1f;
 }
 
 [System.Serializable]
