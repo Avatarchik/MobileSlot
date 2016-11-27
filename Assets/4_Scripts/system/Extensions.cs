@@ -19,4 +19,9 @@ public static class ExtensionMethods
 
         return result;
     }
+
+    public static string ToBalance( this double self )
+    {
+        return self.ToString("#,##0");
+    }
 }

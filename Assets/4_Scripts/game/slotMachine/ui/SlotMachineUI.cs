@@ -19,12 +19,13 @@ public class SlotMachineUI : MonoBehaviour
 
     InfoViewUI _info;
 
+    MessageBoard _board;
+
+    SlotBetting _betting;
+
     void Awake()
     {
         CanvasUtil.CanvasSetting(GetComponent<Canvas>());
-
-        _info = GetComponentInChildren<InfoViewUI>();
-        if (_info == null) Debug.LogError("can't find InfoViewUI");
     }
 
     void Start()
@@ -32,19 +33,27 @@ public class SlotMachineUI : MonoBehaviour
         SetBalance(0);
     }
 
-    SlotBetting _betting;
     public void Initialize(SlotMachine slot)
     {
         _slot = slot;
         _betting = _slot.Config.COMMON.Betting;
 
         InitInfo();
+        InitBoard();
         InitButtons();
     }
 
     void InitInfo()
     {
+        _info = GetComponentInChildren<InfoViewUI>();
+        if (_info == null) Debug.LogError("can't find InfoViewUI");
         _info.Init(_slot);
+    }
+
+    void InitBoard()
+    {
+        _board = GetComponentInChildren<MessageBoard>();
+        if (_board) _board.Initialize(_slot);
     }
 
     void InitButtons()
@@ -113,7 +122,18 @@ public class SlotMachineUI : MonoBehaviour
 
     public void Spin()
     {
+        if (_board != null) _board.Spin();
         _info.SetWin(0);
+    }
+
+    public void PlayAllWin(WinItemList info)
+    {
+        if (_board != null) _board.PlayAllWin(info);
+    }
+
+    public void PlayEachWin(WinItemList.Item item)
+    {
+        if (_board != null) _board.PlayEachWin(item);
     }
 
     public Coroutine AddWinBalance(WinBalanceInfo info)
@@ -123,9 +143,9 @@ public class SlotMachineUI : MonoBehaviour
 
     IEnumerator AddWinBalanceRoutine(WinBalanceInfo info)
     {
-        _info.AddWin( info.balance, info.duration);
+        _info.AddWin(info.balance, info.duration);
 
-        yield return new WaitForSeconds( info.duration);
+        yield return new WaitForSeconds(info.duration);
     }
 
     public void UpdateBalance()
@@ -135,6 +155,6 @@ public class SlotMachineUI : MonoBehaviour
 
     void SetBalance(double balance)
     {
-        TxtBalance.text = balance.ToString("#,##0");
+        TxtBalance.text = balance.ToBalance();
     }
 }

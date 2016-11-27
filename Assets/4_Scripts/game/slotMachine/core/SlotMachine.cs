@@ -323,11 +323,13 @@ public class SlotMachine : MonoBehaviour
 
     void OnPlayAllWinHandler(WinItemList info)
     {
+        _ui.PlayAllWin(info);
         if (_paylineDrawer != null) _paylineDrawer.DrawAll(info);
     }
 
     void OnPlayEachWinHandler(WinItemList.Item item)
     {
+        _ui.PlayEachWin(item);
         if (_paylineDrawer != null) _paylineDrawer.DrawLine(item);
     }
 
@@ -353,11 +355,11 @@ public class SlotMachine : MonoBehaviour
         _paylineDrawer.Clear();
         _lastSpinInfo = _model.NextSpin();
 
-        yield return _reelContainer.LockReel( _lastSpinInfo.fixedreel );
+        yield return _reelContainer.LockReel(_lastSpinInfo.fixedreel);
 
         //전광판 보너스 스핀 연출
 
-        _reelContainer.BonusSpin( _lastSpinInfo );
+        _reelContainer.BonusSpin(_lastSpinInfo);
 
         yield break;
     }
@@ -402,13 +404,18 @@ public class WinItemList : IEnumerable<WinItemList.Item>
     List<WinItemList.Item> _items;
     public int ItemCount { get { return _items.Count; } }
 
-    List<Symbol> _allSymbols;
-    public List<Symbol> AllSymbols { get { return _allSymbols; } }
+    public int PaylineItemCount { get; private set; }
+
+
+    public double Payout { get; private set; }
+
+    public List<Symbol> AllSymbols { get; private set; }
 
     public WinItemList()
     {
         _items = new List<WinItemList.Item>();
-        _allSymbols = new List<Symbol>();
+
+        AllSymbols = new List<Symbol>();
     }
 
     public void AddItem(WinItemList.Item item)
@@ -416,6 +423,10 @@ public class WinItemList : IEnumerable<WinItemList.Item>
         if (item == null || _items.Contains(item)) return;
 
         _items.Add(item);
+
+        Payout += item.Payout;
+
+        if (item.PaylineIndex != null) ++PaylineItemCount;
 
         IncludeSymbols(item.Symbols);
     }
@@ -428,9 +439,23 @@ public class WinItemList : IEnumerable<WinItemList.Item>
         for (var i = 0; i < count; ++i)
         {
             var symbol = symbols[i];
-            if (symbol == null || _allSymbols.Contains(symbol)) continue;
-            _allSymbols.Add(symbol);
+            if (symbol == null || AllSymbols.Contains(symbol)) continue;
+            AllSymbols.Add(symbol);
         }
+    }
+
+    public WinItemList.Item GetItem(int idx)
+    {
+        if (idx < 0 || idx >= _items.Count) return null;
+        else return _items[idx];
+    }
+
+    public void Clear()
+    {
+        _items.Clear();
+        AllSymbols.Clear();
+        PaylineItemCount = 0;
+        Payout = 0;
     }
 
     public IEnumerator<WinItemList.Item> GetEnumerator()
@@ -515,18 +540,5 @@ public class WinItemList : IEnumerable<WinItemList.Item>
         {
             _position = -1;
         }
-    }
-
-
-    public WinItemList.Item GetItem(int idx)
-    {
-        if (idx < 0 || idx >= _items.Count) return null;
-        else return _items[idx];
-    }
-
-    public void Clear()
-    {
-        _items.Clear();
-        AllSymbols.Clear();
     }
 }

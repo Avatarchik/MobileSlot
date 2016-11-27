@@ -58,7 +58,7 @@ public class InfoViewUI : MonoBehaviour
     void UpdateWin(double win)
     {
         _win = win;
-        txtWin.text = _win.ToString("#,##0");
+        txtWin.text = _win.ToBalance();
     }
 
     void SetLineBet(double bet, float duration = 0.2f)
@@ -70,7 +70,7 @@ public class InfoViewUI : MonoBehaviour
     void UpdateLineBet(double bet)
     {
         _lineBet = bet;
-        txtBet.text = bet.ToString("#,##0");
+        txtBet.text = bet.ToBalance();
     }
 
     void SetTotalBet(double bet, float duration = 0.2f)
@@ -82,7 +82,7 @@ public class InfoViewUI : MonoBehaviour
     void UpdateTotalBet(double bet)
     {
         _totalBet = bet;
-        txtTotalBet.text = bet.ToString("#,##0");
+        txtTotalBet.text = bet.ToBalance();
     }
 
     void SetLineNum(int num)
