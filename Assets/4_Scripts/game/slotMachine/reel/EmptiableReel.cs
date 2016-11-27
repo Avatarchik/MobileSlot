@@ -25,11 +25,11 @@ public class EmptiableReel : Reel
     {
         base.ComposeLastSpiningSymbols();
 
-        if (_lastResultSymbolNames[0] == EmptySymbol.EMPTY && _receivedSymbolNames[0] != EmptySymbol.EMPTY)
+        if (_receivedSymbolNames[0] == EmptySymbol.EMPTY && _receivedSymbolNames[0] != EmptySymbol.EMPTY)
         {
             _spinDis -= _emptySymbolYOffset;
         }
-        else if (_lastResultSymbolNames[0] != EmptySymbol.EMPTY && _receivedSymbolNames[0] == EmptySymbol.EMPTY)
+        else if (_receivedSymbolNames[0] != EmptySymbol.EMPTY && _receivedSymbolNames[0] == EmptySymbol.EMPTY)
         {
             _spinDis -= _emptySymbolYOffset;
         }

@@ -14,29 +14,29 @@ public class Reel : MonoBehaviour
 
     public GameObject expectObject;
 
-    protected int _column;
-    protected SlotConfig _config;
-    protected List<Symbol> _symbols;
+
+    public bool IsLocked { get; private set; }
+    public int StartOrder { get; set; }
 
     Transform _symbolContainer;
     public Transform SymbolContainer { get { return _symbolContainer; } }
 
+    protected int _column;
+    protected SlotConfig _config;
+    protected List<Symbol> _symbols;
+
     protected float _spinDis;
 
     [SerializeField]
-    protected string[] _lastResultSymbolNames;
-
     protected string[] _receivedSymbolNames;
 
     protected ReelStrip _currentStrip;
 
     [SerializeField]
     int _spinCount;
-
     int _symbolNecessaryCount; //화면에 보여야할 심볼 수 ( row ) + 위아래 여유 수 ( marinCount * 2 )
 
-    public bool IsLocked { get; private set; }
-    public int StartOrder { get; set; }
+    bool _isReceived = true;
 
     void Awake()
     {
@@ -50,7 +50,7 @@ public class Reel : MonoBehaviour
     {
         _config = config;
         _symbolNecessaryCount = _config.Row + _config.MarginSymbolCount * 2;
-        _receivedSymbolNames = null;
+        _receivedSymbolNames = new string[_config.Row];
 
         CreateStartSymbols();
     }
@@ -67,10 +67,9 @@ public class Reel : MonoBehaviour
 
         AlignSymbols();
 
-        _lastResultSymbolNames = new string[_config.Row];
         for (var i = 0; i < _config.Row; ++i)
         {
-            _lastResultSymbolNames[i] = _config.GetStartSymbolAt(_column, _config.MarginSymbolCount + i);
+            _receivedSymbolNames[i] = _config.GetStartSymbolAt(_column, _config.MarginSymbolCount + i);
         }
     }
 
@@ -100,6 +99,7 @@ public class Reel : MonoBehaviour
 
     public void Spin(ResDTO.Spin.Payout.SpinInfo spinInfo = null)
     {
+        _isReceived = false;
         _spinCount = 0;
         _currentStrip = GetCurrentStrip();
 
@@ -118,8 +118,11 @@ public class Reel : MonoBehaviour
 
     public void ReceivedSymbol(ResDTO.Spin.Payout.SpinInfo spinInfo)
     {
+        if (spinInfo == null) return;
+
+        _isReceived = true;
+
         string[] reelData = spinInfo.GetReelData(_column, _config.Row);
-        _receivedSymbolNames = new string[reelData.Length];
 
         for (var i = 0; i < reelData.Length; ++i)
         {
@@ -144,7 +147,7 @@ public class Reel : MonoBehaviour
         {
             TweenFirst();
         }
-        else if (_spinCount <= _config.SpinCountThreshold || _receivedSymbolNames == null)
+        else if (_spinCount <= _config.SpinCountThreshold || _isReceived == false)
         {
             TweenLinear();
         }
@@ -241,9 +244,6 @@ public class Reel : MonoBehaviour
             backOutTween.SetEase(Ease.OutBack);
             backOutTween.Play();
         }
-
-        _lastResultSymbolNames = _receivedSymbolNames;
-        _receivedSymbolNames = null;
 
         if (OnStop != null) OnStop(this);
     }
