@@ -36,28 +36,17 @@ public class SlotMachine : MonoBehaviour
     SlotMachineUI _ui;
     SlotModel _model;
 
-    PaylineDrawer _paylineDrawer;
+    PaylineModule _paylineModule;
     ReelContainer _reelContainer;
     SlotBetting _betting;
-    WinTable _winTable;
+    WinTableModule _winTableModule;
 
     void Awake()
     {
-        State = new Stack<MachineState>();
-
-        CacheStateBehaviour();
-
-        _ui = FindObjectOfType<SlotMachineUI>() as SlotMachineUI;
-        if (_ui == null) Debug.LogError("can't find ui");
-
         _model = SlotModel.Instance;
 
-        _paylineDrawer = GetComponentInChildren<PaylineDrawer>();
-
-        _reelContainer = GetComponentInChildren<ReelContainer>();
-        _reelContainer.OnPlayAllWin += OnPlayAllWinHandler;
-        _reelContainer.OnPlayEachWin += OnPlayEachWinHandler;
-        _reelContainer.OnReelStopComplete += OnReelStopCompleteHandler;
+        State = new Stack<MachineState>();
+        CacheStateBehaviour();
 
         GameServerCommunicator.Instance.OnConnect += ConnectComplete;
         GameServerCommunicator.Instance.OnLogin += LoginComplete;
@@ -109,6 +98,8 @@ public class SlotMachine : MonoBehaviour
             Debug.LogError("SlotConfig은 반드시 정의 되어야 합니다");
             return;
         }
+
+        _betting = _config.COMMON.Betting;
 
         Debug.Log("Run SlotMachine");
 
@@ -167,13 +158,21 @@ public class SlotMachine : MonoBehaviour
             yield return null;
         }
 
-        _betting = _config.COMMON.Betting;
-
         _model.Initialize(this, dto);
-        _ui.Initialize(this);
-        _reelContainer.Initialize(this);
 
-        _winTable = GetComponentInChildren<WinTable>();
+        _ui = FindObjectOfType<SlotMachineUI>() as SlotMachineUI;
+        if (_ui == null) Debug.LogError("can't find ui");
+        _ui.Initialize(this);
+
+        _reelContainer = GetComponentInChildren<ReelContainer>();
+        if (_ui == null) Debug.LogError("can't find _reelContainer");
+        _reelContainer.Initialize(this);
+        _reelContainer.OnPlayAllWin += OnPlayAllWinHandler;
+        _reelContainer.OnPlayEachWin += OnPlayEachWinHandler;
+        _reelContainer.OnReelStopComplete += OnReelStopCompleteHandler;
+
+        _paylineModule = GetComponentInChildren<PaylineModule>();
+        _winTableModule = GetComponentInChildren<WinTableModule>();
 
         SetState(MachineState.Idle);
 
@@ -226,8 +225,8 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator Spin_Enter()
     {
-        if (_paylineDrawer != null) _paylineDrawer.Clear();
-        if (_winTable != null) _winTable.Clear();
+        if (_paylineModule != null) _paylineModule.Clear();
+        if (_winTableModule != null) _winTableModule.Clear();
 
 
         _ui.Spin();
@@ -329,15 +328,15 @@ public class SlotMachine : MonoBehaviour
     void OnPlayAllWinHandler(WinItemList info)
     {
         _ui.PlayAllWin(info);
-        if (_paylineDrawer != null) _paylineDrawer.DrawAll(info);
-        if (_winTable != null) _winTable.PlayAllWin(info);
+        if (_paylineModule != null) _paylineModule.DrawAll(info);
+        if (_winTableModule != null) _winTableModule.PlayAllWin(info);
     }
 
     void OnPlayEachWinHandler(WinItemList.Item item)
     {
         _ui.PlayEachWin(item);
-        if (_paylineDrawer != null) _paylineDrawer.DrawLine(item);
-        if (_winTable != null) _winTable.PlayEachWin(item);
+        if (_paylineModule != null) _paylineModule.DrawLine(item);
+        if (_winTableModule != null) _winTableModule.PlayEachWin(item);
     }
 
     IEnumerator AfterWin_Enter()
@@ -359,7 +358,7 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator BonusSpin_Enter()
     {
-        _paylineDrawer.Clear();
+        _paylineModule.Clear();
         _lastSpinInfo = _model.NextSpin();
 
         yield return _reelContainer.LockReel(_lastSpinInfo.fixedreel);

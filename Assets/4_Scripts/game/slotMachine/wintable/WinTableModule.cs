@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class WinTable : MonoBehaviour
+public class WinTableModule : MonoBehaviour
 {
     [SerializeField]
     WinTableItem[] _items;
