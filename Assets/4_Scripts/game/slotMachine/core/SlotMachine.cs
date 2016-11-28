@@ -89,23 +89,6 @@ public class SlotMachine : MonoBehaviour
         yield break;
     }
 
-    public void Run(SlotConfig config)
-    {
-        _config = config;
-
-        if (_config == null)
-        {
-            Debug.LogError("SlotConfig은 반드시 정의 되어야 합니다");
-            return;
-        }
-
-        _betting = _config.COMMON.Betting;
-
-        Debug.Log("Run SlotMachine");
-
-        SetState(MachineState.Connecting);
-    }
-
     protected void SetState(MachineState next)
     {
         if (_currentState == next) return;
@@ -131,6 +114,24 @@ public class SlotMachine : MonoBehaviour
         _stateExit = _stateExitMap[_currentState];
 
         if (_stateEnter != null) StartCoroutine(_stateEnter());
+    }
+
+    //EntryPoint
+    public void Run(SlotConfig config)
+    {
+        _config = config;
+
+        if (_config == null)
+        {
+            Debug.LogError("SlotConfig은 반드시 정의 되어야 합니다");
+            return;
+        }
+
+        _betting = _config.COMMON.Betting;
+
+        Debug.Log("Run SlotMachine");
+
+        SetState(MachineState.Connecting);
     }
 
     IEnumerator Connecting_Enter()
