@@ -16,12 +16,10 @@ public class SlotMachineUI : MonoBehaviour
     public Button btnSpin;
 
     SlotMachine _slot;
-
-    InfoViewUI _info;
-
-    MessageBoard _board;
-
     SlotBetting _betting;
+    InfoViewUI _info;
+    MessageBoard _board;
+    WinAnimatorUI _winAnimator;
 
     void Awake()
     {
@@ -40,7 +38,14 @@ public class SlotMachineUI : MonoBehaviour
 
         InitInfo();
         InitBoard();
+        InitWinDisplayer();
         InitButtons();
+    }
+
+    void InitWinDisplayer()
+    {
+        _winAnimator = GetComponentInChildren<WinAnimatorUI>();
+        _winAnimator.Init();
     }
 
     void InitInfo()
@@ -136,16 +141,10 @@ public class SlotMachineUI : MonoBehaviour
         if (_board != null) _board.PlayEachWin(item);
     }
 
-    public Coroutine AddWinBalance(WinBalanceInfo info)
+    public void AddWinBalance(WinBalanceInfo info)
     {
-        return StartCoroutine(AddWinBalanceRoutine(info));
-    }
-
-    IEnumerator AddWinBalanceRoutine(WinBalanceInfo info)
-    {
-        _info.AddWin(info.balance, info.duration);
-
-        yield return new WaitForSeconds(info.duration);
+        _info.AddWin(info);
+        _winAnimator.AddWin(info);
     }
 
     public void UpdateBalance()

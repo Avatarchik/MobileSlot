@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-
 using System.Collections;
-
 using DG.Tweening;
 
 
@@ -50,9 +48,9 @@ public class InfoViewUI : MonoBehaviour
         else DOTween.To(() => _win, x => UpdateWin(x), win, duration).Play();
     }
 
-    public void AddWin(double increment, float duration = 0.3f)
+    public void AddWin(WinBalanceInfo info)
     {
-        SetWin(_win + increment, duration);
+        SetWin(_win + info.balance, info.duration);
     }
 
     void UpdateWin(double win)

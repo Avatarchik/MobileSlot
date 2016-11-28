@@ -180,6 +180,8 @@ public class Reel : MonoBehaviour
         var tween = _symbolContainer.DOMove(tgPos, duration);
         tween.SetEase(Ease.InCubic);
 
+        //todo
+        //시퀀스 매 생성하지 않고 재활용 하기
         Sequence mySequence = DOTween.Sequence();
         mySequence.PrependInterval(startDelay);
         mySequence.Append(tweenBack);

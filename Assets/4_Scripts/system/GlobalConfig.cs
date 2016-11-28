@@ -4,10 +4,16 @@ using System.Collections;
 using System.Collections.Generic;
 
 /*
+<require ver>
+5.4 이상
+
 < namingConvention >
+private,protected 멤버는 _로 시작
+public 멤버는 소문자로 시작
+Method 와 Property 는 대문자
+
 Event 는 On 접두사를 붙이자
 Event 에 추가된 Delegate 는 Handler 접미사를 붙이자
-
 */
 
 public class Layers

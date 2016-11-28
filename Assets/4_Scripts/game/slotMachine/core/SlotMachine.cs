@@ -321,7 +321,8 @@ public class SlotMachine : MonoBehaviour
         yield return new WaitForSeconds(_config.transition.PlayAllSymbols_WinBalance);
 
         var balanceInfo = GetWinBalanceInfo();
-        yield return _ui.AddWinBalance(balanceInfo);
+        _ui.AddWinBalance(balanceInfo);
+        yield return new WaitForSeconds(balanceInfo.duration);
 
         SetState(MachineState.AfterWin);
     }
