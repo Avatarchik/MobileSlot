@@ -12,8 +12,8 @@ public class SlotMachineUI : MonoBehaviour
     public Button btnPaytable;
     public Button btnBetDecrease;
     public Button btnBetIncrease;
-    public Button btnFast;
-    public Button btnAuto;
+    public Toggle btnFast;
+    public Toggle btnAuto;
     public Button btnSpin;
 
     SlotMachine _slot;
@@ -22,6 +22,7 @@ public class SlotMachineUI : MonoBehaviour
     MessageBoard _board;
     WinAnimatorUI _winAnimator;
     double _balance;
+    Tweener _tweenBalance;
 
     User _user;
 
@@ -85,14 +86,14 @@ public class SlotMachineUI : MonoBehaviour
             _betting.Increase();
         });
 
-        btnFast.onClick.AddListener(() =>
+        btnFast.onValueChanged.AddListener((b) =>
         {
-            //Debug.Log("fast");
+            //Debug.Log("fast: " + b );
         });
 
-        btnAuto.onClick.AddListener(() =>
+        btnAuto.onValueChanged.AddListener((b) =>
         {
-            //Debug.Log("auto");
+            Debug.Log(b);
         });
 
         btnSpin.onClick.AddListener(() =>
@@ -161,8 +162,6 @@ public class SlotMachineUI : MonoBehaviour
     {
         SetBalance(_user.Balance);
     }
-
-    Tweener _tweenBalance;
 
     void SetBalance(double balance)
     {
