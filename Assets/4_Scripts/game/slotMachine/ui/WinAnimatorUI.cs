@@ -32,8 +32,6 @@ public class WinAnimatorUI : MonoBehaviour
 
         txtWin.text = "";
         content.alpha = 0f;
-
-        Debug.Log("win reset");
     }
 
     void Hide()

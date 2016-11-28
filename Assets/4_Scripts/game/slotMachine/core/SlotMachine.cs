@@ -379,7 +379,7 @@ public class SlotMachine : MonoBehaviour
 
         if (_model.AutoSpin == false) _reelContainer.PlayEachWin();
 
-        _ui.UpdateBalance();
+        _ui.ApplyUserBalance();
         //반영 후 레벨업이 되었다면 연출한다.
 
         SetState(MachineState.Idle);

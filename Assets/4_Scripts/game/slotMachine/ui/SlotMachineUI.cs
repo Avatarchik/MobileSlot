@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 
 public class SlotMachineUI : MonoBehaviour
 {
@@ -20,6 +21,9 @@ public class SlotMachineUI : MonoBehaviour
     InfoViewUI _info;
     MessageBoard _board;
     WinAnimatorUI _winAnimator;
+    double _balance;
+
+    User _user;
 
     void Awake()
     {
@@ -35,11 +39,14 @@ public class SlotMachineUI : MonoBehaviour
     {
         _slot = slot;
         _betting = _slot.Config.COMMON.Betting;
+        _user = SlotModel.Instance.Owner;
 
         InitInfo();
         InitBoard();
         InitWinDisplayer();
         InitButtons();
+
+        UpdateBalance(_user.Balance);
     }
 
     void InitWinDisplayer()
@@ -122,13 +129,16 @@ public class SlotMachineUI : MonoBehaviour
 
     public void Idle()
     {
-        UpdateBalance();
+
     }
 
     public void Spin()
     {
-        if (_board != null) _board.Spin();
         _info.SetWin(0);
+
+        SetBalance(_user.Balance - _betting.TotalBet);
+
+        if (_board != null) _board.Spin();
     }
 
     public void PlayAllWin(WinItemList info)
@@ -147,13 +157,26 @@ public class SlotMachineUI : MonoBehaviour
         _winAnimator.AddWin(info);
     }
 
-    public void UpdateBalance()
+    public void ApplyUserBalance()
     {
-        SetBalance(SlotModel.Instance.Owner.Balance);
+        SetBalance(_user.Balance);
     }
+
+    Tweener _tweenBalance;
 
     void SetBalance(double balance)
     {
+        if (balance == _balance) return;
+
+        if (_tweenBalance != null) _tweenBalance.Kill();
+
+        var duration = balance > _balance ? 0.5f : 0.2f;
+        _tweenBalance = DOTween.To(() => _balance, x => UpdateBalance(x), balance, duration).Play();
+    }
+
+    void UpdateBalance(double balance)
+    {
+        _balance = balance;
         TxtBalance.text = balance.ToBalance();
     }
 }
