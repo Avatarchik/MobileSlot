@@ -39,6 +39,7 @@ public class SlotMachine : MonoBehaviour
     PaylineDrawer _paylineDrawer;
     ReelContainer _reelContainer;
     SlotBetting _betting;
+    WinTable _winTable;
 
     void Awake()
     {
@@ -172,6 +173,8 @@ public class SlotMachine : MonoBehaviour
         _ui.Initialize(this);
         _reelContainer.Initialize(this);
 
+        _winTable = GetComponentInChildren<WinTable>();
+
         SetState(MachineState.Idle);
 
         GameManager.Instance.GameReady();
@@ -223,7 +226,9 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator Spin_Enter()
     {
-        _paylineDrawer.Clear();
+        if (_paylineDrawer != null) _paylineDrawer.Clear();
+        if (_winTable != null) _winTable.Clear();
+
 
         _ui.Spin();
         _reelContainer.Spin();
@@ -325,12 +330,14 @@ public class SlotMachine : MonoBehaviour
     {
         _ui.PlayAllWin(info);
         if (_paylineDrawer != null) _paylineDrawer.DrawAll(info);
+        if (_winTable != null) _winTable.PlayAllWin(info);
     }
 
     void OnPlayEachWinHandler(WinItemList.Item item)
     {
         _ui.PlayEachWin(item);
         if (_paylineDrawer != null) _paylineDrawer.DrawLine(item);
+        if (_winTable != null) _winTable.PlayEachWin(item);
     }
 
     IEnumerator AfterWin_Enter()
@@ -404,16 +411,17 @@ public class WinItemList : IEnumerable<WinItemList.Item>
     List<WinItemList.Item> _items;
     public int ItemCount { get { return _items.Count; } }
 
+    List<int> _winTablesIndices;
+    public List<int> WinTablesIndices { get { return _winTablesIndices; } }
+
     public int PaylineItemCount { get; private set; }
-
-
     public double Payout { get; private set; }
-
     public List<Symbol> AllSymbols { get; private set; }
 
     public WinItemList()
     {
         _items = new List<WinItemList.Item>();
+        _winTablesIndices = new List<int>();
 
         AllSymbols = new List<Symbol>();
     }
@@ -427,6 +435,7 @@ public class WinItemList : IEnumerable<WinItemList.Item>
         Payout += item.Payout;
 
         if (item.PaylineIndex != null) ++PaylineItemCount;
+        if (item.WinTable != null) _winTablesIndices.Add(item.WinTable.Value);
 
         IncludeSymbols(item.Symbols);
     }
@@ -453,6 +462,7 @@ public class WinItemList : IEnumerable<WinItemList.Item>
     public void Clear()
     {
         _items.Clear();
+        _winTablesIndices.Clear();
         AllSymbols.Clear();
         PaylineItemCount = 0;
         Payout = 0;
@@ -480,6 +490,7 @@ public class WinItemList : IEnumerable<WinItemList.Item>
         public int[] PaylineRows { get; set; }
         public int? PaylineIndex { get; set; }
         public double Payout { get; set; }
+        public int? WinTable { get; set; }
 
         List<Symbol> _symbols;
         public List<Symbol> Symbols { get { return _symbols; } }

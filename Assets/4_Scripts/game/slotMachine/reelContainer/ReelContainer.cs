@@ -253,6 +253,7 @@ public class ReelContainer : MonoBehaviour
 
             var winItem = new WinItemList.Item();
             winItem.Payout = lineData.payout;
+            winItem.WinTable = lineData.winTable;
 
             if (lineData.IsLineMatched == false)
             {

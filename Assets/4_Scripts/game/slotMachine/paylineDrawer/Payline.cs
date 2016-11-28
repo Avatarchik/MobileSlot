@@ -4,9 +4,9 @@ using System.Collections;
 public class Payline : MonoBehaviour
 {
     [SerializeField]
-    int _lineIndex;
+    int _index;
 
-    public int LineIndex { get { return _lineIndex; } }
+    public int Index { get { return _index; } }
 
     SpriteRenderer _renderer;
 
@@ -17,7 +17,7 @@ public class Payline : MonoBehaviour
         if (_renderer != null)
         {
             _renderer.sortingLayerName = Layers.Sorting.PAYLINE;
-            _renderer.sortingOrder = _lineIndex;
+            _renderer.sortingOrder = _index;
         }
     }
 

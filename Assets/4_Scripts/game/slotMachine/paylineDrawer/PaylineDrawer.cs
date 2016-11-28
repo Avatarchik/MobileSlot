@@ -11,7 +11,7 @@ public class PaylineDrawer : MonoBehaviour
 
     void Awake()
     {
-        _paylines = GetComponentsInChildren<Payline>().OrderBy(p => p.LineIndex).ToArray();
+        _paylines = GetComponentsInChildren<Payline>().OrderBy(p => p.Index).ToArray();
         _drawnLines = new List<Payline>();
     }
 
