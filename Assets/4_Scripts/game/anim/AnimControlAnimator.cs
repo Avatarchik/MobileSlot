@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEditor.Animations;
 using System.Collections.Generic;
 
 public class AnimControlAnimator : AnimControl
@@ -12,20 +11,10 @@ public class AnimControlAnimator : AnimControl
 
     void Awake()
     {
-        _map = new Dictionary<string, AnimationClip>();
-
         _anim = GetComponent<Animator>();
-
-        AnimatorController ac = _anim.runtimeAnimatorController as AnimatorController;
-        ChildAnimatorState[] stateArr = ac.layers[0].stateMachine.states;
-
-        foreach (var child in stateArr)
-        {
-            if (child.state == null) continue;
-            var clip = child.state.motion as AnimationClip;
-
-            _map.Add(child.state.name, clip);
-        }
+        _map = new Dictionary<string, AnimationClip>();
+        //todo
+        //find clip map
     }
 
     override public void Init()
