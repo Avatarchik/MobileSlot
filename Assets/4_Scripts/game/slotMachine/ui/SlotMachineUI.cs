@@ -25,6 +25,8 @@ public class SlotMachineUI : MonoBehaviour
     Tweener _tweenBalance;
 
     User _user;
+    SlotModel _model;
+
 
     void Awake()
     {
@@ -40,7 +42,9 @@ public class SlotMachineUI : MonoBehaviour
     {
         _slot = slot;
         _betting = _slot.Config.COMMON.Betting;
-        _user = SlotModel.Instance.Owner;
+        _model = SlotModel.Instance;
+        _model.OnUpdateAutoSpinCount += OnUpdateAutoSpinCountListener;
+        _user = _model.Owner;
 
         InitInfo();
         InitBoard();
@@ -88,12 +92,13 @@ public class SlotMachineUI : MonoBehaviour
 
         btnFast.onValueChanged.AddListener((b) =>
         {
-            //Debug.Log("fast: " + b );
+            _model.IsFastSpin = b;
         });
 
         btnAuto.onValueChanged.AddListener((b) =>
         {
-            Debug.Log(b);
+            if (b) _model.StartAutoSpin(5);
+            else _model.StopAutoSpin();
         });
 
         btnSpin.onClick.AddListener(() =>
@@ -107,6 +112,11 @@ public class SlotMachineUI : MonoBehaviour
         };
 
         UpdateButtonState();
+    }
+
+    void OnUpdateAutoSpinCountListener(int remainCount)
+    {
+        btnAuto.isOn = _model.IsAutoSpin;
     }
 
     void UpdateButtonState()

@@ -7,6 +7,7 @@ public class SlotModel : SingletonSimple<SlotModel>
 {
 
     public event Action<double> OnUpdateWinBalance;
+    public event Action<int> OnUpdateAutoSpinCount;
 
 
     #region freespin property
@@ -16,9 +17,8 @@ public class SlotModel : SingletonSimple<SlotModel>
     public int FreeSpinCurrentCount { get; private set; }
     public int FreeSpinTotal { get; private set; }
     public int FreeSpinRemain { get { return FreeSpinTotal - FreeSpinCurrentCount; } }
-
-    public bool AutoSpin { get; set; }
-
+    public bool IsAutoSpin { get { return _remainAutoCount > 0; } }
+    public bool IsFastSpin { get; set; }
     public SlotConfig.FreeSpinRetriggerType RetriggerType { get; set; }
     public User Owner { get; private set; }
 
@@ -38,6 +38,7 @@ public class SlotModel : SingletonSimple<SlotModel>
     ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
     #endregion
 
+    int _remainAutoCount;
     int _spinCount;
 
     ResDTO.Spin _spinDTO;
@@ -143,5 +144,23 @@ public class SlotModel : SingletonSimple<SlotModel>
     public void ApplyBalance()
     {
         Owner.Balance = _spinDTO.balance;
+    }
+
+    public void StartAutoSpin(int count = int.MaxValue)
+    {
+        _remainAutoCount = count;
+    }
+
+    public void StopAutoSpin()
+    {
+        _remainAutoCount = 0;
+    }
+
+    public void UseAutoSpin()
+    {
+        if (IsAutoSpin == false) return;
+        --_remainAutoCount;
+
+        if (OnUpdateAutoSpinCount != null) OnUpdateAutoSpinCount(_remainAutoCount);
     }
 }

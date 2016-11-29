@@ -40,6 +40,7 @@ public class SlotMachine : MonoBehaviour
     ReelContainer _reelContainer;
     SlotBetting _betting;
     WinTableModule _winTableModule;
+    SendData _testSendData;
 
     void Awake()
     {
@@ -183,10 +184,17 @@ public class SlotMachine : MonoBehaviour
     IEnumerator Idle_Enter()
     {
         _ui.Idle();
+
+        if (_model.IsAutoSpin)
+        {
+            _model.UseAutoSpin();
+
+            var delay = _model.IsFastSpin ? 0f : 0.2f;
+            yield return new WaitForSeconds(delay);
+            TrySpin();
+        }
         yield break;
     }
-
-    SendData _testSendData;
 
     public void TrySpin(SendData testSendData = null)
     {
@@ -377,7 +385,7 @@ public class SlotMachine : MonoBehaviour
         //모든 연출이 끝났다.
         //결과를 실제 유저 객체에 반영한다.
 
-        if (_model.AutoSpin == false) _reelContainer.PlayEachWin();
+        if (_model.IsAutoSpin == false) _reelContainer.PlayEachWin();
 
         _ui.ApplyUserBalance();
         //반영 후 레벨업이 되었다면 연출한다.
