@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using UnityEngine;
+using System.Collections.Generic;
 
 
 public class DTO
@@ -53,17 +54,26 @@ public class ResDTO : DTO
             public bool isMegaWin;
             public bool isBigWin;
             public bool isJackpot;
-            public Queue<SpinInfo> spins;
+
+            Queue<SpinInfo> _spinQueue;
+            public SpinInfo[] spins
+            {
+                get { return (_spinQueue == null) ? null : _spinQueue.ToArray(); }
+                set
+                {
+                    _spinQueue = new Queue<SpinInfo>(value);
+                }
+            }
 
             public SpinInfo MoveNext()
             {
-                if (spins != null && spins.Count > 0) return spins.Dequeue();
+                if (_spinQueue != null && _spinQueue.Count > 0) return _spinQueue.Dequeue();
                 else return null;
             }
 
             public SpinInfo Next()
             {
-                if (spins != null && spins.Count > 0) return spins.Peek();
+                if (_spinQueue != null && _spinQueue.Count > 0) return _spinQueue.Peek();
                 else return null;
             }
 

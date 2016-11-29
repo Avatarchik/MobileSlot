@@ -95,22 +95,41 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
             return;
         }
 
-        switch (cmd)
+        try
         {
-            case Command.LOGIN:
-                IsLogin = true;
+            switch (cmd)
+            {
+                case Command.LOGIN:
+                    IsLogin = true;
 
-                var loginData = data.ToObject<ResDTO.Login>();
+                    var loginData = SafeDeserialize<ResDTO.Login>(data);
+                    if (OnLogin != null) OnLogin(loginData);
+                    break;
 
-                if (OnLogin != null) OnLogin(loginData);
-                break;
-
-            case Command.SPIN:
-
-                var spinData = data.ToObject<ResDTO.Spin>();
-                if (OnSpin != null) OnSpin(spinData);
-                break;
+                case Command.SPIN:
+                    var spinData = SafeDeserialize<ResDTO.Spin>(data);
+                    if (OnSpin != null) OnSpin(spinData);
+                    break;
+            }
         }
+        catch (Exception e)
+        {
+
+        }
+    }
+
+    T SafeDeserialize<T>(JToken obj) where T : ResDTO
+    {
+        T res = null;
+        try
+        {
+            res = obj.ToObject<T>();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("!! Deserialize json fail !!\n" + e.ToString());
+        }
+        return res;
     }
 
     void HandleServerError()
