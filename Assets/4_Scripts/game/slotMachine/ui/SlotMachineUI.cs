@@ -50,7 +50,7 @@ public class SlotMachineUI : MonoBehaviour
 
         InitPaytable();
         InitInfo();
-        InitBoard();
+        InitMessageBoard();
         InitWinDisplayer();
         InitButtons();
 
@@ -75,7 +75,7 @@ public class SlotMachineUI : MonoBehaviour
         _info.Init(_slot);
     }
 
-    void InitBoard()
+    void InitMessageBoard()
     {
         _board = GetComponentInChildren<MessageBoard>();
         if (_board) _board.Initialize(_slot);

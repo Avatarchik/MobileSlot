@@ -39,7 +39,8 @@ public class SlotMachine : MonoBehaviour
     PaylineModule _paylineModule;
     ReelContainer _reelContainer;
     SlotBetting _betting;
-    WinTableModule _winTableModule;
+    Topboard _topboard;
+
     SendData _testSendData;
 
     void Awake()
@@ -173,8 +174,9 @@ public class SlotMachine : MonoBehaviour
         _reelContainer.OnPlayEachWin += OnPlayEachWinHandler;
         _reelContainer.OnReelStopComplete += OnReelStopCompleteHandler;
 
+        _topboard = GetComponentInChildren<Topboard>();
+
         _paylineModule = GetComponentInChildren<PaylineModule>();
-        _winTableModule = GetComponentInChildren<WinTableModule>();
 
         SetState(MachineState.Idle);
 
@@ -235,11 +237,10 @@ public class SlotMachine : MonoBehaviour
     IEnumerator Spin_Enter()
     {
         if (_paylineModule != null) _paylineModule.Clear();
-        if (_winTableModule != null) _winTableModule.Clear();
-
 
         _ui.Spin();
         _reelContainer.Spin();
+        _topboard.Spin();
 
         if (_testSendData != null)
         {
@@ -338,15 +339,17 @@ public class SlotMachine : MonoBehaviour
     void OnPlayAllWinHandler(WinItemList info)
     {
         _ui.PlayAllWin(info);
+        _topboard.PlayAllWin(info);
+
         if (_paylineModule != null) _paylineModule.DrawAll(info);
-        if (_winTableModule != null) _winTableModule.PlayAllWin(info);
     }
 
     void OnPlayEachWinHandler(WinItemList.Item item)
     {
         _ui.PlayEachWin(item);
+        _topboard.PlayEachWin(item);
+
         if (_paylineModule != null) _paylineModule.DrawLine(item);
-        if (_winTableModule != null) _winTableModule.PlayEachWin(item);
     }
 
     IEnumerator AfterWin_Enter()
@@ -373,7 +376,9 @@ public class SlotMachine : MonoBehaviour
 
         yield return _reelContainer.LockReel(_lastSpinInfo.fixedreel);
 
-        //전광판 보너스 스핀 연출
+        _topboard.BonusSpin();
+
+        yield return new WaitForSeconds(_config.transition.LockReel_BonusSpin);
 
         _reelContainer.BonusSpin(_lastSpinInfo);
 

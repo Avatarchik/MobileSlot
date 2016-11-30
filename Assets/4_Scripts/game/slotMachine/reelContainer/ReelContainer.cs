@@ -138,7 +138,7 @@ public class ReelContainer : MonoBehaviour
         }
     }
 
-    public Coroutine LockReel(int[] fixedReel)
+    public YieldInstruction LockReel(int[] fixedReel)
     {
         return StartCoroutine(LockReelRoutine(fixedReel));
     }
@@ -154,8 +154,6 @@ public class ReelContainer : MonoBehaviour
                 _reels[i].Lock();
             }
         }
-
-        yield return new WaitForSeconds(_config.transition.LockReel_BonusSpin);
     }
 
     public void BonusSpin(ResDTO.Spin.Payout.SpinInfo spinInfo)
