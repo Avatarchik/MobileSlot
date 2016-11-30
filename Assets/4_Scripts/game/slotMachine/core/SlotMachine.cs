@@ -41,6 +41,8 @@ public class SlotMachine : MonoBehaviour
     SlotBetting _betting;
     Topboard _topboard;
 
+    ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
+
     SendData _testSendData;
 
     void Awake()
@@ -257,7 +259,6 @@ public class SlotMachine : MonoBehaviour
         yield break;
     }
 
-    ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
 
     void SpinComplete(ResDTO.Spin dto)
     {
@@ -331,9 +332,10 @@ public class SlotMachine : MonoBehaviour
 
         yield return new WaitForSeconds(_config.transition.PlayAllSymbols_WinBalance);
 
-        var balanceInfo = GetWinBalanceInfo();
-        _ui.AddWinBalance(balanceInfo);
-        yield return new WaitForSeconds(balanceInfo.duration);
+        var winInfo = GetWinBalanceInfo();
+        _ui.Win(winInfo);
+        _topboard.Win(winInfo);
+        yield return new WaitForSeconds(winInfo.duration);
 
         SetState(MachineState.AfterWin);
     }
@@ -403,8 +405,26 @@ public class SlotMachine : MonoBehaviour
 
     WinBalanceInfo GetWinBalanceInfo()
     {
-        //시상에 따라 길게 보여줄 수도 있다
-        return new WinBalanceInfo(_lastSpinInfo.totalPayout, 1f, 0f);
+        var skipDelay = 0f;
+        var duration = 1f;
+
+        if (_model.IsJMBWin)
+        {
+            switch (_model.WinType)
+            {
+                case SlotConfig.WinType.BIGWIN:
+                    duration = 9f;
+                    break;
+                case SlotConfig.WinType.MEGAWIN:
+                    duration = 12.5f;
+                    break;
+                case SlotConfig.WinType.JACPOT:
+                    duration = 14f;
+                    break;
+            }
+        }
+
+        return new WinBalanceInfo(_lastSpinInfo.totalPayout, duration, skipDelay, _model.WinMultiplier, _model.WinType);
     }
 }
 
@@ -413,12 +433,17 @@ public struct WinBalanceInfo
     public double balance;
     public float duration;
     public float skipDelay;
+    public float winMultiplier;
+    public SlotConfig.WinType winType;
+    public bool IsJMBWin { get { return winType == SlotConfig.WinType.BIGWIN || winType == SlotConfig.WinType.MEGAWIN || winType == SlotConfig.WinType.JACPOT; } }
 
-    public WinBalanceInfo(double balance, float duration, float skipDelay)
+    public WinBalanceInfo(double balance, float duration, float skipDelay, float winMultiplier, SlotConfig.WinType winType)
     {
         this.balance = balance;
         this.duration = duration;
         this.skipDelay = skipDelay;
+        this.winMultiplier = winMultiplier;
+        this.winType = winType;
     }
 }
 

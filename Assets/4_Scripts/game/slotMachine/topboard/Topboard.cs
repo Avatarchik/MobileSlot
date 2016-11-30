@@ -5,8 +5,8 @@ using DG.Tweening;
 
 public class Topboard : MonoBehaviour
 {
-	//todo
-	//보너스 스핀, 빅윈 메가윈 잭팟 등등의 연출은 트윈이 사용되었는데 애니메이션 클립 만들어서 재생시키자
+    //todo
+    //보너스 스핀, 빅윈 메가윈 잭팟 등등의 연출은 트윈이 사용되었는데 애니메이션 클립 만들어서 재생시키자
 
     public SpriteRenderer bonusSpin;
     public SpriteRenderer bigwin;
@@ -30,6 +30,11 @@ public class Topboard : MonoBehaviour
         if (_winTableModule != null) _winTableModule.Clear();
     }
 
+    public void Win(WinBalanceInfo info)
+    {
+        if (info.IsJMBWin) ShowJMBWin(info);
+    }
+
     public void PlayAllWin(WinItemList info)
     {
         if (_winTableModule != null) _winTableModule.PlayAllWin(info);
@@ -44,34 +49,52 @@ public class Topboard : MonoBehaviour
     {
         if (bonusSpin == null) return;
 
-		HideWinTable();
+        HideWinTable();
 
-		bonusSpin.enabled = true;
-		bonusSpin.transform.localScale = Vector3.zero;
-		bonusSpin.color = new Color( bonusSpin.color.r, bonusSpin.color.g, bonusSpin.color.b,0f);
+        bonusSpin.enabled = true;
+        bonusSpin.transform.localScale = Vector3.zero;
+        bonusSpin.color = new Color(bonusSpin.color.r, bonusSpin.color.g, bonusSpin.color.b, 0f);
 
         Sequence spinAnim = DOTween.Sequence();
 
         spinAnim.Append(bonusSpin.transform.DOScale(1f, 0.3f)
-                                     			.SetEase(Ease.OutCubic));
-		spinAnim.Join(bonusSpin.DOFade(1f,0.3f));
+                                           .SetEase(Ease.OutCubic));
+        spinAnim.Join(bonusSpin.DOFade(1f, 0.3f));
 
         spinAnim.AppendInterval(0.7f);
 
         spinAnim.Append(bonusSpin.transform.DOScale(1.5f, 0.3f)
-                                     			.SetEase(Ease.OutCubic).OnStart( ShowWinTable ));
-		spinAnim.Join(bonusSpin.DOFade(0f,0.3f));
+                                           .SetEase(Ease.OutCubic).OnStart(ShowWinTable));
+        spinAnim.Join(bonusSpin.DOFade(0f, 0.3f));
 
         spinAnim.Play();
     }
 
-	void HideWinTable()
-	{
-		if (_winTableModule != null) _winTableModule.gameObject.SetActive(false);
-	}
+    void HideWinTable()
+    {
+        if (_winTableModule != null) _winTableModule.gameObject.SetActive(false);
+    }
 
-	void ShowWinTable()
-	{
-		if (_winTableModule != null) _winTableModule.gameObject.SetActive(true);
-	}
+    void ShowWinTable()
+    {
+        if (_winTableModule != null) _winTableModule.gameObject.SetActive(true);
+    }
+
+    void ShowJMBWin(WinBalanceInfo info)
+    {
+        HideWinTable();
+
+        switch (info.winType)
+        {
+            case SlotConfig.WinType.BIGWIN:
+                bigwin.enabled = true;
+                break;
+            case SlotConfig.WinType.MEGAWIN:
+                megawin.enabled = true;
+                break;
+            case SlotConfig.WinType.JACPOT:
+                jackpotwin.enabled = true;
+                break;
+        }
+    }
 }
