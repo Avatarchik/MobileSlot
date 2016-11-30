@@ -74,7 +74,7 @@ public class InfoViewUI : MonoBehaviour
     void SetTotalBet(double bet, float duration = 0.2f)
     {
         if (_totalBet == 0 || bet <= _totalBet || duration == 0f) UpdateTotalBet(bet);
-        else DOTween.To(() => _win, x => UpdateTotalBet(x), bet, duration).Play();
+        else DOTween.To(() => _totalBet, x => UpdateTotalBet(x), bet, duration).Play();
     }
 
     void UpdateTotalBet(double bet)
