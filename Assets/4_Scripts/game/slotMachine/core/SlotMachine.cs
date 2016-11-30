@@ -102,6 +102,8 @@ public class SlotMachine : MonoBehaviour
             State.Clear();
         }
 
+        //Debug.Log("Update State: " + _currentState.ToString() + " > " + next.ToString());
+
         State.Push(next);
         _currentState = State.Peek();
 

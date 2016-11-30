@@ -247,13 +247,24 @@ public class Reel : MonoBehaviour
             backOutTween.Play();
         }
 
+        UnLock();
+
         if (OnStop != null) OnStop(this);
     }
 
 
     public void Lock()
     {
+        if( IsLocked ) return;
+
         IsLocked = true;
+    }
+
+    public void UnLock()
+    {
+        if( IsLocked == false ) return;
+        
+        IsLocked = false;
     }
 
     void UpdateSymbolState(Symbol.SymbolState state)
