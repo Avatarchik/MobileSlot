@@ -32,6 +32,7 @@ public class Layers
         public const string SYMBOL = "Symbol";
         public const string REEL_COVER = "ReelCover";
         public const string DEFAULT = "Default";
+        public const string CABINET = "Cabinet";
         public const string FOREGROUND = "GameForeGround";
         public const string PAYLINE = "Payline";
         public const string WIN = "WinLayer";

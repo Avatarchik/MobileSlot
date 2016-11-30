@@ -16,14 +16,16 @@ public class SlotMachineUI : MonoBehaviour
     public Toggle btnAuto;
     public Button btnSpin;
 
+    InfoViewUI _info;
+    PaytableUI _paytable;
+    WinAnimatorUI _winAnimator;
+
     SlotMachine _slot;
     SlotBetting _betting;
-    InfoViewUI _info;
     MessageBoard _board;
-    WinAnimatorUI _winAnimator;
+
     double _balance;
     Tweener _tweenBalance;
-
     User _user;
     SlotModel _model;
 
@@ -46,12 +48,18 @@ public class SlotMachineUI : MonoBehaviour
         _model.OnUpdateAutoSpinCount += OnUpdateAutoSpinCountListener;
         _user = _model.Owner;
 
+        InitPaytable();
         InitInfo();
         InitBoard();
         InitWinDisplayer();
         InitButtons();
 
         UpdateBalance(_user.Balance);
+    }
+
+    void InitPaytable()
+    {
+        _paytable = GetComponentInChildren<PaytableUI>();
     }
 
     void InitWinDisplayer()
@@ -77,7 +85,7 @@ public class SlotMachineUI : MonoBehaviour
     {
         btnPaytable.onClick.AddListener(() =>
         {
-            Debug.Log("show Paytable");
+            _paytable.Open();
         });
 
         btnBetDecrease.onClick.AddListener(() =>
