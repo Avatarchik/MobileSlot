@@ -131,6 +131,13 @@ public class ReelContainer : MonoBehaviour
     public void StopSpin()
     {
         Debug.Log("StopSpin");
+
+        for (var i = 0; i < _config.Column; ++i)
+        {
+            var reelIndex = _spinStartOrder[i];
+            var reel = _reels[reelIndex];
+            reel.StopSpin();
+        }
     }
 
     public void ReceivedSymbol(ResDTO.Spin.Payout.SpinInfo spinInfo)
@@ -182,7 +189,7 @@ public class ReelContainer : MonoBehaviour
             }
 
             reel.StartOrder = i - continueCount;
-            reel.BonusSpin( spinInfo );
+            reel.BonusSpin(spinInfo);
         }
 
         CheckNextReel();

@@ -35,8 +35,8 @@ public class Reel : MonoBehaviour
     [SerializeField]
     int _spinCount;
     int _symbolNecessaryCount; //화면에 보여야할 심볼 수 ( row ) + 위아래 여유 수 ( marinCount * 2 )
-
     bool _isReceived = true;
+    Vector3 _spinDestination;
 
     void Awake()
     {
@@ -97,8 +97,27 @@ public class Reel : MonoBehaviour
         return res;
     }
 
+    bool _isSpinnining;
+    bool _isStopping;
+
+    public void StopSpin()
+    {
+        if (_isSpinnining == false || _isReceived == false || _isStopping == true) return;
+
+        Debug.Log("StopReel");
+
+        return;
+        
+        _isStopping = true;
+        if (_spinTween != null) _spinTween.Kill();
+
+        // RemoveSymbolsExceptNecessary();
+        // TweenLast();
+    }
+
     public void Spin(ResDTO.Spin.Payout.SpinInfo spinInfo = null)
     {
+        _isSpinnining = true;
         _isReceived = false;
         _spinCount = 0;
         _currentStrip = GetCurrentStrip();
@@ -163,6 +182,8 @@ public class Reel : MonoBehaviour
         //뭔가 문제가 일어남. 설정한 최대 스핀이 돌동안 서버로부터 응답이 안왔음
     }
 
+    Tween _spinTween;
+
     virtual protected void TweenFirst()
     {
         AddSpiningSymbols(_config.SpiningSymbolCount);
@@ -174,24 +195,27 @@ public class Reel : MonoBehaviour
         tweenBack.SetEase(Ease.OutSine);
 
         _spinDis += _config.tweenFirstBackInfo.distance;
-        var tgPos = _symbolContainer.position - new Vector3(0f, _spinDis, 0f);
         var duration = _spinDis / _config.SpinSpeedPerSec;
 
-        var tween = _symbolContainer.DOMove(tgPos, duration);
+
+        _spinDestination = _symbolContainer.position - new Vector3(0f, _spinDis, 0f);
+        var tween = _symbolContainer.DOMove(_spinDestination, duration);
         tween.SetEase(Ease.InCubic);
 
         //todo
         //시퀀스 매 생성하지 않고 재활용 하기
-        Sequence mySequence = DOTween.Sequence();
-        mySequence.PrependInterval(startDelay);
-        mySequence.Append(tweenBack);
-        mySequence.Append(tween);
-        mySequence.AppendCallback(() =>
+        Sequence firstTweenSequence = DOTween.Sequence();
+        firstTweenSequence.PrependInterval(startDelay);
+        firstTweenSequence.Append(tweenBack);
+        firstTweenSequence.Append(tween);
+        firstTweenSequence.AppendCallback(() =>
         {
+            _spinTween = null;
             SpinReel();
         });
-        mySequence.Play();
+        firstTweenSequence.Play();
 
+        _spinTween = firstTweenSequence;
     }
 
     virtual protected void TweenLinear()
@@ -199,15 +223,17 @@ public class Reel : MonoBehaviour
         AddSpiningSymbols(_config.SpiningSymbolCount);
 
         var duration = _spinDis / _config.SpinSpeedPerSec;
-        var tgPos = _symbolContainer.position - new Vector3(0f, _spinDis, 0f);
+        _spinDestination = _symbolContainer.position - new Vector3(0f, _spinDis, 0f);
 
-        var tween = _symbolContainer.DOMove(tgPos, duration);
-        tween.OnComplete(() =>
+        _spinTween = _symbolContainer.DOMove(_spinDestination, duration);
+        _spinTween.OnComplete(() =>
         {
+            _spinTween = null;
             SpinReel();
         });
-        tween.Play();
+        _spinTween.Play();
     }
+
 
     virtual protected void TweenLast()
     {
@@ -216,12 +242,12 @@ public class Reel : MonoBehaviour
         _spinDis += _config.tweenLastBackInfo.distance;
 
         var duration = _spinDis / _config.SpinSpeedPerSec;
-        var tgPos = _symbolContainer.localPosition - new Vector3(0f, _spinDis, 0f);
+        _spinDestination = _symbolContainer.localPosition - new Vector3(0f, _spinDis, 0f);
 
-        Tweener tween = _symbolContainer.DOLocalMove(tgPos, duration);
-        tween.SetEase(Ease.Linear);
-        tween.OnComplete(TweenFinishComplete);
-        tween.Play();
+        _spinTween = _symbolContainer.DOLocalMove(_spinDestination, duration);
+        _spinTween.SetEase(Ease.Linear);
+        _spinTween.OnComplete(TweenFinishComplete);
+        _spinTween.Play();
     }
 
     virtual protected void ComposeLastSpiningSymbols()
@@ -234,6 +260,9 @@ public class Reel : MonoBehaviour
 
     void TweenFinishComplete()
     {
+        _spinTween = null;
+        _isSpinnining = false;
+
         RemoveSymbolsExceptNecessary();
 
         AlignSymbols();
@@ -255,15 +284,15 @@ public class Reel : MonoBehaviour
 
     public void Lock()
     {
-        if( IsLocked ) return;
+        if (IsLocked) return;
 
         IsLocked = true;
     }
 
     public void UnLock()
     {
-        if( IsLocked == false ) return;
-        
+        if (IsLocked == false) return;
+
         IsLocked = false;
     }
 
