@@ -5,43 +5,57 @@ using System;
 
 public class ControllerUI : AbstractSlotMachineUIModule
 {
-	public Button btnPaytable;
+    public Button btnPaytable;
     public Button btnBetDecrease;
     public Button btnBetIncrease;
     public Toggle btnFast;
     public Toggle btnAuto;
     public Button btnSpin;
+    public Button btnStop;
 
-	SlotModel _model;
-	SlotBetting _betting;
+    SlotModel _model;
+    SlotBetting _betting;
 
-	override public void Init( SlotMachineUI slotUI  )
-	{
-        base.Init( slotUI );
+    void Awake()
+    {
+        if (btnStop != null) btnStop.image.enabled = false;
+    }
 
-		_model = SlotModel.Instance;
-		_model.OnUpdateAutoSpinCount += ( count )=>
+    override public void Init(SlotMachineUI slotUI)
+    {
+        base.Init(slotUI);
+
+        _model = SlotModel.Instance;
+        _model.OnUpdateAutoSpinCount += (count) =>
         {
-            UpdateAutoButton( _model.IsAutoSpin );
+            UpdateAutoButton(_model.IsAutoSpin);
         };
 
 
-		_betting = _ui.SlotMachine.Config.COMMON.Betting;
-		_betting.OnUpdateLineBetIndex += () =>
+        _betting = _ui.SlotMachine.Config.COMMON.Betting;
+        _betting.OnUpdateLineBetIndex += () =>
         {
             UpdateButtonState();
         };
 
 
-		btnPaytable.onClick.AddListener(() =>
+        btnPaytable.onClick.AddListener(() =>
         {
-			_ui.OpenPaytable();
+            _ui.OpenPaytable();
         });
 
-		btnSpin.onClick.AddListener(() =>
+        btnSpin.onClick.AddListener(() =>
         {
             _ui.SlotMachine.TrySpin();
         });
+
+        if (btnStop != null)
+        {
+            btnStop.onClick.AddListener(() =>
+            {
+                StopSpin();
+            });
+        }
 
         btnBetDecrease.onClick.AddListener(() =>
         {
@@ -65,19 +79,19 @@ public class ControllerUI : AbstractSlotMachineUIModule
         });
 
         UpdateButtonState();
-	}
+    }
 
-	void OnUpdateAutoSpinCountListener(int remainCount)
+    void OnUpdateAutoSpinCountListener(int remainCount)
     {
         btnAuto.isOn = _model.IsAutoSpin;
     }
 
-	public void UpdateAutoButton( bool isAuto )
-	{
-		btnAuto.isOn = isAuto;
-	}
+    void UpdateAutoButton(bool isAuto)
+    {
+        btnAuto.isOn = isAuto;
+    }
 
-	void UpdateButtonState()
+    void UpdateButtonState()
     {
         if (_betting.IsFirstBet)
         {
@@ -94,5 +108,40 @@ public class ControllerUI : AbstractSlotMachineUIModule
             btnBetDecrease.interactable = true;
             btnBetIncrease.interactable = true;
         }
+    }
+
+    public void Spin()
+    {
+        btnSpin.interactable = false;
+        // if( btnStop != null ) btnStop.image.enabled = false;
+    }
+
+    public void ReceivedSymbol()
+    {
+        btnSpin.interactable = true;
+
+        if (btnStop != null)
+        {
+            btnSpin.image.enabled = false;
+            btnStop.image.enabled = true;
+        }
+    }
+
+    void StopSpin()
+    {
+        btnSpin.interactable = false;
+
+        btnSpin.image.enabled = true;
+        if (btnStop != null) btnStop.image.enabled = false;
+
+        _ui.SlotMachine.TrySpin();
+    }
+
+    public void CheckSpinResult()
+    {
+        btnSpin.interactable = true;
+        
+        btnSpin.image.enabled = true;
+        if (btnStop != null) btnStop.image.enabled = false;
     }
 }

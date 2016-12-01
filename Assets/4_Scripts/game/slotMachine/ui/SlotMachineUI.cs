@@ -95,9 +95,20 @@ public class SlotMachineUI : MonoBehaviour
     {
         _info.SetWin(0);
 
+        _controller.Spin();
         SetBalance(_user.Balance - _betting.TotalBet);
 
         if (_board != null) _board.Spin();
+    }
+
+    public void ReceivedSymbol()
+    {
+        _controller.ReceivedSymbol();
+    }
+
+    public void CheckSpinResult()
+    {
+        _controller.CheckSpinResult();
     }
 
     public void PlayAllWin(WinItemList info)

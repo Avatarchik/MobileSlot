@@ -284,12 +284,13 @@ public class SlotMachine : MonoBehaviour
     {
         _model.SetSpinData(dto);
         _lastSpinInfo = _model.NextSpin();
-
+        
         SetState(MachineState.ReceivedSymbol);
     }
 
     IEnumerator ReceivedSymbol_Enter()
     {
+        _ui.ReceivedSymbol();
         _reelContainer.ReceivedSymbol(_lastSpinInfo);
 
         yield break;
@@ -303,6 +304,8 @@ public class SlotMachine : MonoBehaviour
     IEnumerator CheckSpinResult_Enter()
     {
         //결과 심볼들을 바탕으로 미리 계산 해야 하는 일들이 있다면 여기서 미리 계산한다.
+
+        _ui.CheckSpinResult();
 
         if ("nudge 시킬 릴이 있다면 넛지" == null)
         {
