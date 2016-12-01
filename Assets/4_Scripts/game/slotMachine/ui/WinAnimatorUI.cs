@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using DG.Tweening;
 
-public class WinAnimatorUI : MonoBehaviour
+public class WinAnimatorUI : AbstractSlotMachineUIModule
 {
     public CanvasGroup content;
     public Text txtWin;
@@ -16,8 +16,9 @@ public class WinAnimatorUI : MonoBehaviour
         Hide();
     }
 
-    public void Init()
+    override public void Init( SlotMachineUI slotUI  )
     {
+        base.Init( slotUI );
         content.interactable = false;
         content.blocksRaycasts = false;
         _contentRtf = content.gameObject.GetComponent<RectTransform>();

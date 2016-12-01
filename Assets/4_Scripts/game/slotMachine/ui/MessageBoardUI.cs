@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 
-public class MessageBoard : MonoBehaviour
+public class MessageBoardUI : AbstractSlotMachineUIModule
 {
     const string GAME_INIT = "PRESS SPIN TO PLAY";
     const string SPIN_START = "PLAYING {0} LINES FOR {1} COINS. GOOD LUCK!";
@@ -33,9 +33,11 @@ public class MessageBoard : MonoBehaviour
         _txt = GetComponentInChildren<Text>();
     }
 
-    public void Initialize(SlotMachine slot)
+    override public void Init(SlotMachineUI slotUI )
     {
-        _config = slot.Config;
+        base.Init( slotUI );
+        
+        _config = _ui.SlotMachine.Config;
         _model = SlotModel.Instance;
 
         WriteBoard(GAME_INIT);

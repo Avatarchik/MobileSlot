@@ -4,7 +4,7 @@ using System.Collections;
 using DG.Tweening;
 
 
-public class InfoViewUI : MonoBehaviour
+public class InfoViewUI : AbstractSlotMachineUIModule
 {
     public Text txtLine;
     public Text txtBet;
@@ -25,12 +25,14 @@ public class InfoViewUI : MonoBehaviour
         txtWin.text = "";
     }
 
-    public void Init(SlotMachine slot)
+    public void Init(SlotMachineUI slotUI)
     {
-        _betting = slot.Config.COMMON.Betting;
+        base.Init(slotUI);
+
+        _betting = _ui.SlotMachine.Config.COMMON.Betting;
         _betting.OnUpdateLineBetIndex += OnUpdateLineBetHandler;
 
-        SetLineNum(slot.Config.paylineTable.Length);
+        SetLineNum(_ui.SlotMachine.Config.paylineTable.Length);
         SetWin(0);
 
         OnUpdateLineBetHandler();

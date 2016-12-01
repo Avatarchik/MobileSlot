@@ -8,21 +8,14 @@ public class SlotMachineUI : MonoBehaviour
 {
     public Text TxtBalance;
 
-    [Header("Buttons")]
-    public Button btnPaytable;
-    public Button btnBetDecrease;
-    public Button btnBetIncrease;
-    public Toggle btnFast;
-    public Toggle btnAuto;
-    public Button btnSpin;
-
     InfoViewUI _info;
     PaytableUI _paytable;
     WinAnimatorUI _winAnimator;
 
-    SlotMachine _slot;
+    public SlotMachine SlotMachine { get; private set; }
     SlotBetting _betting;
-    MessageBoard _board;
+    MessageBoardUI _board;
+    ControllerUI _controller;
 
     double _balance;
     Tweener _tweenBalance;
@@ -42,11 +35,11 @@ public class SlotMachineUI : MonoBehaviour
 
     public void Initialize(SlotMachine slot)
     {
-        _slot = slot;
-        _betting = _slot.Config.COMMON.Betting;
+        SlotMachine = slot;
+
         _model = SlotModel.Instance;
-        _model.OnUpdateAutoSpinCount += OnUpdateAutoSpinCountListener;
         _user = _model.Owner;
+        _betting = slot.Config.COMMON.Betting;
 
         InitPaytable();
         InitInfo();
@@ -60,90 +53,37 @@ public class SlotMachineUI : MonoBehaviour
     void InitPaytable()
     {
         _paytable = GetComponentInChildren<PaytableUI>();
+        _paytable.Init( this );
     }
 
     void InitWinDisplayer()
     {
         _winAnimator = GetComponentInChildren<WinAnimatorUI>();
-        _winAnimator.Init();
+        _winAnimator.Init( this );
     }
 
     void InitInfo()
     {
         _info = GetComponentInChildren<InfoViewUI>();
         if (_info == null) Debug.LogError("can't find InfoViewUI");
-        _info.Init(_slot);
+        _info.Init(this);
     }
 
     void InitMessageBoard()
     {
-        _board = GetComponentInChildren<MessageBoard>();
-        if (_board) _board.Initialize(_slot);
+        _board = GetComponentInChildren<MessageBoardUI>();
+        if (_board) _board.Init(this);
     }
 
     void InitButtons()
     {
-        btnPaytable.onClick.AddListener(() =>
-        {
-            _paytable.Open();
-        });
-
-        btnBetDecrease.onClick.AddListener(() =>
-        {
-            _betting.Decrease();
-        });
-
-        btnBetIncrease.onClick.AddListener(() =>
-        {
-            _betting.Increase();
-        });
-
-        btnFast.onValueChanged.AddListener((b) =>
-        {
-            _model.IsFastSpin = b;
-        });
-
-        btnAuto.onValueChanged.AddListener((b) =>
-        {
-            if (b) _model.StartAutoSpin(5);
-            else _model.StopAutoSpin();
-        });
-
-        btnSpin.onClick.AddListener(() =>
-        {
-            _slot.TrySpin();
-        });
-
-        _betting.OnUpdateLineBetIndex += () =>
-        {
-            UpdateButtonState();
-        };
-
-        UpdateButtonState();
+        _controller = GetComponentInChildren<ControllerUI>();
+        _controller.Init(this);
     }
 
-    void OnUpdateAutoSpinCountListener(int remainCount)
+    public void OpenPaytable()
     {
-        btnAuto.isOn = _model.IsAutoSpin;
-    }
-
-    void UpdateButtonState()
-    {
-        if (_betting.IsFirstBet)
-        {
-            btnBetDecrease.interactable = false;
-            btnBetIncrease.interactable = true;
-        }
-        else if (_betting.IsLastBet)
-        {
-            btnBetDecrease.interactable = true;
-            btnBetIncrease.interactable = false;
-        }
-        else
-        {
-            btnBetDecrease.interactable = true;
-            btnBetIncrease.interactable = true;
-        }
+        _paytable.Open();
     }
 
     public void Idle()

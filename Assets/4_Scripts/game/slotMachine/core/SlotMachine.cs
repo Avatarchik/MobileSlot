@@ -93,6 +93,17 @@ public class SlotMachine : MonoBehaviour
         yield break;
     }
 
+	#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBGL
+    void Update()
+    {
+        if( Input.GetKeyDown( KeyCode.Space ))
+        {
+            TrySpin();
+        }
+    }
+    #endif
+
+
     protected void SetState(MachineState next)
     {
         if (_currentState == next) return;
@@ -231,6 +242,15 @@ public class SlotMachine : MonoBehaviour
         //spin 중이면 스핀 멈추고,
         //닫을 수 있는 팝업창이 띄워져 있으면 팝업창 닫고
         //당첨되어 돈올라가는 도중이면 스킵하고 다음 스핀
+        if( _currentState == MachineState.ReceivedSymbol )
+        {
+            _reelContainer.StopSpin();
+        }
+        else if( false )
+        {
+
+        }
+        
     }
 
     void OpenCoinShop()

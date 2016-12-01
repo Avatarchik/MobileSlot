@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 
 [RequireComponent(typeof(CanvasGroup))]
-public class PaytableUI : MonoBehaviour
+public class PaytableUI : AbstractSlotMachineUIModule
 {
     public Image page;
     public Sprite[] pageList;

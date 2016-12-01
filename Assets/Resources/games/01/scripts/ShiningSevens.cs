@@ -67,7 +67,7 @@ public class ShiningSevens : MonoBehaviour
         mainSlotConfig.MarginSymbolCount = 1;
         mainSlotConfig.SpiningSymbolCount = 5;
         mainSlotConfig.IncreaseCount = 5;
-        mainSlotConfig.SpinCountThreshold = 1;
+        mainSlotConfig.SpinCountThreshold = 5;
         mainSlotConfig.SpinSpeedPerSec = 15f;
         mainSlotConfig.DelayEachReel = 0.1f;
         mainSlotConfig.tweenFirstBackInfo = new MoveTweenInfo(0.2f, 0.2f);

@@ -128,6 +128,11 @@ public class ReelContainer : MonoBehaviour
         CheckNextReel();
     }
 
+    public void StopSpin()
+    {
+        Debug.Log("StopSpin");
+    }
+
     public void ReceivedSymbol(ResDTO.Spin.Payout.SpinInfo spinInfo)
     {
         _lastSpinInfo = spinInfo;
