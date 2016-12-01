@@ -51,6 +51,11 @@ public class Topboard : MonoBehaviour
 
         HideWinTable();
 
+        if (bonusSpin != null) bonusSpin.enabled = false;
+        if (bigwin != null) bigwin.enabled = false;
+        if (megawin != null) megawin.enabled = false;
+        if (jackpotwin != null) jackpotwin.enabled = false;
+
         bonusSpin.enabled = true;
         bonusSpin.transform.localScale = Vector3.zero;
         bonusSpin.color = new Color(bonusSpin.color.r, bonusSpin.color.g, bonusSpin.color.b, 0f);
