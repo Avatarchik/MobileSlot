@@ -16,7 +16,7 @@ public class CanvasUtil
         if (canvasScaler != null)
         {
             canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            canvasScaler.matchWidthOrHeight = 0f;
+            canvasScaler.matchWidthOrHeight = 1f;
             canvasScaler.referenceResolution = new Vector2(GlobalConfig.ReferenceWidth, GlobalConfig.ReferenceHeight);
         }
     }
