@@ -71,7 +71,8 @@ public class ShiningSevens : MonoBehaviour
         mainSlotConfig.SpinSpeedPerSec = 15f;
         mainSlotConfig.DelayEachReel = 0.1f;
         mainSlotConfig.tweenFirstBackInfo = new MoveTweenInfo(0.2f, 0.2f);
-        mainSlotConfig.tweenLastBackInfo = new MoveTweenInfo(0.2f, 0.3f);
+        // mainSlotConfig.tweenLastBackInfo = new MoveTweenInfo(0.2f, 0.3f);
+        mainSlotConfig.tweenLastBackInfo = new MoveTweenInfo(0f, 0.3f);
 
         //transition
         mainSlotConfig.transition = new Transition()
