@@ -12,7 +12,7 @@ public class SlotMachine : MonoBehaviour
         Idle,
         Spin,
         ReceivedSymbol,
-        CheckSpinResult,
+        ReelStopComplete,
         FreeSpinTrigger,
         Win,
         AfterWin,
@@ -93,15 +93,15 @@ public class SlotMachine : MonoBehaviour
         yield break;
     }
 
-	#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBGL
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBGL
     void Update()
     {
-        if( Input.GetKeyDown( KeyCode.Space ))
+        if (Input.GetKey(KeyCode.Space))
         {
             TrySpin();
         }
     }
-    #endif
+#endif
 
 
     protected void SetState(MachineState next)
@@ -242,15 +242,16 @@ public class SlotMachine : MonoBehaviour
         //spin 중이면 스핀 멈추고,
         //닫을 수 있는 팝업창이 띄워져 있으면 팝업창 닫고
         //당첨되어 돈올라가는 도중이면 스킵하고 다음 스핀
-        if( _currentState == MachineState.ReceivedSymbol )
+        if (_currentState == MachineState.ReceivedSymbol)
         {
+            _ui.StopSpin();
             _reelContainer.StopSpin();
         }
-        else if( false )
+        else if (false)
         {
 
         }
-        
+
     }
 
     void OpenCoinShop()
@@ -284,7 +285,7 @@ public class SlotMachine : MonoBehaviour
     {
         _model.SetSpinData(dto);
         _lastSpinInfo = _model.NextSpin();
-        
+
         SetState(MachineState.ReceivedSymbol);
     }
 
@@ -298,14 +299,15 @@ public class SlotMachine : MonoBehaviour
 
     void OnReelStopCompleteHandler()
     {
-        SetState(MachineState.CheckSpinResult);
+        SetState(MachineState.ReelStopComplete);
     }
 
-    IEnumerator CheckSpinResult_Enter()
+    IEnumerator ReelStopComplete_Enter()
     {
-        //결과 심볼들을 바탕으로 미리 계산 해야 하는 일들이 있다면 여기서 미리 계산한다.
+        yield return new WaitForSeconds(_config.transition.ReelStopCompleteAfterDealy);
 
-        _ui.CheckSpinResult();
+        //결과 심볼들을 바탕으로 미리 계산 해야 하는 일들이 있다면 여기서 미리 계산한다.
+        _ui.ReelStopComplete();
 
         if ("nudge 시킬 릴이 있다면 넛지" == null)
         {
@@ -343,8 +345,6 @@ public class SlotMachine : MonoBehaviour
     IEnumerator Win_Enter()
     {
         _reelContainer.FindAllWinPayInfo();
-
-        yield return new WaitForSeconds(_config.transition.ReelStopCompleteAfterDealy);
 
         //빅윈,메가윈,잭팟, progressive 등을 체크하자
         //경우에 따라 팝업 을 띄워야 할 수도 있음.

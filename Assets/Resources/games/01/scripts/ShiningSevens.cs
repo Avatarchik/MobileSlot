@@ -41,7 +41,7 @@ public class ShiningSevens : MonoBehaviour
                 PaylineNum = 5
             },
 
-            DebugSymbolArea = true,
+            DebugSymbolArea = false,
             DebugTestSpin = true
         };
 
@@ -72,12 +72,6 @@ public class ShiningSevens : MonoBehaviour
         mainSlotConfig.DelayEachReel = 0.1f;
         mainSlotConfig.tweenFirstBackInfo = new MoveTweenInfo(0.2f, 0.2f);
         mainSlotConfig.tweenLastBackInfo = new MoveTweenInfo(0.2f, 0.3f);
-        //test
-        // mainSlotConfig.SpinCountThreshold = 2;
-        // mainSlotConfig.SpinSpeedPerSec = 1f;
-        // mainSlotConfig.DelayEachReel = 0f;
-        // mainSlotConfig.tweenFirstBackInfo = new MoveTweenInfo(0f, 0.2f);
-        // mainSlotConfig.tweenLastBackInfo = new MoveTweenInfo(0f, 0.3f);
 
         //transition
         mainSlotConfig.transition = new Transition()

@@ -53,7 +53,7 @@ public class ControllerUI : AbstractSlotMachineUIModule
         {
             btnStop.onClick.AddListener(() =>
             {
-                StopSpin();
+                _ui.SlotMachine.TrySpin();
             });
         }
 
@@ -127,20 +127,18 @@ public class ControllerUI : AbstractSlotMachineUIModule
         }
     }
 
-    void StopSpin()
+    public void StopSpin()
     {
         btnSpin.interactable = false;
 
         btnSpin.image.enabled = true;
         if (btnStop != null) btnStop.image.enabled = false;
-
-        _ui.SlotMachine.TrySpin();
     }
 
-    public void CheckSpinResult()
+    public void ReelStopComplete()
     {
         btnSpin.interactable = true;
-        
+
         btnSpin.image.enabled = true;
         if (btnStop != null) btnStop.image.enabled = false;
     }

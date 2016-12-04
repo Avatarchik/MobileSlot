@@ -101,14 +101,19 @@ public class SlotMachineUI : MonoBehaviour
         if (_board != null) _board.Spin();
     }
 
+    public void StopSpin()
+    {
+        _controller.StopSpin();
+    }
+
     public void ReceivedSymbol()
     {
         _controller.ReceivedSymbol();
     }
 
-    public void CheckSpinResult()
+    public void ReelStopComplete()
     {
-        _controller.CheckSpinResult();
+        _controller.ReelStopComplete();
     }
 
     public void PlayAllWin(WinItemList info)

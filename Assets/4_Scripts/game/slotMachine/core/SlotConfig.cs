@@ -166,7 +166,7 @@ public class ReelStrip
 [Serializable]
 public class Transition
 {
-    public float ReelStopCompleteAfterDealy = 0.5f;
+    public float ReelStopCompleteAfterDealy = 0.2f;
     public float PlayAllSymbols_WinBalance = 0f;
     public float EachWin = 1f;
     public float EachWinSummary = 1f;

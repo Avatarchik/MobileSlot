@@ -130,8 +130,6 @@ public class ReelContainer : MonoBehaviour
 
     public void StopSpin()
     {
-        Debug.Log("StopSpin");
-
         for (var i = 0; i < _config.Column; ++i)
         {
             var reelIndex = _spinStartOrder[i];
