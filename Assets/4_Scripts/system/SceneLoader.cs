@@ -20,19 +20,27 @@ public class SceneLoader : MonoBehaviour
     {
         Debug.Log("Check Scene...");
 
-        Application.backgroundLoadingPriority = ThreadPriority.High;
-
-        sceneNamesInBuild = new string[] { SC_START, SC_GAME01, SC_GAME02 };
-
-        Scene startScene = SceneManager.GetActiveScene();
-        string startSceneName = startScene.name;
-
-        if (ContainsInBuild(startSceneName) == false)
+        try
         {
-            Debug.LogWarning(string.Format("빌드셋팅에 포함되지 않은 '{0}' 씬으로 시작 되었습니다.", startSceneName));
-        }
+            Application.backgroundLoadingPriority = ThreadPriority.High;
 
-        LastScene = startScene;
+            sceneNamesInBuild = new string[] { SC_START, SC_GAME01, SC_GAME02 };
+
+            Scene startScene = SceneManager.GetActiveScene();
+            string startSceneName = startScene.name;
+
+            if (ContainsInBuild(startSceneName) == false)
+            {
+                Debug.LogWarning(string.Format("빌드셋팅에 포함되지 않은 '{0}' 씬으로 시작 되었습니다.", startSceneName));
+            }
+
+
+            LastScene = startScene;
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log("ex: " + e.ToString());
+        }
     }
 
 
