@@ -28,6 +28,8 @@ public class Reel : MonoBehaviour
     protected float _spinDis;
 
     [SerializeField]
+    protected string[] _lastSymbolNames;
+    [SerializeField]
     protected string[] _receivedSymbolNames;
 
     protected ReelStrip _currentStrip;
@@ -46,14 +48,12 @@ public class Reel : MonoBehaviour
         if (expectObject != null) expectObject.SetActive(false);
     }
 
-    Vector3 _defaultPosition;
-
     public void Initialize(SlotConfig config)
     {
         _config = config;
         _symbolNecessaryCount = _config.Row + _config.MarginSymbolCount * 2;
+        _lastSymbolNames = new string[_config.Row];
         _receivedSymbolNames = new string[_config.Row];
-        _defaultPosition = new Vector3(0f, -_config.tweenLastBackInfo.distance, 0f);
 
         CreateStartSymbols();
     }
@@ -72,7 +72,7 @@ public class Reel : MonoBehaviour
 
         for (var i = 0; i < _config.Row; ++i)
         {
-            _receivedSymbolNames[i] = _config.GetStartSymbolAt(_column, _config.MarginSymbolCount + i);
+            _lastSymbolNames[i] = _config.GetStartSymbolAt(_column, _config.MarginSymbolCount + i);
         }
     }
 
@@ -109,6 +109,8 @@ public class Reel : MonoBehaviour
 
         Debug.Log("StopReel");
 
+        return;
+
         _isStopping = true;
         if (_spinTween != null)
         {
@@ -122,8 +124,7 @@ public class Reel : MonoBehaviour
     void TweenAbort()
     {
         _spinDis = 0f;
-        
-        if( _column == 2 ) Debug.Log("before count:" + _symbols.Count + ", dis: " +  + _spinDis + ", dest" + _spinDestination );
+
         if (_isTweenLast)
         {
 
@@ -135,9 +136,6 @@ public class Reel : MonoBehaviour
             AddSpiningSymbols(_config.MarginSymbolCount);
             _spinDestination = _symbolContainer.localPosition - new Vector3(0f, _spinDis, 0f);
         }
-
-
-        Debug.Log("after count:" + _symbols.Count + ", dis: " +  + _spinDis + ", dest" + _spinDestination );
 
         var duration = 2.2f;
         var tween = _symbolContainer.DOLocalMove(_spinDestination, duration);
@@ -184,7 +182,7 @@ public class Reel : MonoBehaviour
             _receivedSymbolNames[i] = _config.NameMap.GetSymbolName(reelData[i]);
         }
 
-        Debug.Log( string.Join(",", _receivedSymbolNames ));
+        Debug.Log(string.Join(",", _receivedSymbolNames));
     }
 
     Tween _spinTween;
@@ -225,27 +223,30 @@ public class Reel : MonoBehaviour
 
     virtual protected void TweenFirst()
     {
+        Tweener tweenBack = null;
+
+        if (_config.tweenFirstBackInfo.distance > 0)
+        {
+            var backPos = _symbolContainer.position + new Vector3(0f, _config.tweenFirstBackInfo.distance, 0f);
+            tweenBack = _symbolContainer.DOMove(backPos, _config.tweenFirstBackInfo.duration);
+            tweenBack.SetEase(Ease.OutSine);
+            _spinDis += _config.tweenFirstBackInfo.distance;
+        }
+
         AddSpiningSymbols(_config.SpiningSymbolCount);
 
-        var startDelay = StartOrder * _config.DelayEachReel;
-
-        var backPos = _symbolContainer.position + new Vector3(0f, _config.tweenFirstBackInfo.distance, 0f);
-        var tweenBack = _symbolContainer.DOMove(backPos, _config.tweenFirstBackInfo.duration);
-        tweenBack.SetEase(Ease.OutSine);
-
-        _spinDis += _config.tweenFirstBackInfo.distance;
-        var duration = _spinDis / _config.SpinSpeedPerSec;
-
-
         _spinDestination = _symbolContainer.position - new Vector3(0f, _spinDis, 0f);
+        var duration = _spinDis / _config.SpinSpeedPerSec;
         var tween = _symbolContainer.DOMove(_spinDestination, duration);
+        // tween.SetEase(Ease.Linear);
         tween.SetEase(Ease.InCubic);
 
         //todo
         //시퀀스 매 생성하지 않고 재활용 하기
+        var startDelay = StartOrder * _config.DelayEachReel;
         Sequence firstTweenSequence = DOTween.Sequence();
         firstTweenSequence.PrependInterval(startDelay);
-        firstTweenSequence.Append(tweenBack);
+        if (tweenBack != null) firstTweenSequence.Append(tweenBack);
         firstTweenSequence.Append(tween);
         firstTweenSequence.AppendCallback(() =>
         {
@@ -307,12 +308,13 @@ public class Reel : MonoBehaviour
         _spinTween = null;
         _isTweenLast = false;
 
+        _lastSymbolNames = _receivedSymbolNames;
+
         RemoveSymbolsExceptNecessary();
 
         AlignSymbols();
 
-        // _symbolContainer.localPosition = new Vector3(0f, -_config.tweenLastBackInfo.distance, 0f);
-        _symbolContainer.localPosition = _defaultPosition;
+        _symbolContainer.localPosition = new Vector3(0f, -_config.tweenLastBackInfo.distance, 0f);
 
         if (_config.tweenLastBackInfo.distance != 0)
         {
@@ -386,8 +388,6 @@ public class Reel : MonoBehaviour
 
         AddSymbolToHead(symbol, _symbols[0].Y + h);
         _spinDis += h;
-
-        return h;
     }
 
     protected void AddSpiningSymbols(int count)

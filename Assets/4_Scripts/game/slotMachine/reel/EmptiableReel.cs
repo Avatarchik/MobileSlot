@@ -21,20 +21,6 @@ public class EmptiableReel : Reel
         return res;
     }
 
-    override protected void ComposeLastSpiningSymbols()
-    {
-        base.ComposeLastSpiningSymbols();
-
-        if (_receivedSymbolNames[0] == EmptySymbol.EMPTY && _receivedSymbolNames[0] != EmptySymbol.EMPTY)
-        {
-            _spinDis -= _emptySymbolYOffset;
-        }
-        else if (_receivedSymbolNames[0] != EmptySymbol.EMPTY && _receivedSymbolNames[0] == EmptySymbol.EMPTY)
-        {
-            _spinDis -= _emptySymbolYOffset;
-        }
-    }
-
     override protected void AddInterpolationSymbols()
     {
         string lastResultName = _receivedSymbolNames[_receivedSymbolNames.Length - 1];
@@ -49,6 +35,20 @@ public class EmptiableReel : Reel
         else if (topSpiningName != EmptySymbol.EMPTY && lastResultName != EmptySymbol.EMPTY)
         {
             AddSpiningSymbol(EmptySymbol.EMPTY);
+        }
+    }
+
+    override protected void ComposeLastSpiningSymbols()
+    {
+        base.ComposeLastSpiningSymbols();
+
+        if (_lastSymbolNames[0] == EmptySymbol.EMPTY && _receivedSymbolNames[0] != EmptySymbol.EMPTY)
+        {
+            _spinDis += _emptySymbolYOffset;
+        }
+        else if (_lastSymbolNames[0] != EmptySymbol.EMPTY && _receivedSymbolNames[0] == EmptySymbol.EMPTY)
+        {
+            _spinDis -= _emptySymbolYOffset;
         }
     }
 
