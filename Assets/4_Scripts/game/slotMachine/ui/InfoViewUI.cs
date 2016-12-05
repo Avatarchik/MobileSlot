@@ -16,6 +16,7 @@ public class InfoViewUI : AbstractSlotMachineUIModule
     double _lineBet;
     double _totalBet;
     double _win;
+    Tweener _tweenWin;
 
     void Awake()
     {
@@ -44,15 +45,25 @@ public class InfoViewUI : AbstractSlotMachineUIModule
         SetTotalBet(_betting.TotalBet);
     }
 
-    public void SetWin(double win, float duration = 0f)
+    public void SkipTakeCoin()
     {
-        if (win == _win || duration == 0f) UpdateWin(win);
-        else DOTween.To(() => _win, x => UpdateWin(x), win, duration).Play();
+        if (_tweenWin != null) _tweenWin.Complete( true );
     }
 
     public void AddWin(WinBalanceInfo info)
     {
         SetWin(_win + info.balance, info.duration);
+    }
+
+    public void SetWin(double win, float duration = 0f)
+    {
+        if (win == _win || duration == 0f) UpdateWin(win);
+        else _tweenWin = DOTween.To(() => _win, x => UpdateWin(x), win, duration).OnComplete(WinComplete).Play();
+    }
+
+    void WinComplete()
+    {
+        _tweenWin = null;
     }
 
     void UpdateWin(double win)

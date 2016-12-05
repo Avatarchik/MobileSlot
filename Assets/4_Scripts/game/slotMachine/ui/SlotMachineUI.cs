@@ -132,6 +132,12 @@ public class SlotMachineUI : MonoBehaviour
         _winAnimator.AddWin(info);
     }
 
+    public void SkipTakeCoin()
+    {
+        _winAnimator.SkipTakeCoin();
+        _info.SkipTakeCoin();
+    }
+
     public void ApplyUserBalance()
     {
         SetBalance(_user.Balance);

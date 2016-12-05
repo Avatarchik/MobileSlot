@@ -155,7 +155,7 @@ public class Reel : MonoBehaviour
             _receivedSymbolNames[i] = _config.NameMap.GetSymbolName(reelData[i]);
         }
 
-        Debug.Log(string.Join(",", _receivedSymbolNames));
+        //Debug.Log(string.Join(",", _receivedSymbolNames));
     }
 
     void SpinReel()
@@ -307,10 +307,10 @@ public class Reel : MonoBehaviour
         _isStopping = true;
 
         KillSpinTween();
-        TweenAbort();
+        TweenSkip();
     }
 
-    void TweenAbort()
+    void TweenSkip()
     {
         if (_isTweenLast == false)
         {

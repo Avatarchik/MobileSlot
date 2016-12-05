@@ -10,15 +10,16 @@ public class WinAnimatorUI : AbstractSlotMachineUIModule
 
     double _win;
     RectTransform _contentRtf;
+    Tweener _tweenWin;
 
     void Awake()
     {
         Hide();
     }
 
-    override public void Init( SlotMachineUI slotUI  )
+    override public void Init(SlotMachineUI slotUI)
     {
-        base.Init( slotUI );
+        base.Init(slotUI);
         content.interactable = false;
         content.blocksRaycasts = false;
         _contentRtf = content.gameObject.GetComponent<RectTransform>();
@@ -45,6 +46,11 @@ public class WinAnimatorUI : AbstractSlotMachineUIModule
         content.gameObject.SetActive(true);
     }
 
+    public void SkipTakeCoin()
+    {
+        if (_tweenWin != null) _tweenWin.Complete( true );
+    }
+
     public void AddWin(WinBalanceInfo info)
     {
         Show();
@@ -57,7 +63,7 @@ public class WinAnimatorUI : AbstractSlotMachineUIModule
     void SetWin(double win, float duration = 0f)
     {
         if (win == _win || duration == 0f) UpdateWin(win);
-        else DOTween.To(() => _win, x => UpdateWin(x), win, duration).OnComplete(WinComplete).Play();
+        else _tweenWin = DOTween.To(() => _win, x => UpdateWin(x), win, duration).OnComplete(WinComplete).Play();
     }
 
     void UpdateWin(double win)
@@ -69,10 +75,12 @@ public class WinAnimatorUI : AbstractSlotMachineUIModule
     void WinComplete()
     {
         var sequence = DOTween.Sequence();
-        sequence.PrependInterval(0.3f);
+        sequence.PrependInterval(0.5f);
         sequence.Append(_contentRtf.DOScale(Vector3.one * 1.5f, 0.2f).SetEase(Ease.InCubic));
         sequence.Join(content.DOFade(0f, 0.2f).SetEase(Ease.InCubic));
         sequence.AppendCallback(Reset);
         sequence.Play();
+
+        _tweenWin = null;
     }
 }

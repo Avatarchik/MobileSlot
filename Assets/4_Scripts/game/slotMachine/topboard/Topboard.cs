@@ -35,13 +35,19 @@ public class Topboard : MonoBehaviour
 
     public void TakeCoin(WinBalanceInfo info)
     {
-        if (info.IsJMBWin) PlayJMBWin(info);
+        PlayJMBWin(info);
+    }
+
+    public void StopTakeCoin()
+    {
+        StopJMBWinAnim();
     }
 
     public void PlayAllWin(WinItemList info)
     {
         if (_winTableModule != null) _winTableModule.PlayAllWin(info);
     }
+
 
     public void PlayEachWin(WinItemList.Item item)
     {
@@ -68,24 +74,6 @@ public class Topboard : MonoBehaviour
         if (_winTableModule != null) _winTableModule.gameObject.SetActive(true);
     }
 
-    void PlayJMBWin(WinBalanceInfo info)
-    {
-        HideWinTable();
-
-        switch (info.winType)
-        {
-            case SlotConfig.WinType.BIGWIN:
-                bigwin.enabled = true;
-                break;
-            case SlotConfig.WinType.MEGAWIN:
-                megawin.enabled = true;
-                break;
-            case SlotConfig.WinType.JACPOT:
-                jackpotwin.enabled = true;
-                break;
-        }
-    }
-
     void PlayBonusSpinAnim()
     {
         bonusSpin.enabled = true;
@@ -110,6 +98,26 @@ public class Topboard : MonoBehaviour
     void StopBonusSpinAnim()
     {
         if (bonusSpin != null) bonusSpin.enabled = false;
+    }
+
+    void PlayJMBWin(WinBalanceInfo info)
+    {
+        if (info.IsJMBWin == false ) return;
+
+        HideWinTable();
+
+        switch (info.winType)
+        {
+            case SlotConfig.WinType.BIGWIN:
+                bigwin.enabled = true;
+                break;
+            case SlotConfig.WinType.MEGAWIN:
+                megawin.enabled = true;
+                break;
+            case SlotConfig.WinType.JACPOT:
+                jackpotwin.enabled = true;
+                break;
+        }
     }
 
     void StopJMBWinAnim()

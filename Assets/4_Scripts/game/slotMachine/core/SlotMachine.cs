@@ -18,6 +18,7 @@ public class SlotMachine : MonoBehaviour
         TakeCoin,
         AfterWin,
         BonusSpin,
+        FreeSpin,
         ApplySpinResult
     }
 
@@ -42,8 +43,11 @@ public class SlotMachine : MonoBehaviour
     SlotBetting _betting;
     Topboard _topboard;
 
-    ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
+    bool _skipWin;
 
+    ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
+    WinBalanceInfo _lastWinBalanceInfo;
+    float _takeCoinStartTime;
     SendData _testSendData;
 
     void Awake()
@@ -99,7 +103,8 @@ public class SlotMachine : MonoBehaviour
 #if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBGL
     void Update()
     {
-        if (Input.GetKey(KeyCode.Space))
+        //if (Input.GetKey(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             TrySpin();
         }
@@ -111,29 +116,27 @@ public class SlotMachine : MonoBehaviour
     {
         if (_currentState == next) return;
 
-        if (State.Count > 0 &&
-            State.Peek() != MachineState.Connecting &&
-            next == MachineState.Idle)
-        {
-            State.Clear();
-        }
+        if (_currentState == MachineState.Idle && next == MachineState.Spin) State.Clear();
 
         //Debug.Log("Update State: " + _currentState.ToString() + " > " + next.ToString());
 
         State.Push(next);
-        _currentState = State.Peek();
+        _currentState = next;
 
         StateEnter();
     }
 
+    Coroutine _currentStateRoutine;
     void StateEnter()
     {
+        if (_currentStateRoutine != null) StopCoroutine(_currentStateRoutine);
+
         if (_stateExit != null) StartCoroutine(_stateExit());
 
         _stateEnter = _stateEnterMap[_currentState];
         _stateExit = _stateExitMap[_currentState];
 
-        if (_stateEnter != null) StartCoroutine(_stateEnter());
+        if (_stateEnter != null) _currentStateRoutine = StartCoroutine(_stateEnter());
     }
 
     //EntryPoint
@@ -251,19 +254,8 @@ public class SlotMachine : MonoBehaviour
         }
         else if (_currentState == MachineState.TakeCoin)
         {
-            StopTakeWin();
+            SkipTakeWin();
         }
-    }
-
-    void StopSpin()
-    {
-        _ui.StopSpin();
-        _reelContainer.StopSpin();
-    }
-
-    void StopTakeWin()
-    {
-        SetState( MachineState.AfterWin );
     }
 
     void OpenCoinShop()
@@ -307,6 +299,12 @@ public class SlotMachine : MonoBehaviour
         _reelContainer.ReceivedSymbol(_lastSpinInfo);
 
         yield break;
+    }
+
+    void StopSpin()
+    {
+        _ui.StopSpin();
+        _reelContainer.StopSpin();
     }
 
     void OnReelStopCompleteHandler()
@@ -372,18 +370,34 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator TakeCoin_Enter()
     {
-        var winInfo = GetWinBalanceInfo();
-        _ui.TakeCoin(winInfo);
-        _topboard.TakeCoin(winInfo);
-        yield return new WaitForSeconds(winInfo.duration);
+        _takeCoinStartTime = Time.time;
+        _lastWinBalanceInfo = GetWinBalanceInfo();
+
+        _ui.TakeCoin(_lastWinBalanceInfo);
+        _topboard.TakeCoin(_lastWinBalanceInfo);
+
+        yield return new WaitForSeconds(_lastWinBalanceInfo.duration);
 
         SetState(MachineState.AfterWin);
     }
 
-    IEnumerator TakeCoin_Exit()
+    void SkipTakeWin()
     {
-        Debug.Log("takeCoin ext" );
-        yield break;
+        if (CanSkipTakeCoin() == false) return;
+
+        _ui.SkipTakeCoin();
+
+        if (_model.HasNextSpin == false) _skipWin = true;
+
+        SetState(MachineState.AfterWin);
+    }
+
+    bool CanSkipTakeCoin()
+    {
+        if (_currentState != MachineState.TakeCoin) return false;
+
+        var elapsedTime = Time.time - _takeCoinStartTime;
+        return elapsedTime > _lastWinBalanceInfo.skipDelay;
     }
 
     void OnPlayAllWinHandler(WinItemList info)
@@ -404,13 +418,10 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator AfterWin_Enter()
     {
-        if (_model.HasBonusSpin)
+        if (_model.HasNextSpin)
         {
-            SetState(MachineState.BonusSpin);
-        }
-        else if ("프리스핀 진행 중이라면 프리스핀 한다" == null)
-        {
-            //do
+            if (_model.HasBonusSpin) SetState(MachineState.BonusSpin);
+            else if ("프리스핀 진행 중이라면 프리스핀 한다" == null) SetState(MachineState.FreeSpin);
         }
         else
         {
@@ -435,6 +446,12 @@ public class SlotMachine : MonoBehaviour
         yield break;
     }
 
+    IEnumerator FreeSpin_Enter()
+    {
+        yield break;
+    }
+
+
     IEnumerator ApplySpinResult_Enter()
     {
         //모든 연출이 끝났다.
@@ -453,7 +470,7 @@ public class SlotMachine : MonoBehaviour
     WinBalanceInfo GetWinBalanceInfo()
     {
         var skipDelay = 0f;
-        var duration = 1f;
+        var duration = 10f;
 
         if (_model.IsJMBWin)
         {
