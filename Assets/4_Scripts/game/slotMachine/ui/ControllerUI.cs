@@ -74,7 +74,7 @@ public class ControllerUI : AbstractSlotMachineUIModule
 
         btnAuto.onValueChanged.AddListener((b) =>
         {
-            if (b) _model.StartAutoSpin(5);
+            if (b) _model.StartAutoSpin();
             else _model.StopAutoSpin();
         });
 

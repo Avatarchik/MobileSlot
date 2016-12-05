@@ -43,7 +43,7 @@ public class SlotMachine : MonoBehaviour
     SlotBetting _betting;
     Topboard _topboard;
 
-    bool _skipWin;
+    bool _bookedSpin;
 
     ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
     WinBalanceInfo _lastWinBalanceInfo;
@@ -208,14 +208,19 @@ public class SlotMachine : MonoBehaviour
     {
         _ui.Idle();
 
+
         if (_model.IsAutoSpin)
         {
             _model.UseAutoSpin();
 
-            var delay = _model.IsFastSpin ? 0f : 0.2f;
-            yield return new WaitForSeconds(delay);
+            yield return new WaitForSeconds(_model.IsFastSpin ? 0f : 0.2f);
             TrySpin();
         }
+        else if (_bookedSpin)
+        {
+            TrySpin();
+        }
+
         yield break;
     }
 
@@ -265,6 +270,8 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator Spin_Enter()
     {
+        _bookedSpin = false;
+        
         if (_paylineModule != null) _paylineModule.Clear();
 
         _ui.Spin();
@@ -387,7 +394,9 @@ public class SlotMachine : MonoBehaviour
 
         _ui.SkipTakeCoin();
 
-        if (_model.HasNextSpin == false) _skipWin = true;
+        //todo
+        //jmb win 일때도 스핀 예약해야 할까?
+        if (_model.HasNextSpin == false) _bookedSpin = true;
 
         SetState(MachineState.CheckNextSpin);
     }
