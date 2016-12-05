@@ -16,7 +16,7 @@ public class SlotMachine : MonoBehaviour
         FreeSpinTrigger,
         PlayWin,
         TakeCoin,
-        AfterWin,
+        CheckNextSpin,
         BonusSpin,
         FreeSpin,
         ApplySpinResult
@@ -333,7 +333,7 @@ public class SlotMachine : MonoBehaviour
         }
         else
         {
-            SetState(MachineState.AfterWin);
+            SetState(MachineState.CheckNextSpin);
         }
 
         yield break;
@@ -378,7 +378,7 @@ public class SlotMachine : MonoBehaviour
 
         yield return new WaitForSeconds(_lastWinBalanceInfo.duration);
 
-        SetState(MachineState.AfterWin);
+        SetState(MachineState.CheckNextSpin);
     }
 
     void SkipTakeWin()
@@ -389,7 +389,7 @@ public class SlotMachine : MonoBehaviour
 
         if (_model.HasNextSpin == false) _skipWin = true;
 
-        SetState(MachineState.AfterWin);
+        SetState(MachineState.CheckNextSpin);
     }
 
     bool CanSkipTakeCoin()
@@ -416,7 +416,7 @@ public class SlotMachine : MonoBehaviour
         if (_paylineModule != null) _paylineModule.DrawLine(item);
     }
 
-    IEnumerator AfterWin_Enter()
+    IEnumerator CheckNextSpin_Enter()
     {
         if (_model.HasNextSpin)
         {
@@ -470,7 +470,7 @@ public class SlotMachine : MonoBehaviour
     WinBalanceInfo GetWinBalanceInfo()
     {
         var skipDelay = 0f;
-        var duration = 10f;
+        var duration = 1f;
 
         if (_model.IsJMBWin)
         {
