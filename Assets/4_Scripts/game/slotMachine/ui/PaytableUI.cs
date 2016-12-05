@@ -22,7 +22,7 @@ public class PaytableUI : AbstractSlotMachineUIModule
     {
         _lastPageIndex = pageList.Length - 1;
 
-        if (btnBack != null) btnBack.onClick.AddListener(PrevPage);
+        if (btnPrev != null) btnPrev.onClick.AddListener(PrevPage);
         if (btnNext != null) btnNext.onClick.AddListener(NextPage);
         btnBack.onClick.AddListener(Close);
 
