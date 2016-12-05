@@ -14,7 +14,8 @@ public class SlotMachine : MonoBehaviour
         ReceivedSymbol,
         ReelStopComplete,
         FreeSpinTrigger,
-        Win,
+        PlayWin,
+        TakeCoin,
         AfterWin,
         BonusSpin,
         ApplySpinResult
@@ -69,6 +70,8 @@ public class SlotMachine : MonoBehaviour
 
             var enter = FindMethod(stateName + "_Enter");
             var exit = FindMethod(stateName + "_Exit");
+
+            if (s != MachineState.Null && enter == DoNothing) Debug.LogWarning("can't found '" + stateName + "' enter Method");
 
             _stateEnterMap[s] = enter;
             _stateExitMap[s] = exit;
@@ -244,14 +247,23 @@ public class SlotMachine : MonoBehaviour
         //당첨되어 돈올라가는 도중이면 스킵하고 다음 스핀
         if (_currentState == MachineState.ReceivedSymbol)
         {
-            _ui.StopSpin();
-            _reelContainer.StopSpin();
+            StopSpin();
         }
-        else if (false)
+        else if (_currentState == MachineState.TakeCoin)
         {
-
+            StopTakeWin();
         }
+    }
 
+    void StopSpin()
+    {
+        _ui.StopSpin();
+        _reelContainer.StopSpin();
+    }
+
+    void StopTakeWin()
+    {
+        SetState( MachineState.AfterWin );
     }
 
     void OpenCoinShop()
@@ -319,7 +331,7 @@ public class SlotMachine : MonoBehaviour
         }
         else if (_lastSpinInfo.totalPayout > 0)
         {
-            SetState(MachineState.Win);
+            SetState(MachineState.PlayWin);
         }
         else
         {
@@ -342,7 +354,7 @@ public class SlotMachine : MonoBehaviour
         yield break;
     }
 
-    IEnumerator Win_Enter()
+    IEnumerator PlayWin_Enter()
     {
         _reelContainer.FindAllWinPayInfo();
 
@@ -355,12 +367,23 @@ public class SlotMachine : MonoBehaviour
 
         yield return new WaitForSeconds(_config.transition.PlayAllSymbols_WinBalance);
 
+        SetState(MachineState.TakeCoin);
+    }
+
+    IEnumerator TakeCoin_Enter()
+    {
         var winInfo = GetWinBalanceInfo();
-        _ui.Win(winInfo);
-        _topboard.Win(winInfo);
+        _ui.TakeCoin(winInfo);
+        _topboard.TakeCoin(winInfo);
         yield return new WaitForSeconds(winInfo.duration);
 
         SetState(MachineState.AfterWin);
+    }
+
+    IEnumerator TakeCoin_Exit()
+    {
+        Debug.Log("takeCoin ext" );
+        yield break;
     }
 
     void OnPlayAllWinHandler(WinItemList info)
@@ -426,6 +449,7 @@ public class SlotMachine : MonoBehaviour
         yield break;
     }
 
+    //todo slotconfig 로 설정하자
     WinBalanceInfo GetWinBalanceInfo()
     {
         var skipDelay = 0f;
@@ -437,12 +461,15 @@ public class SlotMachine : MonoBehaviour
             {
                 case SlotConfig.WinType.BIGWIN:
                     duration = 9f;
+                    skipDelay = 1f;
                     break;
                 case SlotConfig.WinType.MEGAWIN:
                     duration = 12.5f;
+                    skipDelay = 1f;
                     break;
                 case SlotConfig.WinType.JACPOT:
                     duration = 14f;
+                    skipDelay = 1f;
                     break;
             }
         }

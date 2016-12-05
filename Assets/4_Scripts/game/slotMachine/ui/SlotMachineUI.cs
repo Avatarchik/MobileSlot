@@ -126,7 +126,7 @@ public class SlotMachineUI : MonoBehaviour
         if (_board != null) _board.PlayEachWin(item);
     }
 
-    public void Win(WinBalanceInfo info)
+    public void TakeCoin(WinBalanceInfo info)
     {
         _info.AddWin(info);
         _winAnimator.AddWin(info);

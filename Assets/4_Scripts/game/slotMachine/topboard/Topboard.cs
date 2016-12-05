@@ -33,7 +33,7 @@ public class Topboard : MonoBehaviour
         StopJMBWinAnim();
     }
 
-    public void Win(WinBalanceInfo info)
+    public void TakeCoin(WinBalanceInfo info)
     {
         if (info.IsJMBWin) PlayJMBWin(info);
     }

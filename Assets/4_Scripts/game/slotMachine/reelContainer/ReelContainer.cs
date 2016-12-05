@@ -313,6 +313,8 @@ public class ReelContainer : MonoBehaviour
         if (OnPlayAllWin != null) OnPlayAllWin(_winItemList);
     }
 
+    //todo
+    //중복 호출 될 수 있다. 체크하자
     public void PlayEachWin()
     {
         if (_winItemList.ItemCount <= 1) return;
