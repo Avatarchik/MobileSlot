@@ -14,12 +14,16 @@ public class Reel : MonoBehaviour
 
     public GameObject expectObject;
 
-
+    #region Property
     public bool IsLocked { get; private set; }
     public int StartOrder { get; set; }
+    public SlotConfig.ExpectReelType ExpectType { get; set; }
+    public bool IsExpectable { get { return ExpectType != SlotConfig.ExpectReelType.Null; } }
+    public bool Loop { get; set; }
 
     Transform _symbolContainer;
     public Transform SymbolContainer { get { return _symbolContainer; } }
+    #endregion
 
     protected int _column;
     protected SlotConfig _config;
@@ -41,9 +45,10 @@ public class Reel : MonoBehaviour
     Vector3 _spinDestination;
     Tween _spinTween;
     bool _isTweenLast;
+    bool _isExpecting;
     Vector3 _spinStartPos;
 
-    bool _isSpinnining;
+    bool _isSpinning;
     bool _isStopping;
 
     void Awake()
@@ -82,7 +87,7 @@ public class Reel : MonoBehaviour
         }
     }
 
-    public void AlignSymbols()
+    public void AlignSymbols(float offsetY = 0f)
     {
         var ypos = GetStartSymbolPos();
 
@@ -93,6 +98,8 @@ public class Reel : MonoBehaviour
             symbol.Y = ypos;
             ypos -= symbol.Height;
         }
+
+        _symbolContainer.localPosition = new Vector3(0f, offsetY, 0f);
     }
 
     virtual protected float GetStartSymbolPos()
@@ -124,7 +131,7 @@ public class Reel : MonoBehaviour
 
     public void Spin(ResDTO.Spin.Payout.SpinInfo spinInfo = null)
     {
-        _isSpinnining = true;
+        _isSpinning = true;
         _isReceived = false;
         _spinCount = 0;
         _currentStrip = GetCurrentStrip();
@@ -177,9 +184,9 @@ public class Reel : MonoBehaviour
         {
             TweenFirst();
         }
-        else if (_spinCount <= _config.SpinCountThreshold || _isReceived == false)
+        else if (_spinCount <= _config.SpinCountThreshold || _isReceived == false || Loop)
         {
-            TweenLoop();
+            TweenLiner();
         }
         else
         {
@@ -221,16 +228,12 @@ public class Reel : MonoBehaviour
         firstTweenSequence.PrependInterval(startDelay);
         if (tweenBack != null) firstTweenSequence.Append(tweenBack);
         firstTweenSequence.Append(tween);
-        firstTweenSequence.AppendCallback(() =>
-        {
-            SpinReel();
-        });
-        firstTweenSequence.Play();
+        firstTweenSequence.AppendCallback(SpinReel).Play();
 
         _spinTween = firstTweenSequence;
     }
 
-    virtual protected void TweenLoop()
+    virtual protected void TweenLiner()
     {
         AddSpiningSymbols(_config.SpiningSymbolCount);
 
@@ -239,11 +242,7 @@ public class Reel : MonoBehaviour
         UpdateSpinDestination();
 
         var tween = _symbolContainer.DOLocalMove(_spinDestination, duration);
-        tween.OnComplete(() =>
-        {
-            SpinReel();
-        });
-        tween.Play();
+        tween.OnComplete(SpinReel).Play();
 
         _spinTween = tween;
     }
@@ -262,8 +261,7 @@ public class Reel : MonoBehaviour
         var duration = _spinDis / _config.SpinSpeedPerSec;
         var tween = _symbolContainer.DOLocalMove(_spinDestination, duration);
         tween.SetEase(Ease.Linear);
-        tween.OnComplete(TweenLastComplete);
-        tween.Play();
+        tween.OnComplete(SpinReelComplete).Play();
 
         _spinTween = tween;
     }
@@ -275,34 +273,9 @@ public class Reel : MonoBehaviour
         AddSpiningSymbols(_config.MarginSymbolCount);
     }
 
-    void TweenLastComplete()
-    {
-        _isSpinnining = false;
-        _isStopping = false;
-        _spinTween = null;
-        _isTweenLast = false;
-
-        _lastSymbolNames = _receivedSymbolNames;
-
-        RemoveSymbolsExceptNecessary();
-        AlignSymbols();
-        _symbolContainer.localPosition = new Vector3(0f, -_config.tweenLastBackInfo.distance, 0f);
-
-        if (_config.tweenLastBackInfo.distance != 0)
-        {
-            var backOutTween = _symbolContainer.DOLocalMove(Vector3.zero, _config.tweenLastBackInfo.duration);
-            backOutTween.SetEase(Ease.OutBack);
-            backOutTween.Play();
-        }
-
-        UnLock();
-
-        if (OnStop != null) OnStop(this);
-    }
-
     public void StopSpin()
     {
-        if (_isSpinnining == false || _isReceived == false || _isStopping == true) return;
+        if (_isSpinning == false || _isReceived == false || _isStopping == true) return;
 
         _isStopping = true;
 
@@ -324,10 +297,38 @@ public class Reel : MonoBehaviour
         var duration = 0.1f;
         var tween = _symbolContainer.DOLocalMove(_spinDestination, duration);
         tween.SetEase(Ease.Linear);
-        tween.OnComplete(TweenLastComplete);
+        tween.OnComplete(SpinReelComplete);
         tween.Play();
 
         _spinTween = tween;
+    }
+
+    void SpinReelComplete()
+    {
+        if (_isExpecting) HideExpect();
+
+        _isTweenLast = false;
+        _isSpinning = false;
+        _isStopping = false;
+        _isExpecting = false;
+        
+        _spinTween = null;
+        _lastSymbolNames = _receivedSymbolNames;
+        ExpectType = SlotConfig.ExpectReelType.Null;
+
+        RemoveSymbolsExceptNecessary();
+        AlignSymbols(-_config.tweenLastBackInfo.distance);
+
+        if (_config.tweenLastBackInfo.distance != 0)
+        {
+            var backOutTween = _symbolContainer.DOLocalMove(Vector3.zero, _config.tweenLastBackInfo.duration);
+            backOutTween.SetEase(Ease.OutBack);
+            backOutTween.Play();
+        }
+
+        UnLock();
+
+        if (OnStop != null) OnStop(this);
     }
 
     public void Lock()
@@ -342,6 +343,25 @@ public class Reel : MonoBehaviour
         if (IsLocked == false) return;
 
         IsLocked = false;
+    }
+
+    public void SpinToExpect()
+    {
+        _isExpecting = true;
+        //bg expect;
+        //effect expect
+        ShowExpect();
+
+    }
+
+    void ShowExpect()
+    {
+        if (expectObject != null) expectObject.SetActive(true);
+    }
+
+    void HideExpect()
+    {
+        if (expectObject != null) expectObject.SetActive(false);
     }
 
     void UpdateSymbolState(Symbol.SymbolState state)

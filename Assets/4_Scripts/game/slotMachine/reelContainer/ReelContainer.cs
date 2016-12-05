@@ -6,19 +6,19 @@ using System.Collections.Generic;
 
 public class ReelContainer : MonoBehaviour
 {
+
     public event Action OnReelStopComplete;
     public event Action<WinItemList> OnPlayAllWin;
     public event Action<WinItemList.Item> OnPlayEachWin;
 
+    protected SlotMachine _slot;
     SlotConfig _config;
-
     List<Reel> _reels;
-
     Transform _tf;
 
     int[] _defaltOrder;
     int[] _spinStartOrder;
-    int _nextSpinIndex;
+    int _nextStopIndex;
 
     ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
 
@@ -46,15 +46,16 @@ public class ReelContainer : MonoBehaviour
 
     public void Initialize(SlotMachine slot)
     {
-        _config = slot.Config;
+        _slot = slot;
+        _config = _slot.Config;
 
         _winItemList = new WinItemList();
 
-        CreateSpinOrder();
+        CreateDefaultSpinOrder();
         CreateReels();
     }
 
-    void CreateSpinOrder()
+    void CreateDefaultSpinOrder()
     {
         _defaltOrder = new int[_config.Column];
         for (var i = 0; i < _config.Column; ++i)
@@ -106,7 +107,7 @@ public class ReelContainer : MonoBehaviour
 
         _winItemList.Clear();
 
-        _nextSpinIndex = 0;
+        _nextStopIndex = 0;
     }
 
     public void Spin()
@@ -142,6 +143,8 @@ public class ReelContainer : MonoBehaviour
     {
         _lastSpinInfo = spinInfo;
 
+        UpdateExpectSetting();
+
         for (var i = 0; i < _config.Column; ++i)
         {
             _reels[i].ReceivedSymbol(spinInfo);
@@ -172,6 +175,8 @@ public class ReelContainer : MonoBehaviour
 
         _lastSpinInfo = spinInfo;
 
+        UpdateExpectSetting();
+
         UpdateStartOrder();
 
         for (var i = 0; i < _config.Column; ++i)
@@ -193,6 +198,21 @@ public class ReelContainer : MonoBehaviour
         CheckNextReel();
     }
 
+    public void FreeSpin(ResDTO.Spin.Payout.SpinInfo spinInfo)
+    {
+        UpdateExpectSetting();
+    }
+
+    virtual protected void UpdateExpectSetting()
+    {
+        //todo
+        //게임 별 구체화
+        if (_slot.CurrentState == SlotMachine.MachineState.BonusSpin)
+        {
+            for (var i = 0; i < _config.Column; ++i) if (_reels[i].IsLocked == false) _reels[i].ExpectType = SlotConfig.ExpectReelType.BonusSpin;
+        }
+    }
+
     void OnStopListener(Reel reel)
     {
         // Debug.Log("reel " + reel.Column + " stopped");
@@ -200,7 +220,7 @@ public class ReelContainer : MonoBehaviour
 
         PlayStopEffect();
 
-        ++_nextSpinIndex;
+        ++_nextStopIndex;
 
         CheckNextReel();
     }
@@ -212,26 +232,31 @@ public class ReelContainer : MonoBehaviour
 
     void CheckNextReel()
     {
-        if (_nextSpinIndex >= _config.Column)
+        if (_nextStopIndex >= _config.Column)
         {
             ReelAllCompleted();
             return;
         }
 
-        var nextOrder = _spinStartOrder[_nextSpinIndex];
+        var nextOrder = _spinStartOrder[_nextStopIndex];
         var nextReel = _reels[nextOrder];
 
         if (nextReel.IsLocked)
         {
-            ++_nextSpinIndex;
+            ++_nextStopIndex;
             CheckNextReel();
             return;
         }
 
-        if ("돌아가야 할 릴이 고조라면" == null)
+        if (nextReel.IsExpectable)
         {
-            //해당 릴을 고조한다.
-            //해당 릴 이후의 릴들은 고조가 끝날 때까지 스핀을 loop 시킨다
+            nextReel.SpinToExpect();
+
+            for (var i = _nextStopIndex + 1; i < _config.Column; ++i)
+            {
+                var reel = _reels[_spinStartOrder[i]];
+                reel.Loop = true;
+            }
         }
         else if ("돌아가야 할 릴이 고조가 아니고 이전이 고조 였다면" == null)
         {

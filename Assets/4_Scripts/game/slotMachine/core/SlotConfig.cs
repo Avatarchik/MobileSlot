@@ -17,6 +17,14 @@ public class SlotConfig
         Rollback,
     }
 
+    public enum ExpectReelType
+    {
+        Null,
+        BonusSpin,
+        FreeSpin,
+        Progressive
+    }
+
     public enum WinType
     {
         LOSE,
