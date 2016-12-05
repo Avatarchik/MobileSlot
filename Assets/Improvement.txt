@@ -1,0 +1,28 @@
+개선해야할 사항 & 고민
+
+a.
+Reel 프리팹이 필요한가?  그냥 배치 하면 안되나?
+
+b.
+심볼 풀 등록을 코드로 하지 하는게?
+
+c.
+spriet 는 불편하더라도 기본값인 center를 지원하도록 하자
+
+d.
+심볼 프리팹을 정의 할 때 하이어라키를 펼쳐서 SPRITE 를 드래그 하는게 힘들다. SYMBOL TYPE 도 클릭해야한다.
+한번에 정의할 수 없을까?
+
+e.
+topboard 가 필요하긴 한가? JMB가 TOPBOARD 위치에서 플레이 되지 않는 게임이라면?
+winTable 이 우측에 있다면? topboard 내부 요소들을 각각 모듈화 시키는게 더 낫지 않을까?
+
+f.
+SlotConfig Inspector 에서 모든 걸 지원 가능하게?
+
+g.
+Paytable 세팅 때 시작하기 전에 볼 수 있도록
+Pytable 인스펙터에서 수정할때 Alpha 와 Interactable 활성화 해서 수정해야 하는게 불만
+
+h.
+sprite 들 밉맵 어떻게
