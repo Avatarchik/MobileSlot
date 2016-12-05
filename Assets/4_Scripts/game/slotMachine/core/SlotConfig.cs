@@ -155,9 +155,9 @@ public class ReelStrip
 
     public ReelStripType type;
 
-    string[,] _strip;
+    string[][] _strip;
 
-    public ReelStrip(string[,] strip, ReelStripType type = ReelStripType.NORMAL)
+    public ReelStrip(string[][] strip, ReelStripType type = ReelStripType.NORMAL)
     {
         _strip = strip;
         this.type = type;
@@ -165,9 +165,10 @@ public class ReelStrip
 
     public string GetRandom(int column)
     {
-        int leng = _strip.GetLength(1);
+        var reel = _strip[column];
+        int leng = reel.Length;
         int randomIndex = UnityEngine.Random.Range(0, leng);
-        return _strip[column, randomIndex];
+        return reel[randomIndex];
     }
 }
 

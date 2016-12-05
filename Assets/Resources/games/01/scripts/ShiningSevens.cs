@@ -122,11 +122,11 @@ public class ShiningSevens : MonoBehaviour
         //strips
         //todo
         //릴스트립도 가변배열로 고쳐야함
-        mainSlotConfig.NormalStrip = new ReelStrip(new string[,]
+        mainSlotConfig.NormalStrip = new ReelStrip(new string[][]
         {
-            {SG,BG,SB,BR,SB,W0,SG,BR,SB,BR,SG,BR,BG,SB,W0},
-            {SG,BR,SB,BR,SB,W0,SG,BG,SB,BG,SG,BG,BR,SB,BG},
-            {SG,BG,W0,BR,SB,SR,SB,BR,SB,SG,BR,BG,W0,BR,BR}
+            new string[] {SG,BG,SB,BR,SB,W0,SG,BR,SB,BR,SG,BR,BG,SB,W0},
+            new string[] {SG,BR,SB,BR,SB,W0,SG,BG,SB,BG,SG,BG,BR,SB,BG},
+            new string[] {SG,BG,W0,BR,SB,SR,SB,BR,SB,SG,BR,BG,W0,BR,BR}
         }, ReelStrip.ReelStripType.USE_NULL);
     }
 
