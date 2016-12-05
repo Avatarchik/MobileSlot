@@ -53,29 +53,9 @@ public class Topboard : MonoBehaviour
         if (bonusSpin == null) return;
 
         HideWinTable();
+        StopJMBWinAnim();
 
-        if (bonusSpin != null) bonusSpin.enabled = false;
-        if (bigwin != null) bigwin.enabled = false;
-        if (megawin != null) megawin.enabled = false;
-        if (jackpotwin != null) jackpotwin.enabled = false;
-
-        bonusSpin.enabled = true;
-        bonusSpin.transform.localScale = Vector3.zero;
-        bonusSpin.color = new Color(bonusSpin.color.r, bonusSpin.color.g, bonusSpin.color.b, 0f);
-
-        Sequence spinAnim = DOTween.Sequence();
-
-        spinAnim.Append(bonusSpin.transform.DOScale(1f, 0.3f)
-                                           .SetEase(Ease.OutCubic));
-        spinAnim.Join(bonusSpin.DOFade(1f, 0.3f));
-
-        spinAnim.AppendInterval(0.7f);
-
-        spinAnim.Append(bonusSpin.transform.DOScale(1.5f, 0.3f)
-                                           .SetEase(Ease.OutCubic).OnStart(ShowWinTable));
-        spinAnim.Join(bonusSpin.DOFade(0f, 0.3f));
-
-        spinAnim.Play();
+        PlayBonusSpinAnim();
     }
 
     void HideWinTable()
@@ -106,10 +86,36 @@ public class Topboard : MonoBehaviour
         }
     }
 
+    void PlayBonusSpinAnim()
+    {
+        bonusSpin.enabled = true;
+        bonusSpin.transform.localScale = Vector3.zero;
+        bonusSpin.color = new Color(bonusSpin.color.r, bonusSpin.color.g, bonusSpin.color.b, 0f);
+
+        Sequence spinAnim = DOTween.Sequence();
+
+        spinAnim.Append(bonusSpin.transform.DOScale(1f, 0.3f)
+                                           .SetEase(Ease.OutCubic));
+        spinAnim.Join(bonusSpin.DOFade(1f, 0.3f));
+
+        spinAnim.AppendInterval(0.7f);
+
+        spinAnim.Append(bonusSpin.transform.DOScale(1.5f, 0.3f)
+                                           .SetEase(Ease.OutCubic).OnStart(ShowWinTable));
+        spinAnim.Join(bonusSpin.DOFade(0f, 0.3f));
+
+        spinAnim.Play();
+    }
+
+    void StopBonusSpinAnim()
+    {
+        if (bonusSpin != null) bonusSpin.enabled = false;
+    }
+
     void StopJMBWinAnim()
     {
-        bigwin.enabled = true;
-        megawin.enabled = true;
-        jackpotwin.enabled = true;
+        if (bigwin != null) bigwin.enabled = false;
+        if (megawin != null) megawin.enabled = false;
+        if (jackpotwin != null) jackpotwin.enabled = false;
     }
 }
