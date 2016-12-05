@@ -11,6 +11,8 @@ public class ReelContainer : MonoBehaviour
     public event Action<WinItemList> OnPlayAllWin;
     public event Action<WinItemList.Item> OnPlayEachWin;
 
+    public bool IsExpecting { get; private set; }
+
     protected SlotMachine _slot;
     SlotConfig _config;
     List<Reel> _reels;
@@ -250,17 +252,26 @@ public class ReelContainer : MonoBehaviour
 
         if (nextReel.IsExpectable)
         {
-            nextReel.SpinToExpect();
+            IsExpecting = true;
 
-            for (var i = _nextStopIndex + 1; i < _config.Column; ++i)
+            for (var i = _nextStopIndex; i < _config.Column; ++i)
             {
                 var reel = _reels[_spinStartOrder[i]];
-                reel.Loop = true;
+                if (i == _nextStopIndex) reel.Loop = false;
+                else reel.Loop = true;
             }
+
+            nextReel.SpinToExpect();
         }
-        else if ("돌아가야 할 릴이 고조가 아니고 이전이 고조 였다면" == null)
+        else if (IsExpecting)
         {
-            //해당릴 이후의 릴들의 스핀 loop를 해제한다.
+            IsExpecting = false;
+
+            for (var i = _nextStopIndex; i < _config.Column; ++i)
+            {
+                var reel = _reels[_spinStartOrder[i]];
+                reel.Loop = false;
+            }
         }
     }
 

@@ -311,6 +311,8 @@ public class SlotMachine : MonoBehaviour
 
     void StopSpin()
     {
+        if (_reelContainer.IsExpecting) return;
+
         _ui.StopSpin();
         _reelContainer.StopSpin();
     }
@@ -465,7 +467,6 @@ public class SlotMachine : MonoBehaviour
     {
         yield break;
     }
-
 
     IEnumerator ApplySpinResult_Enter()
     {
