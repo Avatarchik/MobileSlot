@@ -26,7 +26,7 @@ public class InfoViewUI : AbstractSlotMachineUIModule
         txtWin.text = "";
     }
 
-    public void Init(SlotMachineUI slotUI)
+    override public void Init(SlotMachineUI slotUI)
     {
         base.Init(slotUI);
 

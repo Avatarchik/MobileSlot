@@ -10,7 +10,7 @@ public class SlotModel : SingletonSimple<SlotModel>
 
     #region freespin property
     public bool IsFreeSpinTrigger { get; private set; }
-    public bool IsFreeSpining { get; private set; }
+    public bool IsFreeSpinning { get; private set; }
     public int FreeSpinAddedCount { get; private set; }
     public int FreeSpinCurrentCount { get; private set; }
     public int FreeSpinTotal { get; private set; }
@@ -27,7 +27,7 @@ public class SlotModel : SingletonSimple<SlotModel>
     {
         get
         {
-            if (IsFreeSpining) return false;
+            if (IsFreeSpinning) return false;
             else return WinType == SlotConfig.WinType.BIGWIN || WinType == SlotConfig.WinType.MEGAWIN || WinType == SlotConfig.WinType.JACPOT;
         }
     }
@@ -46,6 +46,8 @@ public class SlotModel : SingletonSimple<SlotModel>
             return SpinDTO.payouts.Next().isBonusSpin;
         }
     }
+
+    public bool HasNudge { get; private set; }
 
     #endregion
 
@@ -119,7 +121,7 @@ public class SlotModel : SingletonSimple<SlotModel>
 
         if (IsFreeSpinTrigger)
         {
-            if (IsFreeSpining == false)
+            if (IsFreeSpinning == false)
             {
                 FreeSpinCurrentCount = 0;
                 FreeSpinAddedCount = _lastSpinInfo.freeSpinCount;
@@ -149,7 +151,7 @@ public class SlotModel : SingletonSimple<SlotModel>
     {
         if (FreeSpinRemain <= 0) return null;
 
-        IsFreeSpining = true;
+        IsFreeSpinning = true;
         ++FreeSpinCurrentCount;
         return NextSpin();
     }

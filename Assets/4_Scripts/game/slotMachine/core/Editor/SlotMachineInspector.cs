@@ -65,11 +65,6 @@ public class SlotMachineInspector : Editor
                 }
             }
 
-            foreach (string n in stateNames)
-            {
-
-            }
-
             EditorGUILayout.EndVertical();
 
             GUI.color = Color.white;

@@ -13,6 +13,7 @@ public class SlotMachine : MonoBehaviour
         Spin,
         ReceivedSymbol,
         ReelStopComplete,
+        Nudge,
         FreeSpinTrigger,
         PlayWin,
         TakeCoin,
@@ -271,7 +272,7 @@ public class SlotMachine : MonoBehaviour
     IEnumerator Spin_Enter()
     {
         _bookedSpin = false;
-        
+
         if (_paylineModule != null) _paylineModule.Clear();
 
         _ui.Spin();
@@ -326,9 +327,9 @@ public class SlotMachine : MonoBehaviour
         //결과 심볼들을 바탕으로 미리 계산 해야 하는 일들이 있다면 여기서 미리 계산한다.
         _ui.ReelStopComplete();
 
-        if ("nudge 시킬 릴이 있다면 넛지" == null)
+        if (_model.HasNudge)
         {
-            //do nudge
+            SetState(MachineState.Nudge);
         }
         else if (_model.IsFreeSpinTrigger)
         {
@@ -343,6 +344,11 @@ public class SlotMachine : MonoBehaviour
             SetState(MachineState.CheckNextSpin);
         }
 
+        yield break;
+    }
+
+    IEnumerator Nudge_Enter()
+    {
         yield break;
     }
 
@@ -430,7 +436,7 @@ public class SlotMachine : MonoBehaviour
         if (_model.HasNextSpin)
         {
             if (_model.HasBonusSpin) SetState(MachineState.BonusSpin);
-            else if ("프리스핀 진행 중이라면 프리스핀 한다" == null) SetState(MachineState.FreeSpin);
+            else if (_model.IsFreeSpinning) SetState(MachineState.FreeSpin);
         }
         else
         {

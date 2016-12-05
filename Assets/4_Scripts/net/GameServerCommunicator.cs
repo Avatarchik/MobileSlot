@@ -95,26 +95,19 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
             return;
         }
 
-        try
+        switch (cmd)
         {
-            switch (cmd)
-            {
-                case Command.LOGIN:
-                    IsLogin = true;
+            case Command.LOGIN:
+                IsLogin = true;
 
-                    var loginData = SafeDeserialize<ResDTO.Login>(data);
-                    if (OnLogin != null) OnLogin(loginData);
-                    break;
+                var loginData = SafeDeserialize<ResDTO.Login>(data);
+                if (OnLogin != null) OnLogin(loginData);
+                break;
 
-                case Command.SPIN:
-                    var spinData = SafeDeserialize<ResDTO.Spin>(data);
-                    if (OnSpin != null) OnSpin(spinData);
-                    break;
-            }
-        }
-        catch (Exception e)
-        {
-
+            case Command.SPIN:
+                var spinData = SafeDeserialize<ResDTO.Spin>(data);
+                if (OnSpin != null) OnSpin(spinData);
+                break;
         }
     }
 
