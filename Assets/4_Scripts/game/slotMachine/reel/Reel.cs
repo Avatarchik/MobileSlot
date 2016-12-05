@@ -443,7 +443,9 @@ public class Reel : MonoBehaviour
     {
         Symbol symbol = GamePool.Instance.SpawnSymbol(symbolName);
 
-        if (symbol.IsInitialized == false) symbol.Initialize(symbolName, _config);
+        if( symbol == null ) throw new System.NullReferenceException("Symbol '" + symbolName + "' is null");
+
+        if (symbol != null && symbol.IsInitialized == false) symbol.Initialize(symbolName, _config);
 
         return symbol;
     }

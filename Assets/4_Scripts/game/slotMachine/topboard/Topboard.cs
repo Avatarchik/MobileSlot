@@ -7,8 +7,6 @@ public class Topboard : MonoBehaviour
 {
     //todo
     //보너스 스핀, 빅윈 메가윈 잭팟 등등의 연출은 트윈이 사용되었는데 애니메이션 클립 만들어서 재생시키자
-    //topboard 가 필요하긴 한가? JMB가 TOPBOARD 위치에서 플레이 되지 않는 게임이라면?
-    //winTable 이 우측에 있다면?
 
     public SpriteRenderer bonusSpin;
     public SpriteRenderer bigwin;

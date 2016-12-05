@@ -84,9 +84,11 @@ public class ReelContainer : MonoBehaviour
 
         _reels = new List<Reel>(count);
 
+        var prefab = _config.ReelPrefab;
+
         for (var i = 0; i < count; ++i)
         {
-            Reel reel = Instantiate(_config.ReelPrefab) as Reel;
+            Reel reel = Instantiate(prefab) as Reel;
             reel.Column = i;
 
             reel.OnStop += OnStopListener;

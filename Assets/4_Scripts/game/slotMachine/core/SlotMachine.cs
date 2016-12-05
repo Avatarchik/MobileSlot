@@ -190,13 +190,14 @@ public class SlotMachine : MonoBehaviour
         _ui.Initialize(this);
 
         _reelContainer = GetComponentInChildren<ReelContainer>();
-        if (_ui == null) Debug.LogError("can't find _reelContainer");
+        if (_ui == null) Debug.LogError("can't find ReelContainer");
         _reelContainer.Initialize(this);
         _reelContainer.OnPlayAllWin += OnPlayAllWinHandler;
         _reelContainer.OnPlayEachWin += OnPlayEachWinHandler;
         _reelContainer.OnReelStopComplete += OnReelStopCompleteHandler;
 
         _topboard = GetComponentInChildren<Topboard>();
+        if (_topboard == null) Debug.LogError("can't find Topboard");
 
         _paylineModule = GetComponentInChildren<PaylineModule>();
 
