@@ -47,19 +47,27 @@ public class SlotMachineInspector : Editor
         {
             EditorGUILayout.BeginVertical();
 
-            var stateNames = from s in _state orderby s ascending select s.ToString();
-            foreach (string n in stateNames)
+            var stateNames = _state.Select(s => s.ToString()).ToArray();
+            System.Array.Reverse(stateNames);
+
+            for (var i = 0; i < stateNames.Length; ++i)
             {
-                if (_state.Peek().ToString() == n)
+                var name = stateNames[i];
+                if (i == stateNames.Length - 1)
                 {
                     GUI.color = Color.yellow;
-                    EditorGUILayout.LabelField(n, EditorStyles.boldLabel);
+                    EditorGUILayout.LabelField(name, EditorStyles.boldLabel);
                 }
                 else
                 {
                     GUI.color = Color.gray;
-                    EditorGUILayout.LabelField( "  " + n);
+                    EditorGUILayout.LabelField("  " + name);
                 }
+            }
+
+            foreach (string n in stateNames)
+            {
+
             }
 
             EditorGUILayout.EndVertical();
