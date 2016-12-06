@@ -81,6 +81,7 @@ public class ResDTO : DTO
             {
                 public string[] reel;
                 public int freeSpinCount;
+                public int[] freeSpinSuggestion;
                 public double totalPayout;
                 public bool isNormal;
                 public int[] fixedreel;

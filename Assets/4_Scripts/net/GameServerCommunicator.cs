@@ -105,9 +105,35 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
                 break;
 
             case Command.SPIN:
+
+                AvoidFreeSpinCountException(data);
+
                 var spinData = SafeDeserialize<ResDTO.Spin>(data);
                 if (OnSpin != null) OnSpin(spinData);
                 break;
+        }
+    }
+
+    //todo
+    //high diamonds 가 프리스핀이 걸릴 경우 freeSpinCount에 배열이 들어온다.
+    // 자료구조와 달라서 DESERIALIZE 에러뜸. 체크하는 코드.
+    //....꼭 이래야 하나
+    void AvoidFreeSpinCountException(JToken obj)
+    {
+        var payouts = obj["payouts"];
+        if (payouts == null) return;
+
+        var spinArr = payouts["spins"] as JArray;
+        if (spinArr == null) return;
+
+        var freeSpinCount = spinArr[0]["freeSpinCount"];
+        if (freeSpinCount.Type == JTokenType.Integer) return;
+
+        for (var i = 0; i < spinArr.Count; ++i)
+        {
+            var spin = spinArr[i];
+            spin["freeSpinSuggestion"] = spin["freeSpinCount"];
+            spin["freeSpinCount"] = 0;
         }
     }
 

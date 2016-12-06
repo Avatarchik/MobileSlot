@@ -264,8 +264,10 @@ public class ReelContainer : MonoBehaviour
             }
 
             nextReel.SpinToExpect();
+            return;
         }
-        else if (IsExpecting)
+
+        if (IsExpecting)
         {
             IsExpecting = false;
 

@@ -4,7 +4,7 @@ a.
 Reel 프리팹이 필요한가?  그냥 배치 하면 안되나?
 
 b.
-심볼 풀 등록을 코드로 하지 하는게?
+심볼 풀 등록을 코드로 하는게?
 
 c.
 spriet 는 불편하더라도 기본값인 center를 지원하도록 하자
@@ -26,3 +26,7 @@ Pytable 인스펙터에서 수정할때 Alpha 와 Interactable 활성화 해서 
 
 h.
 sprite 들 밉맵 어떻게
+
+i.
+JSON.NET 을 AssetStoe 의 유료 말고 http://www.newtonsoft.com/json 의 오픈 소스를 사용해볼 것
+불가능 하면 Unity에서 추가된 JSON 을 이용하자
