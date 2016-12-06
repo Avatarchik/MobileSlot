@@ -90,7 +90,11 @@ public class ResDTO : DTO
 
                 public bool IsFreeSpinTrigger
                 {
-                    get { return freeSpinCount > 0; }
+                    get
+                    {
+                        if( freeSpinSuggestion != null ) return true;
+                        else return freeSpinCount > 0;
+                    }
                 }
 
                 public string[] GetReelData(int column, int rowCount)
