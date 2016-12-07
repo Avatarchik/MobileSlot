@@ -62,6 +62,16 @@ public class Topboard : MonoBehaviour
         PlayBonusSpinAnim();
     }
 
+    public void FreeSpinTrigger()
+    {
+
+    }
+
+    public void FreeSpinReady()
+    {
+        
+    }
+
     void HideWinTable()
     {
         if (_winTableModule != null) _winTableModule.gameObject.SetActive(false);

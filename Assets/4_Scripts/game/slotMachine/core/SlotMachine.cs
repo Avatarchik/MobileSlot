@@ -15,11 +15,12 @@ public class SlotMachine : MonoBehaviour
         ReelStopComplete,
         Nudge,
         FreeSpinTrigger,
+        FreeSpinReady,
+        FreeSpin,
         PlayWin,
         TakeCoin,
         CheckNextSpin,
         BonusSpin,
-        FreeSpin,
         ApplySpinResult
     }
 
@@ -261,7 +262,7 @@ public class SlotMachine : MonoBehaviour
         }
         else if (_currentState == MachineState.TakeCoin)
         {
-            SkipTakeWin();
+            SkipTakeCoin();
         }
     }
 
@@ -330,22 +331,10 @@ public class SlotMachine : MonoBehaviour
         //결과 심볼들을 바탕으로 미리 계산 해야 하는 일들이 있다면 여기서 미리 계산한다.
         _ui.ReelStopComplete();
 
-        if (_model.HasNudge)
-        {
-            SetState(MachineState.Nudge);
-        }
-        else if (_model.IsFreeSpinTrigger)
-        {
-            SetState(MachineState.FreeSpinTrigger);
-        }
-        else if (_lastSpinInfo.totalPayout > 0)
-        {
-            SetState(MachineState.PlayWin);
-        }
-        else
-        {
-            SetState(MachineState.CheckNextSpin);
-        }
+        if (_model.HasNudge) SetState(MachineState.Nudge);
+        else if (_model.IsFreeSpinTrigger) SetState(MachineState.FreeSpinTrigger);
+        else if (_lastSpinInfo.totalPayout > 0) SetState(MachineState.PlayWin);
+        else SetState(MachineState.CheckNextSpin);
 
         yield break;
     }
@@ -358,13 +347,98 @@ public class SlotMachine : MonoBehaviour
     IEnumerator FreeSpinTrigger_Enter()
     {
         Debug.Log("삐리리리리 프리스핀 트리거!");
+
+        SoundManager.Instance.PlayFreeSpinTrigger();
+
         _reelContainer.FreeSpinTrigger();
+        _topboard.FreeSpinTrigger();
+        _ui.FreeSpinTrigger();
+
+        yield return new WaitForSeconds(_config.transition.FreeSpinTriggerDuration);
+
+        if (_lastSpinInfo.totalPayout > 0) SetState(MachineState.PlayWin);
+        else SetState(MachineState.CheckNextSpin);
+    }
+
+    IEnumerator FreeSpinReady_Enter()
+    {
+        if (_paylineModule != null) _paylineModule.Clear();
+
+        _reelContainer.FreeSpinReady();
+        _topboard.FreeSpinReady();
+
+        SoundManager.Instance.PlayFreeSpinReady();
+
+        if (_model.IsFreeSpinReTrigger == false)
+        {
+            yield return StartCoroutine(FreeSpinReadyFirstRoutine());
+
+            if (_config.TriggerType == SlotConfig.FreeSpinTriggerType.Select)
+            {
+                /*
+                var cmd: String = getFreeSpinCommand(mModel.selectedFreeSpinIndex);
+                ServerCommunicator.reqFreeSpin(cmd, mModel.linebet, mModel.freeSpinKey);
+                */
+
+                return;
+            }
+        }
+        else
+        {
+            yield return StartCoroutine(FreeSpinReadyFirstRoutine());
+        }
+
+        SetState(MachineState.FreeSpin);
+
+        yield break;
+    }
+
+    IEnumerator FreeSpinReady_Exit()
+    {
+        SoundManager.Instance.StopFreeSpinReady();
+    }
+
+    void FreeSpinMode()
+    {
+        /*
+        if (mIsFreeSpinMode) return;
+
+        mIsFreeSpinMode = true;
+
+        if (mCabinetFree)
+        {
+            mCabinetFree.visible = true;
+            TweenLite.to(mCabinetFree, 0.5,{ alpha: 1, ease: Cubic.easeOut });
+        }
+
+        mTopboard.freeSpinMode();
+        Background.instance.freeSpinMode();
+        mReelContainer.freeSpinMode();
+        mInfoPanel.freeSpinMode();
+        */
+    }
+
+    virtual IEnumerator FreeSpinReadyFirstRoutine()
+    {
+        yield break;
+    }
+
+    virtual IEnumerator FreeSpinReadyAgaiRoutine()
+    {
+        yield break;
+    }
+
+    IEnumerator FreeSpin_Enter()
+    {
+        Debug.Log("FreeSpin!!!!");
+        FreeSpinMode();
+        _lastSpinInfo = _model.UseFreeSpin();
         yield break;
     }
 
     IEnumerator FreeSpinTrigge_Exit()
     {
-        //프리스핀 트리거 리셋
+        SoundManager.Instance.StopFreeSpinTrigger();
         yield break;
     }
 
@@ -397,7 +471,7 @@ public class SlotMachine : MonoBehaviour
         SetState(MachineState.CheckNextSpin);
     }
 
-    void SkipTakeWin()
+    void SkipTakeCoin()
     {
         if (CanSkipTakeCoin() == false) return;
 
@@ -436,21 +510,18 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator CheckNextSpin_Enter()
     {
-        if (_model.HasNextSpin)
-        {
-            if (_model.HasBonusSpin) SetState(MachineState.BonusSpin);
-            else if (_model.IsFreeSpinning) SetState(MachineState.FreeSpin);
-        }
-        else
-        {
-            SetState(MachineState.ApplySpinResult);
-        }
+        if (_model.HasBonusSpin) SetState(MachineState.BonusSpin);
+        else if (_model.IsFreeSpinTrigger) SetState(MachineState.FreeSpinReady);
+        else if (_model.IsFreeSpinning) SetState(MachineState.FreeSpin);
+        else SetState(MachineState.ApplySpinResult);
+
         yield break;
     }
 
     IEnumerator BonusSpin_Enter()
     {
-        _paylineModule.Clear();
+        if (_paylineModule != null) _paylineModule.Clear();
+
         _lastSpinInfo = _model.NextSpin();
 
         yield return _reelContainer.LockReel(_lastSpinInfo.fixedreel);
@@ -461,11 +532,6 @@ public class SlotMachine : MonoBehaviour
 
         _reelContainer.BonusSpin(_lastSpinInfo);
 
-        yield break;
-    }
-
-    IEnumerator FreeSpin_Enter()
-    {
         yield break;
     }
 

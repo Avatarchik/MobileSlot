@@ -62,6 +62,10 @@ public class HighDiamonds : MonoBehaviour
         mainSlotConfig.SymbolSize = new Size2D(1.04f, 0.68f);
         mainSlotConfig.NullSymbolSize = default(Size2D);
 
+        //freespin
+        mainSlotConfig.TriggerType = SlotConfig.FreeSpinTriggerType.Select;
+        mainSlotConfig.RetriggerType = SlotConfig.FreeSpinRetriggerType.Add;
+
         //reel
         mainSlotConfig.ReelPrefab = Resources.Load<Reel>("games/" + commonInfo.ID.ToString("00") + "/prefabs/Reel");
         mainSlotConfig.ReelSize = new Size2D(1.04f, 2.04f);
@@ -86,7 +90,8 @@ public class HighDiamonds : MonoBehaviour
             EachWin = 1f,
             EachWinSummary = 1f,
             EachLockReel = 0.2f,
-            LockReel_BonusSpin = 1f
+            LockReel_BonusSpin = 1f,
+            FreeSpinTriggerDuration = 1f
         };
 
         //symbolNameMap

@@ -6,14 +6,22 @@ public class MessageBoardUI : AbstractSlotMachineUIModule
 {
     const string GAME_INIT = "PRESS SPIN TO PLAY";
     const string SPIN_START = "PLAYING {0} LINES FOR {1} COINS. GOOD LUCK!";
-    const string FREE_SPIN_TRIGGER = "SPINS REFILLS 7 FREE GAMES AGAIN!";
+
+
+    const string FREE_SPIN_AUTO = "YOU'VE WON {0} FREE GAMES!";
+    const string FREE_SPIN_SELECT = "YOU WIN FREE GAMES!";
+    const string FREE_SPIN_REFILLS = "SPINS REFILLS {0} FREE GAMES AGAIN!";
+    const string FREE_SPIN_ADD = "YOU'VE WON {0} FREE GAMES!";
     const string FREE_SPIN_START = "FREE SPIN PLAY. GOOD LUCK!";
-    const string FREE_SPIN_LAST = "LAST FREE SPIN!";
     const string FREE_SPINNING = "{0} FREE SPIN(S) REMAINING";
+    const string FREE_SPIN_LAST = "LAST FREE SPIN!";
+    const string FREE_SPIN_END = "CONGRATULATIONS!";
+
+
+
     const string PAYLINE_WIN = "LINE {0} PAYS {1} COINS";
     const string PAYLINE_WIN_ALL = "YOU'VE WON {0} LINE(S) {1} COINS";
 
-    const string FREE_SPIN_END = "CONGRATULATIONS!";
     const string WHEEL_TRIGGER = "YOU’VE WON WHEEL BONUS GAMES!";
     const string WHEEL_READY = "CLICK TO SPIN THE WHEEL";
     const string ALLWAY_WIN = "SCATTER PAYS <font color='#FFFF00'>|payout|</font> COINS!";
@@ -25,7 +33,6 @@ public class MessageBoardUI : AbstractSlotMachineUIModule
     const string JACKPOT_MINOR = "MINOR JACKPOT";
 
     Text _txt;
-    SlotConfig _config;
     SlotModel _model;
 
     void Awake()
@@ -33,11 +40,10 @@ public class MessageBoardUI : AbstractSlotMachineUIModule
         _txt = GetComponentInChildren<Text>();
     }
 
-    override public void Init(SlotMachineUI slotUI )
+    override public void Init(SlotMachineUI slotUI)
     {
-        base.Init( slotUI );
-        
-        _config = _ui.SlotMachine.Config;
+        base.Init(slotUI);
+
         _model = SlotModel.Instance;
 
         WriteBoard(GAME_INIT);
@@ -70,7 +76,19 @@ public class MessageBoardUI : AbstractSlotMachineUIModule
 
     public void FreeSpinTrigger()
     {
-        WriteBoard(string.Format(FREE_SPIN_TRIGGER, _model.FreeSpinTotal));
+        switch (_config.TriggerType)
+        {
+            case SlotConfig.FreeSpinTriggerType.None:
+                break;
+
+            case SlotConfig.FreeSpinTriggerType.Auto:
+                WriteBoard(string.Format(FREE_SPIN_AUTO, _model.FreeSpinAddedCount));
+                break;
+
+            case SlotConfig.FreeSpinTriggerType.Select:
+                WriteBoard(FREE_SPIN_SELECT);
+                break;
+        }
     }
 
     void WriteBoard(string msg)

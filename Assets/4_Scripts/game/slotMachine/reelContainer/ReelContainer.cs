@@ -290,6 +290,11 @@ public class ReelContainer : MonoBehaviour
         while (count-- > 0) _reels[count].FreeSpinTrigger();
     }
 
+    public void FreeSpinReady()
+    {
+        Reset();
+    }
+
     public WinItemList FindAllWinPayInfo()
     {
         //todo

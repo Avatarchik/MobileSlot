@@ -43,7 +43,7 @@ public abstract class Symbol : MonoBehaviour
     SpriteRenderer _sprite;
 
     AnimControl _anim;
-    Sequence _fallbackAnim;
+    Tween _fallbackAnim;
     Reel _relativeReel;
 
     virtual protected void Awake()
@@ -190,12 +190,12 @@ public abstract class Symbol : MonoBehaviour
 
     void Trigger()
     {
-
+        if (PlayAnimation("Trigger") == false) DefaultTrigger();
     }
 
     void Win()
     {
-        if (PlayAnimation("Win") == false) MotionScale();
+        if (PlayAnimation("Win") == false) DefaultWin();
     }
 
     void Lock()
@@ -212,25 +212,40 @@ public abstract class Symbol : MonoBehaviour
         return true;
     }
 
-    void MotionScale(float fromScale = 1.0f, float toScale = 1.25f, float duration = 0.3f, float interval = 0.2f)
+    void DefaultTrigger(float fromScale = 1.0f, float toScale = 1.4f, float duration = 0.3f)
     {
         _content.localScale = Vector3.one * fromScale;
 
         if (_fallbackAnim != null && _fallbackAnim.IsPlaying()) _fallbackAnim.Kill();
 
-        _fallbackAnim = DOTween.Sequence();
+        BringToFront();
 
-        _fallbackAnim.Append(_content.DOScale(toScale, duration)
+        var Tween = _content.DOScale(toScale, duration).SetEase(Ease.OutBounce).Play();
+
+        _fallbackAnim = Tween;
+    }
+
+    void DefaultWin(float fromScale = 1.0f, float toScale = 1.25f, float duration = 0.3f, float interval = 0.2f)
+    {
+        _content.localScale = Vector3.one * fromScale;
+
+        if (_fallbackAnim != null && _fallbackAnim.IsPlaying()) _fallbackAnim.Kill();
+
+        var Tween = DOTween.Sequence();
+
+        Tween.Append(_content.DOScale(toScale, duration)
                                      .SetEase(Ease.OutCubic)
                                      .OnStart(BringToFront));
 
-        _fallbackAnim.AppendInterval(interval);
+        Tween.AppendInterval(interval);
 
-        _fallbackAnim.Append(_content.DOScale(fromScale, duration)
+        Tween.Append(_content.DOScale(fromScale, duration)
                                      .SetEase(Ease.InCubic)
                                      .OnStart(BackFromFront));
 
-        _fallbackAnim.Play();
+        Tween.Play();
+
+        _fallbackAnim = Tween;
     }
 
     public void Clear()

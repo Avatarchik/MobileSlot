@@ -10,6 +10,8 @@ public class SlotModel : SingletonSimple<SlotModel>
 
     #region freespin property
     public bool IsFreeSpinTrigger { get; private set; }
+    public bool IsFreeSpinReTrigger { get { return IsFreeSpinning && IsFreeSpinTrigger; } }
+
     public bool IsFreeSpinning { get; private set; }
     public int FreeSpinAddedCount { get; private set; }
     public int FreeSpinCurrentCount { get; private set; }
@@ -27,8 +29,7 @@ public class SlotModel : SingletonSimple<SlotModel>
     {
         get
         {
-            if (IsFreeSpinning) return false;
-            else return WinType == SlotConfig.WinType.BIGWIN || WinType == SlotConfig.WinType.MEGAWIN || WinType == SlotConfig.WinType.JACPOT;
+            return WinType == SlotConfig.WinType.BIGWIN || WinType == SlotConfig.WinType.MEGAWIN || WinType == SlotConfig.WinType.JACPOT;
         }
     }
 
@@ -98,17 +99,16 @@ public class SlotModel : SingletonSimple<SlotModel>
         SpinDTO = dto;
 
         WinMultiplier = SpinDTO.payouts.multipleWin;
-
-        CheckWinType();
     }
 
-    void CheckWinType()
+    SlotConfig.WinType GetWinType()
     {
-        if (SpinDTO.payouts.totalPayout == 0f) WinType = SlotConfig.WinType.LOSE;
-        else if (SpinDTO.payouts.isBigWin) WinType = SlotConfig.WinType.BIGWIN;
-        else if (SpinDTO.payouts.isMegaWin) WinType = SlotConfig.WinType.MEGAWIN;
-        else if (SpinDTO.payouts.isJackpot) WinType = SlotConfig.WinType.JACPOT;
-        else WinType = SlotConfig.WinType.NORMAL;
+        if (SpinDTO.payouts.totalPayout == 0f) return SlotConfig.WinType.LOSE;
+        else if (IsFreeSpinTrigger || IsFreeSpinning) return SlotConfig.WinType.NORMAL;
+        else if (SpinDTO.payouts.isBigWin) return SlotConfig.WinType.BIGWIN;
+        else if (SpinDTO.payouts.isMegaWin) return SlotConfig.WinType.MEGAWIN;
+        else if (SpinDTO.payouts.isJackpot) return SlotConfig.WinType.JACPOT;
+        else return SlotConfig.WinType.NORMAL;
     }
 
     public ResDTO.Spin.Payout.SpinInfo NextSpin()
@@ -135,7 +135,7 @@ public class SlotModel : SingletonSimple<SlotModel>
                         FreeSpinAddedCount = _lastSpinInfo.freeSpinCount;
                         break;
 
-                    case SlotConfig.FreeSpinRetriggerType.Rollback:
+                    case SlotConfig.FreeSpinRetriggerType.Refill:
                         FreeSpinAddedCount = _lastSpinInfo.freeSpinCount - FreeSpinRemain;
                         break;
                 }
@@ -143,6 +143,8 @@ public class SlotModel : SingletonSimple<SlotModel>
                 FreeSpinTotal += FreeSpinAddedCount;
             }
         }
+
+        WinType = GetWinType();
 
         return _lastSpinInfo;
     }

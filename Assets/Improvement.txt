@@ -30,3 +30,6 @@ sprite 들 밉맵 어떻게
 i.
 JSON.NET 을 AssetStoe 의 유료 말고 http://www.newtonsoft.com/json 의 오픈 소스를 사용해볼 것
 불가능 하면 Unity에서 추가된 JSON 을 이용하자
+
+j.
+Reel 에 bg 와 effect 하위 클래스를 두자

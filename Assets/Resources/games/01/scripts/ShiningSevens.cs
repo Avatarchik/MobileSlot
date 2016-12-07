@@ -57,6 +57,10 @@ public class ShiningSevens : MonoBehaviour
         mainSlotConfig.SymbolSize = new Size2D(2.1f, 1.1f);
         mainSlotConfig.NullSymbolSize = new Size2D(2.1f, 0.3f);
 
+        //freespin
+        mainSlotConfig.TriggerType = SlotConfig.FreeSpinTriggerType.None;
+        mainSlotConfig.RetriggerType = SlotConfig.FreeSpinRetriggerType.None;
+
         //reel
         mainSlotConfig.ReelPrefab = Resources.Load<Reel>("games/" + commonInfo.ID.ToString("00") + "/prefabs/Reel");
         mainSlotConfig.ReelSize = new Size2D(2.1f, 2.5f);
@@ -81,7 +85,8 @@ public class ShiningSevens : MonoBehaviour
             EachWin = 1f,
             EachWinSummary = 1f,
             EachLockReel = 0.2f,
-            LockReel_BonusSpin = 1f
+            LockReel_BonusSpin = 1f,
+            FreeSpinTriggerDuration = 1f
         };
 
         //symbolNameMap

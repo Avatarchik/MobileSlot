@@ -53,13 +53,13 @@ public class SlotMachineUI : MonoBehaviour
     void InitPaytable()
     {
         _paytable = GetComponentInChildren<PaytableUI>();
-        _paytable.Init( this );
+        _paytable.Init(this);
     }
 
     void InitWinDisplayer()
     {
         _winAnimator = GetComponentInChildren<WinAnimatorUI>();
-        _winAnimator.Init( this );
+        _winAnimator.Init(this);
     }
 
     void InitInfo()
@@ -136,6 +136,11 @@ public class SlotMachineUI : MonoBehaviour
     {
         _winAnimator.SkipTakeCoin();
         _info.SkipTakeCoin();
+    }
+
+    public void FreeSpinTrigger()
+    {
+        if (_board != null) _board.FreeSpinTrigger();
     }
 
     public void ApplyUserBalance()

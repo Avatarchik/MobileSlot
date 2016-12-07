@@ -11,10 +11,18 @@ using System.Linq;
 [Serializable]
 public class SlotConfig
 {
+    public enum FreeSpinTriggerType
+    {
+        None,
+        Auto,
+        Select
+    }
+
     public enum FreeSpinRetriggerType
     {
+        None,
         Add,
-        Rollback,
+        Refill
     }
 
     public enum ExpectReelType
@@ -63,7 +71,8 @@ public class SlotConfig
     public Size2D SymbolSize;
     public Size2D NullSymbolSize;
 
-    [Header("Options")]
+    [Header("FreeSpin")]
+    public FreeSpinTriggerType TriggerType;
     public FreeSpinRetriggerType RetriggerType;
 
     [Header("PaylineTable")]
@@ -182,6 +191,7 @@ public class Transition
 
     public float EachLockReel = 1f;
     public float LockReel_BonusSpin = 1f;
+    public float FreeSpinTriggerDuration = 1f;
 }
 
 [System.Serializable]

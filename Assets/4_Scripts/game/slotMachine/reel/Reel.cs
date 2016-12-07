@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -311,7 +312,7 @@ public class Reel : MonoBehaviour
         _isSpinning = false;
         _isStopping = false;
         _isExpecting = false;
-        
+
         _spinTween = null;
         _lastSymbolNames = _receivedSymbolNames;
         ExpectType = SlotConfig.ExpectReelType.Null;
@@ -362,15 +363,6 @@ public class Reel : MonoBehaviour
     void HideExpect()
     {
         if (expectObject != null) expectObject.SetActive(false);
-    }
-
-    void UpdateSymbolState(Symbol.SymbolState state)
-    {
-        var count = _symbols.Count;
-        for (var i = 0; i < count; ++i)
-        {
-            _symbols[i].SetState(state);
-        }
     }
 
     void RemoveSymbolsExceptNecessary()
@@ -436,14 +428,57 @@ public class Reel : MonoBehaviour
 
     public void FreeSpinTrigger()
     {
+        //bg freeSpinTrigger
+        //effect freeSpinTrigger
+        // reel.updateSymbolAorB( SymbolType.FREESPIN, SymbolState.TRIGGER,SymbolState.IDLE);
 
+        UpdateSymbolState(Symbol.SymbolType.FreeSpinScatter, Symbol.SymbolState.Trigger);
+    }
+
+    void UpdateSymbolState(Symbol.SymbolState state)
+    {
+        var count = _symbols.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            _symbols[i].SetState(state);
+        }
+    }
+
+    void UpdateSymbolState(Symbol.SymbolType type, Symbol.SymbolState state,
+                            Symbol.SymbolState restState = Symbol.SymbolState.Null,
+                            bool includeMarginSymbol = false,
+                            string[] ignoreNames = null)
+    {
+        var startIndex = _config.MarginSymbolCount;
+        var length = _symbols.Count - _config.MarginSymbolCount;
+
+        if (includeMarginSymbol)
+        {
+            startIndex = 0;
+            length = length + _config.MarginSymbolCount;
+        }
+
+        for (var i = startIndex; i < length; ++i)
+        {
+            var symbol = _symbols[i];
+
+            if ((symbol.Type != type) ||
+                (ignoreNames != null && Array.IndexOf(ignoreNames, symbol.SymbolName) != -1))
+            {
+                if (restState != Symbol.SymbolState.Null) symbol.SetState(restState);
+
+                continue;
+            }
+
+            symbol.SetState(state);
+        }
     }
 
     protected Symbol CreateSymbol(string symbolName)
     {
         Symbol symbol = GamePool.Instance.SpawnSymbol(symbolName);
 
-        if( symbol == null ) throw new System.NullReferenceException("Symbol '" + symbolName + "' is null");
+        if (symbol == null) throw new System.NullReferenceException("Symbol '" + symbolName + "' is null");
 
         if (symbol != null && symbol.IsInitialized == false) symbol.Initialize(symbolName, _config);
 
