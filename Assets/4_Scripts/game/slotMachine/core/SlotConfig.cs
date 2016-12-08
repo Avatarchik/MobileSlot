@@ -13,7 +13,6 @@ public class SlotConfig
 {
     public enum FreeSpinTriggerType
     {
-        None,
         Auto,
         Select
     }
@@ -72,6 +71,7 @@ public class SlotConfig
     public Size2D NullSymbolSize;
 
     [Header("FreeSpin")]
+    public bool UseFreeSpin;
     public FreeSpinTriggerType TriggerType;
     public FreeSpinRetriggerType RetriggerType;
 

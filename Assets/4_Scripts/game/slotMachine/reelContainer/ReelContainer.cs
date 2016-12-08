@@ -114,6 +114,13 @@ public class ReelContainer : MonoBehaviour
         _nextStopIndex = 0;
     }
 
+    void UpdateSpinInfo(ResDTO.Spin.Payout.SpinInfo spinInfo)
+    {
+        _lastSpinInfo = spinInfo;
+
+        UpdateExpectSetting();
+    }
+
     public void Spin()
     {
         Reset();
@@ -145,9 +152,7 @@ public class ReelContainer : MonoBehaviour
 
     public void ReceivedSymbol(ResDTO.Spin.Payout.SpinInfo spinInfo)
     {
-        _lastSpinInfo = spinInfo;
-
-        UpdateExpectSetting();
+        UpdateSpinInfo(spinInfo);
 
         for (var i = 0; i < _config.Column; ++i)
         {
@@ -175,11 +180,10 @@ public class ReelContainer : MonoBehaviour
 
     public void BonusSpin(ResDTO.Spin.Payout.SpinInfo spinInfo)
     {
+        
         Reset();
 
-        _lastSpinInfo = spinInfo;
-
-        UpdateExpectSetting();
+        UpdateSpinInfo(spinInfo);
 
         UpdateStartOrder();
 
@@ -204,7 +208,7 @@ public class ReelContainer : MonoBehaviour
 
     public void FreeSpin(ResDTO.Spin.Payout.SpinInfo spinInfo)
     {
-        UpdateExpectSetting();
+        UpdateSpinInfo(spinInfo);
     }
 
     virtual protected void UpdateExpectSetting()

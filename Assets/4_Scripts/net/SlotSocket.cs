@@ -201,7 +201,7 @@ public class SlotSocket
 
             int byteSize = client.EndReceive(ar);
 
-            //Debug.Log("byteSize: " + byteSize);
+            Debug.Log("byteSize: " + byteSize + ( obj.buffer[byteSize-1] == END_BYTE[0] ));
 
             if (byteSize > 0)
             {

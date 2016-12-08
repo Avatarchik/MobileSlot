@@ -151,8 +151,6 @@ public class SlotModel : SingletonSimple<SlotModel>
 
     public ResDTO.Spin.Payout.SpinInfo UseFreeSpin()
     {
-        if (FreeSpinRemain <= 0) return null;
-
         IsFreeSpinning = true;
         ++FreeSpinCurrentCount;
         return NextSpin();

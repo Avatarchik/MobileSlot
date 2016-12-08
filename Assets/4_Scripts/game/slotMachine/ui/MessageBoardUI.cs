@@ -78,9 +78,6 @@ public class MessageBoardUI : AbstractSlotMachineUIModule
     {
         switch (_config.TriggerType)
         {
-            case SlotConfig.FreeSpinTriggerType.None:
-                break;
-
             case SlotConfig.FreeSpinTriggerType.Auto:
                 WriteBoard(string.Format(FREE_SPIN_AUTO, _model.FreeSpinAddedCount));
                 break;

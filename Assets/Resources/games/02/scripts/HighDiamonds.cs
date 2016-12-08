@@ -63,6 +63,7 @@ public class HighDiamonds : MonoBehaviour
         mainSlotConfig.NullSymbolSize = default(Size2D);
 
         //freespin
+        mainSlotConfig.UseFreeSpin = true;
         mainSlotConfig.TriggerType = SlotConfig.FreeSpinTriggerType.Select;
         mainSlotConfig.RetriggerType = SlotConfig.FreeSpinRetriggerType.Add;
 

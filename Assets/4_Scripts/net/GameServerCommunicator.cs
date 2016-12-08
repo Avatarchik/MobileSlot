@@ -12,12 +12,6 @@ using lpesign;
 //shining 13100
 //highdia 13500
 
-public class Command
-{
-    public const string LOGIN = "login";
-    public const string SPIN = "spin";
-}
-
 public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 {
     static public bool ENABLE_LOG = false;
@@ -97,14 +91,14 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 
         switch (cmd)
         {
-            case Command.LOGIN:
+            case GameCommand.LOGIN:
                 IsLogin = true;
 
                 var loginData = SafeDeserialize<ResDTO.Login>(data);
                 if (OnLogin != null) OnLogin(loginData);
                 break;
 
-            case Command.SPIN:
+            case GameCommand.SPIN:
 
                 AvoidFreeSpinCountException(data);
 
@@ -186,6 +180,14 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         });
     }
 
+    public void FreeSpin(double linebet, int kind = 1)
+    {
+        Send(GameCommand.FREE_SPIN + kind, new ReqDTO.Spin()
+        {
+            lineBet = linebet
+        });
+    }
+
     public void Send(string command, ReqDTO dto)
     {
         SendData sendData = new SendData()
@@ -242,6 +244,7 @@ public class GameCommand
 {
     public const string LOGIN = "login";
     public const string SPIN = "spin";
+    public const string FREE_SPIN = "free_";
 }
 
 public class SendData

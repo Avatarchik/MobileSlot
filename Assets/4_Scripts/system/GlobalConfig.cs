@@ -15,6 +15,8 @@ Method 와 Property 는 대문자
 Event 는 On 접두사를 붙이자
 Event 에 추가된 Delegate 는 Listener 접미사를 붙이자
 
+Coroutine 에서 사용되는 IEnumerator 는 Routine 접미사를 붙이자
+
 */
 
 public class Layers

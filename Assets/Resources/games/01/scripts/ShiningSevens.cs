@@ -58,8 +58,7 @@ public class ShiningSevens : MonoBehaviour
         mainSlotConfig.NullSymbolSize = new Size2D(2.1f, 0.3f);
 
         //freespin
-        mainSlotConfig.TriggerType = SlotConfig.FreeSpinTriggerType.None;
-        mainSlotConfig.RetriggerType = SlotConfig.FreeSpinRetriggerType.None;
+        mainSlotConfig.UseFreeSpin = false;
 
         //reel
         mainSlotConfig.ReelPrefab = Resources.Load<Reel>("games/" + commonInfo.ID.ToString("00") + "/prefabs/Reel");

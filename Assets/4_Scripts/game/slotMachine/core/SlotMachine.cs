@@ -52,6 +52,8 @@ public class SlotMachine : MonoBehaviour
     float _takeCoinStartTime;
     SendData _testSendData;
 
+    FreeSpinDirector _freeSpinDirector;
+
     void Awake()
     {
         _model = SlotModel.Instance;
@@ -59,9 +61,9 @@ public class SlotMachine : MonoBehaviour
         State = new Stack<MachineState>();
         CacheStateBehaviour();
 
-        GameServerCommunicator.Instance.OnConnect += ConnectComplete;
-        GameServerCommunicator.Instance.OnLogin += LoginComplete;
-        GameServerCommunicator.Instance.OnSpin += SpinComplete;
+        GameServerCommunicator.Instance.OnConnect += OnConnectListener;
+        GameServerCommunicator.Instance.OnLogin += OnLoginListener;
+        GameServerCommunicator.Instance.OnSpin += OnSpinListener;
     }
 
     void CacheStateBehaviour()
@@ -154,8 +156,6 @@ public class SlotMachine : MonoBehaviour
 
         _betting = _config.COMMON.Betting;
 
-        Debug.Log("Run SlotMachine");
-
         SetState(MachineState.Connecting);
     }
 
@@ -166,12 +166,12 @@ public class SlotMachine : MonoBehaviour
         yield break;
     }
 
-    void ConnectComplete()
+    void OnConnectListener()
     {
         GameServerCommunicator.Instance.Login(0, "good");
     }
 
-    void LoginComplete(ResDTO.Login dto)
+    void OnLoginListener(ResDTO.Login dto)
     {
         StartCoroutine(Initialize(dto));
     }
@@ -201,6 +201,8 @@ public class SlotMachine : MonoBehaviour
         if (_topboard == null) Debug.LogError("can't find Topboard");
 
         _paylineModule = GetComponentInChildren<PaylineModule>();
+
+        _freeSpinDirector = GetComponentInChildren<FreeSpinDirector>();
 
         SetState(MachineState.Idle);
 
@@ -295,16 +297,17 @@ public class SlotMachine : MonoBehaviour
     }
 
 
-    void SpinComplete(ResDTO.Spin dto)
+    void OnSpinListener(ResDTO.Spin dto)
     {
         _model.SetSpinData(dto);
-        _lastSpinInfo = _model.NextSpin();
 
-        SetState(MachineState.ReceivedSymbol);
+        if (_currentState == MachineState.Spin) SetState(MachineState.ReceivedSymbol);
+        else if (_currentState == MachineState.FreeSpinReady) SetState(MachineState.FreeSpin);
     }
 
     IEnumerator ReceivedSymbol_Enter()
     {
+        _lastSpinInfo = _model.NextSpin();
         _ui.ReceivedSymbol();
         _reelContainer.ReceivedSymbol(_lastSpinInfo);
 
@@ -346,8 +349,6 @@ public class SlotMachine : MonoBehaviour
 
     IEnumerator FreeSpinTrigger_Enter()
     {
-        Debug.Log("삐리리리리 프리스핀 트리거!");
-
         SoundManager.Instance.PlayFreeSpinTrigger();
 
         _reelContainer.FreeSpinTrigger();
@@ -364,42 +365,76 @@ public class SlotMachine : MonoBehaviour
     {
         if (_paylineModule != null) _paylineModule.Clear();
 
+        SoundManager.Instance.PlayFreeSpinReady();
+
         _reelContainer.FreeSpinReady();
         _topboard.FreeSpinReady();
 
-        SoundManager.Instance.PlayFreeSpinReady();
-
-        if (_model.IsFreeSpinReTrigger == false)
+        if (_freeSpinDirector == null)
         {
-            yield return StartCoroutine(FreeSpinReadyFirstRoutine());
+            yield return new WaitForSeconds(2f);
 
-            if (_config.TriggerType == SlotConfig.FreeSpinTriggerType.Select)
-            {
-                /*
-                var cmd: String = getFreeSpinCommand(mModel.selectedFreeSpinIndex);
-                ServerCommunicator.reqFreeSpin(cmd, mModel.linebet, mModel.freeSpinKey);
-                */
+            SetState(MachineState.FreeSpin);
+        }
+        else if (_model.IsFreeSpinReTrigger)
+        {
+            yield return StartCoroutine(_freeSpinDirector.Retrigger());
 
-                return;
-            }
+            SetState(MachineState.FreeSpin);
+        }
+        else if (_config.TriggerType == SlotConfig.FreeSpinTriggerType.Select)
+        {
+            yield return StartCoroutine(_freeSpinDirector.Select());
+
+            GameServerCommunicator.Instance.FreeSpin(_betting.LineBet, _freeSpinDirector.SelectedKind.Value );
         }
         else
         {
-            yield return StartCoroutine(FreeSpinReadyFirstRoutine());
+            yield return StartCoroutine(_freeSpinDirector.Trigger());
+
+            SetState(MachineState.FreeSpin);
         }
-
-        SetState(MachineState.FreeSpin);
-
-        yield break;
     }
 
     IEnumerator FreeSpinReady_Exit()
     {
         SoundManager.Instance.StopFreeSpinReady();
+        yield break;
+    }
+
+    IEnumerator FreeSpin_Enter()
+    {
+        Debug.Log("FreeSpin!!!!");
+
+        _lastSpinInfo = _model.UseFreeSpin();
+
+        if (_lastSpinInfo == null) Debug.LogError("freeSpin info null");
+
+        if (_model.FreeSpinCurrentCount == 1) FreeSpinMode();
+
+        yield break;
+
+        /*
+
+        if (_paylineModule != null) _paylineModule.Clear();
+
+        _lastSpinInfo = _model.NextSpin();
+
+        yield return _reelContainer.LockReel(_lastSpinInfo.fixedreel);
+
+        _topboard.BonusSpin();
+
+        yield return new WaitForSeconds(_config.transition.LockReel_BonusSpin);
+
+        _reelContainer.BonusSpin(_lastSpinInfo);
+
+        yield break;
+        */
     }
 
     void FreeSpinMode()
     {
+        Debug.Log("FreeSpinMode!");
         /*
         if (mIsFreeSpinMode) return;
 
@@ -416,24 +451,6 @@ public class SlotMachine : MonoBehaviour
         mReelContainer.freeSpinMode();
         mInfoPanel.freeSpinMode();
         */
-    }
-
-    virtual IEnumerator FreeSpinReadyFirstRoutine()
-    {
-        yield break;
-    }
-
-    virtual IEnumerator FreeSpinReadyAgaiRoutine()
-    {
-        yield break;
-    }
-
-    IEnumerator FreeSpin_Enter()
-    {
-        Debug.Log("FreeSpin!!!!");
-        FreeSpinMode();
-        _lastSpinInfo = _model.UseFreeSpin();
-        yield break;
     }
 
     IEnumerator FreeSpinTrigge_Exit()

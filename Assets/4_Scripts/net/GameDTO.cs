@@ -92,7 +92,7 @@ public class ResDTO : DTO
                 {
                     get
                     {
-                        if( freeSpinSuggestion != null ) return true;
+                        if (freeSpinSuggestion != null) return true;
                         else return freeSpinCount > 0;
                     }
                 }
