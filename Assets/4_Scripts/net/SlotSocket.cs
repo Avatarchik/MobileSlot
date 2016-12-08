@@ -57,13 +57,20 @@ public class SlotSocket
 
     public class BufferObject
     {
-        public const int BufferSize = 8192;
-        public Socket workSocket = null;
-        public byte[] buffer = new byte[BufferSize];
-        public StringBuilder sb = new StringBuilder();
+        public Socket workSocket;
+        public byte[] buffer;
+        public StringBuilder sb;
+
+        public BufferObject(int BufferSize)
+        {
+            buffer = new byte[BufferSize];
+            sb = new StringBuilder();
+        }
     }
 
     static private byte[] END_BYTE = new byte[] { 0 };
+
+    int _bufferSize;
 
     Socket _socket;
     SocketState _currentState;
@@ -77,11 +84,13 @@ public class SlotSocket
     AsyncCallback _sendCallback;
     AsyncCallback _receiveCallback;
 
-    public SlotSocket()
+    public SlotSocket(int BufferSize = 8192)
     {
+        _bufferSize = BufferSize;
+
         _eventQueue = new Queue<SocketEvent>();
 
-        _bufferObject = new BufferObject();
+        _bufferObject = new BufferObject(_bufferSize);
 
         _connectCallback = new AsyncCallback(ConnectComplete);
         _sendCallback = new AsyncCallback(SendComplete);
@@ -113,8 +122,8 @@ public class SlotSocket
     void CreateSocket()
     {
         _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        _socket.ReceiveBufferSize = BufferObject.BufferSize;
-        _socket.SendBufferSize = BufferObject.BufferSize;
+        _socket.ReceiveBufferSize = _bufferSize;
+        _socket.SendBufferSize = _bufferSize;
     }
 
     public void Connect(string host, int port)
@@ -176,7 +185,7 @@ public class SlotSocket
         try
         {
             _bufferObject.workSocket = client;
-            client.BeginReceive(_bufferObject.buffer, 0, BufferObject.BufferSize, SocketFlags.None, _receiveCallback, _bufferObject);
+            client.BeginReceive(_bufferObject.buffer, 0, _bufferSize, SocketFlags.None, _receiveCallback, _bufferObject);
         }
         catch (Exception ex)
         {
@@ -201,7 +210,7 @@ public class SlotSocket
 
             int byteSize = client.EndReceive(ar);
 
-            Debug.Log("byteSize: " + byteSize + ( obj.buffer[byteSize-1] == END_BYTE[0] ));
+            Debug.Log("byteSize: " + byteSize + (obj.buffer[byteSize - 1] == END_BYTE[0]));
 
             if (byteSize > 0)
             {
@@ -310,7 +319,7 @@ public class SlotSocket
     {
         try
         {
-            if (_socket != null && _socket.Connected )
+            if (_socket != null && _socket.Connected)
             {
                 _socket.Close();
                 _socket = null;
@@ -318,7 +327,7 @@ public class SlotSocket
 
             State = SocketState.Closed;
 
-            EnqueueEvent( SocketEvent.EventType.DisConnect );
+            EnqueueEvent(SocketEvent.EventType.DisConnect);
         }
         catch (Exception ex)
         {
@@ -337,7 +346,7 @@ public class SlotSocket
         //ErrorType 에 맞게 소켓을 닫던지 적절히 조치하자
         Debug.LogFormat("Socket Error! type: {0} message: {1}", type, errorMessage);
 
-        Close( CloseReason.Error );
+        Close(CloseReason.Error);
     }
 
     public bool Connected
