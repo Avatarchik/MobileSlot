@@ -27,9 +27,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 
     void createSocket()
     {
-        // _socket = new SlotSocket();
-        _socket = new CrownGamesSocket();
-
+        _socket = new CrownGamesSocket(8192);
         _checkRoutine = StartCoroutine(CheckQueue());
     }
 

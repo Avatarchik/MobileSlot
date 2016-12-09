@@ -6,10 +6,11 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Linq;
 
 using System.IO;
 
-public class SlotSocket
+public abstract class SlotSocket
 {
     public enum ErrorType
     {
@@ -18,6 +19,7 @@ public class SlotSocket
         Send,
         Close,
         HandleData,
+        InvalidData,
         Mismatch
     }
 
@@ -68,18 +70,16 @@ public class SlotSocket
         }
     }
 
-    static private byte[] END_BYTE = new byte[] { 0 };
 
     int _bufferSize;
+    protected Socket _socket;
+    protected MemoryStream _ms;
+    private int _availableSize = 0;
+    BufferObject _bufferObject;
 
-    Socket _socket;
     SocketState _currentState;
-
     Queue<SocketEvent> _eventQueue;
 
-    ArraySegment<byte> _endSegment = new ArraySegment<byte>(END_BYTE);
-
-    BufferObject _bufferObject;
     AsyncCallback _connectCallback;
     AsyncCallback _sendCallback;
     AsyncCallback _receiveCallback;
@@ -91,13 +91,16 @@ public class SlotSocket
         _eventQueue = new Queue<SocketEvent>();
 
         _bufferObject = new BufferObject(_bufferSize);
+        _ms = new MemoryStream();
 
         _connectCallback = new AsyncCallback(ConnectComplete);
         _sendCallback = new AsyncCallback(SendComplete);
-        _receiveCallback = new AsyncCallback(DataReceived);
+        _receiveCallback = new AsyncCallback(ReceivedData);
 
         State = SocketState.Closed;
     }
+
+    protected abstract bool IsReceivedDone();
 
     public SocketState State
     {
@@ -193,12 +196,12 @@ public class SlotSocket
         }
     }
 
-    void DataReceived(IAsyncResult ar)
+    void ReceivedData(IAsyncResult ar)
     {
         if (State == SocketState.Closed) return;
-
         try
         {
+
             BufferObject obj = (BufferObject)ar.AsyncState;
             Socket client = obj.workSocket;
 
@@ -209,35 +212,30 @@ public class SlotSocket
             }
 
             int byteSize = client.EndReceive(ar);
-
-            Debug.Log("byteSize: " + byteSize + (obj.buffer[byteSize - 1] == END_BYTE[0]));
-
-            if (byteSize > 0)
+            if (byteSize <= 0)
             {
-                //TODO
-                /*
-                (END_BYTE) 가 들어왔는지 체크하자. 없다면 덜 받은거임. Stream 에 넣은 뒤 다음에 받고 합쳐야함
-                현재 테스트로 CrownGames 서버와 통신하며 패킷 구조는 아래와 같은 json 이다
-                {
-                    cmd:"commandName",
-                    data:
-                    {
-                        value:'abc'
-                    }
-                }
-                cmd 부분을 의 값만을 미리 알아낸 뒤 data 만 파싱하는게 옳지만 일단 byte를 그대로 저장하고 넘어가자
-                */
+                LogError(ErrorType.InvalidData);
+                return;
+            }
 
-                int availableSize = byteSize - END_BYTE.Length;
-                byte[] packet = new byte[availableSize];
-                Array.Copy(obj.buffer, packet, availableSize);
+            Debug.Log("byteSize : " + byteSize);
 
-                //여기는 메인쓰레드가 아니므로 직접 event 등을 사용하면 callstack 도 꼬이고 유니티에서 짜증난다
-                //완료 된 패킷은 큐에 넣고 꺼내쓰자
-                EnqueueEvent(SocketEvent.EventType.Data, packet);
+            WriteBuffer(obj.buffer, byteSize);
+
+            if (IsReceivedDone())
+            {
+                Debug.Log("다 받음");
+                byte[] packet = ReadBuffer();
+                Debug.Log("packesize: " + packet.Length);
+                if (packet != null && packet.Length > 0) EnqueueEvent(SocketEvent.EventType.Data, packet);
+            }
+            else
+            {
+                Debug.Log("덜 받았어");
             }
 
             Receive(client);
+
         }
         catch (ObjectDisposedException ex)
         {
@@ -254,7 +252,26 @@ public class SlotSocket
         }
     }
 
-    void EnqueueEvent(SocketEvent.EventType type, byte[] packet = null)
+    void WriteBuffer(byte[] buffer, int count)
+    {
+        _ms.Write(buffer, 0, count);
+        _availableSize += count;
+    }
+
+    byte[] ReadBuffer()
+    {
+        byte[] packet = new byte[_availableSize];
+
+        _ms.Position = 0;
+        _ms.Read(packet, 0, _availableSize);
+
+        _ms.Position = 0;
+        _ms.SetLength(0);
+        _availableSize = 0;
+        return packet;
+    }
+
+    protected void EnqueueEvent(SocketEvent.EventType type, byte[] packet = null)
     {
         _eventQueue.Enqueue(new SocketEvent(type, packet));
     }
@@ -277,12 +294,7 @@ public class SlotSocket
     {
         try
         {
-            List<ArraySegment<byte>> sendBuffers = new List<ArraySegment<byte>>();
-
-            //canvas flash socket 에 연결중. 마지막 0 byte 삽입해야함
-
-            sendBuffers.Add(new ArraySegment<byte>(data));
-            sendBuffers.Add(_endSegment);
+            IList<ArraySegment<byte>> sendBuffers = CreateSendPacket(data);
 
             _socket.BeginSend(sendBuffers, SocketFlags.None, _sendCallback, _socket);
         }
@@ -291,6 +303,14 @@ public class SlotSocket
             LogError(ErrorType.Send, ex);
         }
     }
+
+    virtual protected IList<ArraySegment<byte>> CreateSendPacket(byte[] data)
+    {
+        List<ArraySegment<byte>> sendBuffers = new List<ArraySegment<byte>>();
+        sendBuffers.Add(new ArraySegment<byte>(data));
+        return sendBuffers;
+    }
+
 
     void SendComplete(IAsyncResult ar)
     {
