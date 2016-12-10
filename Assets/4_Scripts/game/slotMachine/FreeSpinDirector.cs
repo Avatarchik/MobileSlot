@@ -6,6 +6,8 @@ public abstract class FreeSpinDirector : MonoBehaviour
     [SerializeField]
     protected float _limitTime = 15f;
 
+    public GameObject selector;
+
     protected float _openendTime;
 
     public int? SelectedKind { get; protected set; }
@@ -28,6 +30,11 @@ public abstract class FreeSpinDirector : MonoBehaviour
     virtual public IEnumerator Select()
     {
         yield break;
+    }
+
+    virtual public void Close()
+    {
+
     }
 
     protected float ElapsedTime
