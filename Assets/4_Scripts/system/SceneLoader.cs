@@ -108,35 +108,8 @@ public class SceneLoader : MonoBehaviour
 
     void ShowLoadingScreen()
     {
-        StartCoroutine(FadeLoadingScreen(0f, 1f));
-        StartCoroutine(ScaleLoadingScreen(0f, 1f));
-    }
-
-    IEnumerator FadeLoadingScreen(float from, float to, float duration = 0.2f)
-    {
-        loadingScreen.alpha = from;
-
-        float t = 0f;
-        while (loadingScreen.alpha != to)
-        {
-            loadingScreen.alpha = Mathf.Lerp(from, to, t);
-            t += Time.deltaTime / duration;
-            yield return null;
-        }
-    }
-    IEnumerator ScaleLoadingScreen(float from, float to, float duration = 0.2f)
-    {
-        Vector3 fromScale = Vector3.one * from;
-        Vector3 toScale = Vector3.one * to;
-        _loadingScreenRtf.localScale = fromScale;
-
-        float t = 0f;
-        while (_loadingScreenRtf.localScale != toScale)
-        {
-            _loadingScreenRtf.localScale = Vector3.Lerp(fromScale, toScale, t);
-            t += Time.deltaTime / duration;
-            yield return null;
-        }
+        StartCoroutine(loadingScreen.FadeTo(0f, 1f));
+        StartCoroutine(_loadingScreenRtf.LocalScaleTo(0f, 1f));
     }
 
     IEnumerator AnimatingProgressBar()
@@ -201,7 +174,7 @@ public class SceneLoader : MonoBehaviour
     IEnumerator LoadingComplete()
     {
         Debug.Log("Game Loading Complete");
-        yield return StartCoroutine(FadeLoadingScreen(1f, 0f));
+        yield return StartCoroutine(loadingScreen.FadeTo(1f, 0f));
         visible = false;
     }
 
