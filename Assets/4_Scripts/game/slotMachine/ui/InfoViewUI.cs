@@ -52,7 +52,7 @@ public class InfoViewUI : AbstractSlotMachineUIModule
 
     public void AddWin(WinBalanceInfo info)
     {
-        SetWin(_win + info.balance, info.duration);
+        SetWin(_win + info.win, info.duration);
     }
 
     public void SetWin(double win, float duration = 0f)

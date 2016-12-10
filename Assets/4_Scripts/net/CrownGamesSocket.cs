@@ -11,7 +11,7 @@ using System.IO;
 public class CrownGamesSocket : SlotSocket
 {
     static private byte ZERO_BYTE = 0;
-    static private byte[] END_BYTE = new byte[] { 0 };
+    static private byte[] END_BYTE = new byte[] { ZERO_BYTE };
     ArraySegment<byte> _endSegment = new ArraySegment<byte>(END_BYTE);
 
     public CrownGamesSocket(int BufferSize = 8192) : base(BufferSize)

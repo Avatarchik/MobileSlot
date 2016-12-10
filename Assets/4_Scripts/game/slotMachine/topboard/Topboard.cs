@@ -31,7 +31,7 @@ public class Topboard : MonoBehaviour
         StopJMBWinAnim();
     }
 
-    public void TakeCoin(WinBalanceInfo info)
+    public void TakeCoin(WinBalanceInfo info, bool IsSummary )
     {
         PlayJMBWin(info);
     }
@@ -68,6 +68,11 @@ public class Topboard : MonoBehaviour
     }
 
     public void FreeSpinReady()
+    {
+        
+    }
+
+    public void FreeSpin()
     {
         
     }

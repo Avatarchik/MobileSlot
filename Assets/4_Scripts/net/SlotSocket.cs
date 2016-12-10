@@ -218,20 +218,15 @@ public abstract class SlotSocket
                 return;
             }
 
-            Debug.Log("byteSize : " + byteSize);
+            //Debug.Log("byteSize : " + byteSize);
 
             WriteBuffer(obj.buffer, byteSize);
 
             if (IsReceivedDone())
             {
-                Debug.Log("다 받음");
                 byte[] packet = ReadBuffer();
-                Debug.Log("packesize: " + packet.Length);
+                //Debug.Log("packesize: " + packet.Length);
                 if (packet != null && packet.Length > 0) EnqueueEvent(SocketEvent.EventType.Data, packet);
-            }
-            else
-            {
-                Debug.Log("덜 받았어");
             }
 
             Receive(client);

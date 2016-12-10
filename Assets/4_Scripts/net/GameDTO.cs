@@ -62,8 +62,11 @@ public class ResDTO : DTO
                 set
                 {
                     _spinQueue = new Queue<SpinInfo>(value);
+                    SpinCount = value.Length;
                 }
             }
+
+            public int SpinCount { get; set; }
 
             public SpinInfo MoveNext()
             {

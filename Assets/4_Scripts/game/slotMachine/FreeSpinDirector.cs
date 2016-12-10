@@ -32,6 +32,11 @@ public abstract class FreeSpinDirector : MonoBehaviour
         yield break;
     }
 
+    virtual public IEnumerator Summary()
+    {
+        yield break;
+    }
+
     virtual public void Close()
     {
 

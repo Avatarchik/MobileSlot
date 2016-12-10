@@ -144,12 +144,6 @@ public class Reel : MonoBehaviour
         SpinReel();
     }
 
-    public void BonusSpin(ResDTO.Spin.Payout.SpinInfo spinInfo)
-    {
-        Spin(spinInfo);
-        //연출
-    }
-
     public void ReceivedSymbol(ResDTO.Spin.Payout.SpinInfo spinInfo)
     {
         if (spinInfo == null) return;
@@ -164,6 +158,17 @@ public class Reel : MonoBehaviour
         }
 
         //Debug.Log(string.Join(",", _receivedSymbolNames));
+    }
+
+    public void FreeSpin(ResDTO.Spin.Payout.SpinInfo spinInfo)
+    {
+        Spin(spinInfo);
+    }
+
+    public void BonusSpin(ResDTO.Spin.Payout.SpinInfo spinInfo)
+    {
+        Spin(spinInfo);
+        //연출
     }
 
     void SpinReel()

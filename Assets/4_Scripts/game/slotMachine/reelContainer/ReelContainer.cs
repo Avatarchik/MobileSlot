@@ -66,14 +66,35 @@ public class ReelContainer : MonoBehaviour
         }
     }
 
-    void UpdateStartOrder(int[] startOrder = null)
+    void UpdateStartOrder(int[] startOrder = null, Action<Reel> action = null)
     {
         _spinStartOrder = startOrder ?? _defaltOrder;
+
+        for (var i = 0; i < _config.Column; ++i)
+        {
+            var lockCount = 0;
+            var reelIndex = _spinStartOrder[i];
+            var reel = _reels[reelIndex];
+
+            if (reel.IsLocked)
+            {
+                ++lockCount;
+                continue;
+            }
+            reel.StartOrder = i - lockCount;
+
+            if (action != null) action(reel);
+        }
     }
 
-    void DescSpinOrder(out int[] spinOrder)
+    void UpdateStartOrder(Action<Reel> action = null)
     {
-        spinOrder = _defaltOrder.OrderByDescending(i => i).ToArray();
+        UpdateStartOrder(null, action);
+    }
+
+    void DescSpinOrder(Action<Reel> action = null)
+    {
+        UpdateStartOrder(_defaltOrder.OrderByDescending(i => i).ToArray(), action);
     }
 
     void CreateReels()
@@ -125,18 +146,34 @@ public class ReelContainer : MonoBehaviour
     {
         Reset();
 
-        UpdateStartOrder();
-        // DescSpinOrder( out _spinStartOrder );        //시작 순서를 반대로 할 수 있다.
-        // UpdateStartOrder(new int[] { 2, 1, 0 });     //시작 순서를 커스텀 시킬 수 있다.
+        // DescSpinOrder(x => x.Spin());                            //시작 순서를 반대로 할 수 있다.
+        // UpdateStartOrder(new int[] { 2, 1, 0 },x => x.Spin());   //시작 순서를 커스텀 시킬 수 있다.
+        UpdateStartOrder(x => x.Spin());
+    }
+
+    public void ReceivedSymbol(ResDTO.Spin.Payout.SpinInfo spinInfo)
+    {
+        UpdateSpinInfo(spinInfo);
 
         for (var i = 0; i < _config.Column; ++i)
         {
-            var reelIndex = _spinStartOrder[i];
-            var reel = _reels[reelIndex];
-            reel.StartOrder = i;
-            reel.Spin();
+            _reels[i].ReceivedSymbol(spinInfo);
         }
+    }
 
+    public void BonusSpin(ResDTO.Spin.Payout.SpinInfo spinInfo)
+    {
+        Reset();
+        UpdateSpinInfo(spinInfo);
+        UpdateStartOrder(x => x.BonusSpin(spinInfo));
+        CheckNextReel();
+    }
+
+    public void FreeSpin(ResDTO.Spin.Payout.SpinInfo spinInfo)
+    {
+        Reset();
+        UpdateSpinInfo(spinInfo);
+        UpdateStartOrder(x => x.FreeSpin(spinInfo));
         CheckNextReel();
     }
 
@@ -147,16 +184,6 @@ public class ReelContainer : MonoBehaviour
             var reelIndex = _spinStartOrder[i];
             var reel = _reels[reelIndex];
             reel.StopSpin();
-        }
-    }
-
-    public void ReceivedSymbol(ResDTO.Spin.Payout.SpinInfo spinInfo)
-    {
-        UpdateSpinInfo(spinInfo);
-
-        for (var i = 0; i < _config.Column; ++i)
-        {
-            _reels[i].ReceivedSymbol(spinInfo);
         }
     }
 
@@ -176,39 +203,6 @@ public class ReelContainer : MonoBehaviour
                 _reels[i].Lock();
             }
         }
-    }
-
-    public void BonusSpin(ResDTO.Spin.Payout.SpinInfo spinInfo)
-    {
-        
-        Reset();
-
-        UpdateSpinInfo(spinInfo);
-
-        UpdateStartOrder();
-
-        for (var i = 0; i < _config.Column; ++i)
-        {
-            var continueCount = 0;
-            var reelIndex = _spinStartOrder[i];
-            var reel = _reels[reelIndex];
-
-            if (reel.IsLocked)
-            {
-                ++continueCount;
-                continue;
-            }
-
-            reel.StartOrder = i - continueCount;
-            reel.BonusSpin(spinInfo);
-        }
-
-        CheckNextReel();
-    }
-
-    public void FreeSpin(ResDTO.Spin.Payout.SpinInfo spinInfo)
-    {
-        UpdateSpinInfo(spinInfo);
     }
 
     virtual protected void UpdateExpectSetting()

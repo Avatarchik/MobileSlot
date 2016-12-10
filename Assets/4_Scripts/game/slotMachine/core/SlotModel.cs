@@ -23,19 +23,25 @@ public class SlotModel : SingletonSimple<SlotModel>
     public SlotConfig.WinType WinType { get; private set; }
     public float WinMultiplier { get; private set; }
 
+    public double TotalPayout { get { return _accumulatedPayout + SpinDTO.payouts.totalPayout; } }
+
     public ResDTO.Spin SpinDTO { get; private set; }
 
     public bool IsJMBWin
     {
         get
         {
-            return WinType == SlotConfig.WinType.BIGWIN || WinType == SlotConfig.WinType.MEGAWIN || WinType == SlotConfig.WinType.JACPOT;
+            if (IsFreeSpinTrigger || IsFreeSpinning) return false;
+            else return WinType == SlotConfig.WinType.BIGWIN || WinType == SlotConfig.WinType.MEGAWIN || WinType == SlotConfig.WinType.JACPOT;
         }
     }
 
     public bool HasNextSpin
     {
-        get { return SpinDTO.payouts.Next() != null; }
+        get
+        {
+            return SpinDTO.payouts.Next() != null;
+        }
     }
 
     public bool HasBonusSpin
@@ -53,34 +59,36 @@ public class SlotModel : SingletonSimple<SlotModel>
     #endregion
 
     ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
+
+    double _accumulatedPayout;
     int _remainAutoCount;
     int _spinCount;
 
     SlotBetting _betting;
-
     SlotConfig _config;
 
-    public void Reset()
+
+    public void Initialize(SlotMachine slot, ResDTO.Login dto)
     {
         if (Owner == null) Owner = new User();
         else Owner.Reset();
 
-        _spinCount = 0;
-
-        SpinDTO = null;
-
-        IsFreeSpinTrigger = false;
-    }
-
-    public void Initialize(SlotMachine slot, ResDTO.Login dto)
-    {
-        Reset();
-
         _config = slot.Config;
-
         _betting = _config.COMMON.Betting;
 
+        Reset();
         SetLoginData(dto);
+    }
+
+    public void AccumulatePayout(double payout)
+    {
+        _accumulatedPayout += payout;
+        Debug.Log("AccumulatePayout" + _accumulatedPayout);
+    }
+
+    public void Reset()
+    {
+        _accumulatedPayout = 0;
     }
 
     public void SetLoginData(ResDTO.Login dto)
@@ -101,15 +109,26 @@ public class SlotModel : SingletonSimple<SlotModel>
         WinMultiplier = SpinDTO.payouts.multipleWin;
     }
 
+    public void SetFreeSpinData(ResDTO.Spin dto)
+    {
+        SetSpinData(dto);
+
+        FreeSpinCurrentCount = 0;
+        FreeSpinAddedCount = dto.payouts.SpinCount;
+        FreeSpinTotal = FreeSpinAddedCount;
+    }
+
     SlotConfig.WinType GetWinType()
     {
         if (SpinDTO.payouts.totalPayout == 0f) return SlotConfig.WinType.LOSE;
-        else if (IsFreeSpinTrigger || IsFreeSpinning) return SlotConfig.WinType.NORMAL;
         else if (SpinDTO.payouts.isBigWin) return SlotConfig.WinType.BIGWIN;
         else if (SpinDTO.payouts.isMegaWin) return SlotConfig.WinType.MEGAWIN;
         else if (SpinDTO.payouts.isJackpot) return SlotConfig.WinType.JACPOT;
         else return SlotConfig.WinType.NORMAL;
     }
+
+    // public bool IsFreeSpinTrigger { get; private set; }
+    // public bool IsFreeSpinReTrigger { get { return IsFreeSpinning && IsFreeSpinTrigger; } }
 
     public ResDTO.Spin.Payout.SpinInfo NextSpin()
     {
@@ -121,13 +140,7 @@ public class SlotModel : SingletonSimple<SlotModel>
 
         if (IsFreeSpinTrigger)
         {
-            if (IsFreeSpinning == false)
-            {
-                FreeSpinCurrentCount = 0;
-                FreeSpinAddedCount = _lastSpinInfo.freeSpinCount;
-                FreeSpinTotal = FreeSpinAddedCount;
-            }
-            else
+            if (IsFreeSpinReTrigger)
             {
                 switch (_config.RetriggerType)
                 {
@@ -138,9 +151,19 @@ public class SlotModel : SingletonSimple<SlotModel>
                     case SlotConfig.FreeSpinRetriggerType.Refill:
                         FreeSpinAddedCount = _lastSpinInfo.freeSpinCount - FreeSpinRemain;
                         break;
+
+                    case SlotConfig.FreeSpinRetriggerType.None:
+                        IsFreeSpinTrigger = false;
+                        break;
                 }
 
                 FreeSpinTotal += FreeSpinAddedCount;
+            }
+            else
+            {
+                FreeSpinCurrentCount = 0;
+                FreeSpinAddedCount = _lastSpinInfo.freeSpinCount;
+                FreeSpinTotal = FreeSpinAddedCount;
             }
         }
 
@@ -151,9 +174,18 @@ public class SlotModel : SingletonSimple<SlotModel>
 
     public ResDTO.Spin.Payout.SpinInfo UseFreeSpin()
     {
+        IsFreeSpinTrigger = false;
         IsFreeSpinning = true;
         ++FreeSpinCurrentCount;
         return NextSpin();
+    }
+
+    public void FreeSpinEnd()
+    {
+        IsFreeSpinning = false;
+        FreeSpinCurrentCount = 0;
+        FreeSpinAddedCount = 0;
+        FreeSpinTotal = 0;
     }
 
     public void ApplyBalance()

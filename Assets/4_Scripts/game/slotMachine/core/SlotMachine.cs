@@ -17,6 +17,7 @@ public class SlotMachine : MonoBehaviour
         FreeSpinTrigger,
         FreeSpinReady,
         FreeSpin,
+        FreeSpinEnd,
         PlayWin,
         TakeCoin,
         CheckNextSpin,
@@ -256,9 +257,10 @@ public class SlotMachine : MonoBehaviour
     void Stop()
     {
         //spin 중이면 스핀 멈추고,
-        //닫을 수 있는 팝업창이 띄워져 있으면 팝업창 닫고
         //당첨되어 돈올라가는 도중이면 스킵하고 다음 스핀
-        if (_currentState == MachineState.ReceivedSymbol)
+        //닫을 수 있는 팝업창이 띄워져 있으면 팝업창 닫고
+        if (_currentState == MachineState.ReceivedSymbol ||
+            _currentState == MachineState.FreeSpin)
         {
             StopSpin();
         }
@@ -299,10 +301,22 @@ public class SlotMachine : MonoBehaviour
 
     void OnSpinListener(ResDTO.Spin dto)
     {
-        _model.SetSpinData(dto);
-
-        if (_currentState == MachineState.Spin) SetState(MachineState.ReceivedSymbol);
-        else if (_currentState == MachineState.FreeSpinReady) SetState(MachineState.FreeSpin);
+        if (_currentState == MachineState.Spin)
+        {
+            _model.SetSpinData(dto);
+            SetState(MachineState.ReceivedSymbol);
+        }
+        else if (_config.TriggerType == SlotConfig.FreeSpinTriggerType.Select &&
+                 _currentState == MachineState.FreeSpinReady)
+        {
+            _model.AccumulatePayout(_model.TotalPayout);
+            _model.SetFreeSpinData(dto);
+            SetState(MachineState.FreeSpin);
+        }
+        else
+        {
+            Debug.Log("Incorrect SpinListener");
+        }
     }
 
     IEnumerator ReceivedSymbol_Enter()
@@ -361,6 +375,12 @@ public class SlotMachine : MonoBehaviour
         else SetState(MachineState.CheckNextSpin);
     }
 
+    IEnumerator FreeSpinTrigger_Exit()
+    {
+        SoundManager.Instance.StopFreeSpinTrigger();
+        yield break;
+    }
+
     IEnumerator FreeSpinReady_Enter()
     {
         if (_paylineModule != null) _paylineModule.Clear();
@@ -386,7 +406,7 @@ public class SlotMachine : MonoBehaviour
         {
             yield return StartCoroutine(_freeSpinDirector.Select());
 
-            GameServerCommunicator.Instance.FreeSpin(_betting.LineBet, _freeSpinDirector.SelectedKind.Value );
+            GameServerCommunicator.Instance.FreeSpin(_betting.LineBet, _freeSpinDirector.SelectedKind.Value);
         }
         else
         {
@@ -399,40 +419,57 @@ public class SlotMachine : MonoBehaviour
     IEnumerator FreeSpinReady_Exit()
     {
         SoundManager.Instance.StopFreeSpinReady();
+        _freeSpinDirector.Close();
         yield break;
     }
 
     IEnumerator FreeSpin_Enter()
     {
-        Debug.Log("FreeSpin!!!!");
-
         _lastSpinInfo = _model.UseFreeSpin();
 
         if (_lastSpinInfo == null) Debug.LogError("freeSpin info null");
 
-        if (_model.FreeSpinCurrentCount == 1) FreeSpinMode();
+        if (_model.FreeSpinCurrentCount == 1)
+        {
+            yield return StartCoroutine(FreeSpinModeStart());
+        }
 
-        yield break;
+        _topboard.FreeSpin();
+        _ui.FreeSpin();
+        _reelContainer.FreeSpin(_lastSpinInfo);
+    }
 
-        /*
+    IEnumerator FreeSpinEnd_Enter()
+    {
+        //250,750
+        //475,750
+        //307750 57000
+
+        Debug.Log("free end");
 
         if (_paylineModule != null) _paylineModule.Clear();
 
-        _lastSpinInfo = _model.NextSpin();
+        _model.FreeSpinEnd();
 
-        yield return _reelContainer.LockReel(_lastSpinInfo.fixedreel);
+        if (_freeSpinDirector == null)
+        {
+            yield return new WaitForSeconds(2f);
+        }
+        else
+        {
+            yield return StartCoroutine(_freeSpinDirector.Summary());
+        }
 
-        _topboard.BonusSpin();
+        yield return new WaitForSeconds(2f);
 
-        yield return new WaitForSeconds(_config.transition.LockReel_BonusSpin);
+        yield return StartCoroutine(FreeSpinModeStop());
 
-        _reelContainer.BonusSpin(_lastSpinInfo);
+        _isSummary = true;
 
-        yield break;
-        */
+        SetState(MachineState.TakeCoin);
     }
 
-    void FreeSpinMode()
+    IEnumerator FreeSpinModeStart()
     {
         Debug.Log("FreeSpinMode!");
         /*
@@ -451,11 +488,34 @@ public class SlotMachine : MonoBehaviour
         mReelContainer.freeSpinMode();
         mInfoPanel.freeSpinMode();
         */
+
+        yield break;
     }
 
-    IEnumerator FreeSpinTrigge_Exit()
+    IEnumerator FreeSpinModeStop()
     {
-        SoundManager.Instance.StopFreeSpinTrigger();
+        /*
+        if (mIsFreeSpinMode == false) return;
+
+        mIsFreeSpinMode = false;
+
+        //			if( mModel.isAuto )	mModel.isAuto = false;
+
+        if (mCabinetFree)
+        {
+            TweenLite.to(mCabinetFree, 0.3,{
+            alpha: 0, ease: Cubic.easeOut, onComplete: function():void{
+                    mCabinetFree.visible = false;
+                }
+            })
+			}
+
+        mInfoPanel.freeSpinModeEnd();
+        mTopboard.freeSpinModeEnd();
+        mReelContainer.freeSpinModeEnd();
+        Background.instance.freeSpinModeEnd();
+        */
+
         yield break;
     }
 
@@ -475,17 +535,68 @@ public class SlotMachine : MonoBehaviour
         SetState(MachineState.TakeCoin);
     }
 
+    bool _isSummary;
+
     IEnumerator TakeCoin_Enter()
     {
         _takeCoinStartTime = Time.time;
         _lastWinBalanceInfo = GetWinBalanceInfo();
 
-        _ui.TakeCoin(_lastWinBalanceInfo);
-        _topboard.TakeCoin(_lastWinBalanceInfo);
+        Debug.Log(_lastWinBalanceInfo.ToString());
+
+        _ui.TakeCoin(_lastWinBalanceInfo, _isSummary);
+        _topboard.TakeCoin(_lastWinBalanceInfo, _isSummary);
 
         yield return new WaitForSeconds(_lastWinBalanceInfo.duration);
 
+        _isSummary = false;
+
         SetState(MachineState.CheckNextSpin);
+    }
+
+    WinBalanceInfo GetWinBalanceInfo()
+    {
+        double winBalance = _isSummary ? _model.TotalPayout : _lastSpinInfo.totalPayout;
+        float multiplier = (float)(winBalance / _betting.TotalBet);
+        float skipDelay = 0f;
+        float duration = 1f;
+
+        if (_model.IsJMBWin)
+        {
+            switch (_model.WinType)
+            {
+                case SlotConfig.WinType.BIGWIN:
+                    skipDelay = 1f;
+                    duration = 9f;
+                    break;
+                case SlotConfig.WinType.MEGAWIN:
+                    skipDelay = 1f;
+                    duration = 12.5f;
+                    break;
+                case SlotConfig.WinType.JACPOT:
+                    skipDelay = 1f;
+                    duration = 14f;
+                    break;
+            }
+        }
+        else if (multiplier >= 2)
+        {
+            skipDelay = 0f;
+            duration = 2f;
+        }
+        else
+        {
+            skipDelay = 0f;
+            duration = 1f;
+        }
+
+        if (_model.IsFastSpin)
+        {
+            skipDelay *= 0.5f;
+            duration *= 0.5f;
+        }
+
+        return new WinBalanceInfo(winBalance, duration, skipDelay, (float)multiplier, _model.WinType);
     }
 
     void SkipTakeCoin()
@@ -496,7 +607,13 @@ public class SlotMachine : MonoBehaviour
 
         //todo
         //jmb win 일때도 스핀 예약해야 할까?
-        if (_model.HasNextSpin == false) _bookedSpin = true;
+        if (_model.IsFreeSpinTrigger == false &&
+            _model.IsFreeSpinReTrigger == false &&
+            _model.HasNextSpin == false)
+        {
+            _bookedSpin = true;
+            Debug.Log("예약!!!!");
+        }
 
         SetState(MachineState.CheckNextSpin);
     }
@@ -529,7 +646,8 @@ public class SlotMachine : MonoBehaviour
     {
         if (_model.HasBonusSpin) SetState(MachineState.BonusSpin);
         else if (_model.IsFreeSpinTrigger) SetState(MachineState.FreeSpinReady);
-        else if (_model.IsFreeSpinning) SetState(MachineState.FreeSpin);
+        else if (_model.IsFreeSpinning && _model.FreeSpinRemain > 0) SetState(MachineState.FreeSpin);
+        else if (_model.IsFreeSpinning && _model.FreeSpinRemain <= 0) SetState(MachineState.FreeSpinEnd);
         else SetState(MachineState.ApplySpinResult);
 
         yield break;
@@ -560,57 +678,35 @@ public class SlotMachine : MonoBehaviour
         if (_model.IsAutoSpin == false) _reelContainer.PlayEachWin();
 
         _ui.ApplyUserBalance();
+        _model.Reset();
         //반영 후 레벨업이 되었다면 연출한다.
 
         SetState(MachineState.Idle);
         yield break;
     }
-
-    //todo slotconfig 로 설정하자
-    WinBalanceInfo GetWinBalanceInfo()
-    {
-        var skipDelay = 0f;
-        var duration = 1f;
-
-        if (_model.IsJMBWin)
-        {
-            switch (_model.WinType)
-            {
-                case SlotConfig.WinType.BIGWIN:
-                    duration = 9f;
-                    skipDelay = 1f;
-                    break;
-                case SlotConfig.WinType.MEGAWIN:
-                    duration = 12.5f;
-                    skipDelay = 1f;
-                    break;
-                case SlotConfig.WinType.JACPOT:
-                    duration = 14f;
-                    skipDelay = 1f;
-                    break;
-            }
-        }
-
-        return new WinBalanceInfo(_lastSpinInfo.totalPayout, duration, skipDelay, _model.WinMultiplier, _model.WinType);
-    }
 }
 
 public struct WinBalanceInfo
 {
-    public double balance;
+    public double win;
     public float duration;
     public float skipDelay;
     public float winMultiplier;
     public SlotConfig.WinType winType;
     public bool IsJMBWin { get { return winType == SlotConfig.WinType.BIGWIN || winType == SlotConfig.WinType.MEGAWIN || winType == SlotConfig.WinType.JACPOT; } }
 
-    public WinBalanceInfo(double balance, float duration, float skipDelay, float winMultiplier, SlotConfig.WinType winType)
+    public WinBalanceInfo(double win, float duration, float skipDelay, float winMultiplier, SlotConfig.WinType winType)
     {
-        this.balance = balance;
+        this.win = win;
         this.duration = duration;
         this.skipDelay = skipDelay;
         this.winMultiplier = winMultiplier;
         this.winType = winType;
+    }
+
+    public string ToString()
+    {
+        return string.Format("{0} win. ( duration:{1}, skipDelay:{2}, multi:{3}, type:{4})", win, duration, skipDelay, winMultiplier, winType);
     }
 }
 

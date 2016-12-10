@@ -57,7 +57,7 @@ public class WinAnimatorUI : AbstractSlotMachineUIModule
 
         content.DOFade(1f, 0.2f).Play();
         SetWin(0);
-        SetWin(info.balance, info.duration);
+        SetWin(info.win, info.duration);
     }
 
     void SetWin(double win, float duration = 0f)

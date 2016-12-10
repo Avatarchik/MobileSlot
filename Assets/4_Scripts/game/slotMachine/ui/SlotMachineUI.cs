@@ -14,7 +14,7 @@ public class SlotMachineUI : MonoBehaviour
 
     public SlotMachine SlotMachine { get; private set; }
     SlotBetting _betting;
-    MessageBoardUI _board;
+    MessageBoardUI _messageBoard;
     ControllerUI _controller;
 
     double _balance;
@@ -71,8 +71,8 @@ public class SlotMachineUI : MonoBehaviour
 
     void InitMessageBoard()
     {
-        _board = GetComponentInChildren<MessageBoardUI>();
-        if (_board) _board.Init(this);
+        _messageBoard = GetComponentInChildren<MessageBoardUI>();
+        if (_messageBoard) _messageBoard.Init(this);
     }
 
     void InitButtons()
@@ -94,11 +94,10 @@ public class SlotMachineUI : MonoBehaviour
     public void Spin()
     {
         _info.SetWin(0);
-
         _controller.Spin();
         SetBalance(_user.Balance - _betting.TotalBet);
 
-        if (_board != null) _board.Spin();
+        if (_messageBoard != null) _messageBoard.Spin();
     }
 
     public void StopSpin()
@@ -118,16 +117,18 @@ public class SlotMachineUI : MonoBehaviour
 
     public void PlayAllWin(WinItemList info)
     {
-        if (_board != null) _board.PlayAllWin(info);
+        if (_messageBoard != null) _messageBoard.PlayAllWin(info);
     }
 
     public void PlayEachWin(WinItemList.Item item)
     {
-        if (_board != null) _board.PlayEachWin(item);
+        if (_messageBoard != null) _messageBoard.PlayEachWin(item);
     }
 
-    public void TakeCoin(WinBalanceInfo info)
+    public void TakeCoin(WinBalanceInfo info, bool IsSummary)
     {
+        if (IsSummary) _info.SetWin(0);
+        
         _info.AddWin(info);
         _winAnimator.AddWin(info);
     }
@@ -140,7 +141,12 @@ public class SlotMachineUI : MonoBehaviour
 
     public void FreeSpinTrigger()
     {
-        if (_board != null) _board.FreeSpinTrigger();
+        if (_messageBoard != null) _messageBoard.FreeSpinTrigger();
+    }
+
+    public void FreeSpin()
+    {
+        if (_messageBoard != null) _messageBoard.FreeSpin();
     }
 
     public void ApplyUserBalance()
