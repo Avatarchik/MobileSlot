@@ -6,45 +6,55 @@ using DG.Tweening;
 
 public class GameManager : Singleton<GameManager>
 {
-	public SceneLoader loader;
+	public SoundPlayer soundPlayer;
+    public SceneLoader loader;
+    override protected void Awake()
+    {
+        base.Awake();
 
-	override protected void Awake()
-	{
-		base.Awake();
+        Debug.Log("game awake");
 
-		//general
-		DOTween.Init( recycleAllByDefault: false, useSafeMode: false, logBehaviour: LogBehaviour.ErrorsOnly );
-		DOTween.showUnityEditorReport = true; //default false
-		DOTween.timeScale = 1f;
-		DOTween.SetTweensCapacity( 200,50 );
+        //general
+        DOTween.Init(recycleAllByDefault: false, useSafeMode: false, logBehaviour: LogBehaviour.ErrorsOnly);
+        DOTween.showUnityEditorReport = true; //default false
+        DOTween.timeScale = 1f;
+        DOTween.SetTweensCapacity(200, 50);
 
-		//applied to newly
-		DOTween.defaultAutoPlay = AutoPlay.None;
-		DOTween.defaultEaseType = Ease.Linear;
-	}
+        //applied to newly
+        DOTween.defaultAutoPlay = AutoPlay.None;
+        DOTween.defaultEaseType = Ease.Linear;
+    }
 
-	public void GameLoad( GameItemDTO data )
-	{
-		loader.Load( "Game" + data.ID.ToString("00") );
-	}
+	//런타임 시작 시 처음 한번 실행 된다.(awake 이후)
+	[RuntimeInitializeOnLoadMethodAttribute]
+    public static void GameInitialize()
+    {
+		SceneLoader.CheckScene();
+    }
 
-	public void GameReady()
-	{
-		loader.IsGameReady = true;
-	}
+    public void GameLoad(GameItemDTO data)
+    {
+        loader.Load("Game" + data.ID.ToString("00"));
+    }
 
-	void OnApplicationQuit() {
+    public void GameReady()
+    {
+        loader.IsGameReady = true;
+    }
+
+    void OnApplicationQuit()
+    {
         Debug.Log("Application Quit!");
     }
 
-	void OnApplicationFocus( bool focusStatus )
-	{
-		//Debug.Log("OnApplicationFocus: " + focusStatus );
-	}
+    void OnApplicationFocus(bool focusStatus)
+    {
+        //Debug.Log("OnApplicationFocus: " + focusStatus );
+    }
 
-	void OnApplicationPause( bool pauseStatus )
-	{
-		// if( pauseStatus ) Debug.Log("Application pause");
-		// else Debug.Log("Application resume");
-	}
+    void OnApplicationPause(bool pauseStatus)
+    {
+        // if( pauseStatus ) Debug.Log("Application pause");
+        // else Debug.Log("Application resume");
+    }
 }

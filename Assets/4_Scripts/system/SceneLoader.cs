@@ -13,10 +13,7 @@ public class SceneLoader : MonoBehaviour
     static public string[] sceneNamesInBuild;
     static public Scene LastScene { get; private set; }
 
-
-    //런타임 시작 시 처음 한번 실행 된다.
-    [RuntimeInitializeOnLoadMethodAttribute]
-    public static void CheckScene()
+    static public void CheckScene()
     {
         Debug.Log("Check Scene...");
 
@@ -43,8 +40,7 @@ public class SceneLoader : MonoBehaviour
         }
     }
 
-
-    static public bool ContainsInBuild(string sceneName)
+    static private bool ContainsInBuild(string sceneName)
     {
         return System.Array.IndexOf(sceneNamesInBuild, sceneName) != -1;
     }
