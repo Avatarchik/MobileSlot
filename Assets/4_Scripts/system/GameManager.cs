@@ -12,8 +12,6 @@ public class GameManager : Singleton<GameManager>
     {
         base.Awake();
 
-        Debug.Log("game awake");
-
         //general
         DOTween.Init(recycleAllByDefault: false, useSafeMode: false, logBehaviour: LogBehaviour.ErrorsOnly);
         DOTween.showUnityEditorReport = true; //default false
@@ -45,6 +43,8 @@ public class GameManager : Singleton<GameManager>
     void OnApplicationQuit()
     {
         Debug.Log("Application Quit!");
+
+		GameServerCommunicator.Dispose();
     }
 
     void OnApplicationFocus(bool focusStatus)

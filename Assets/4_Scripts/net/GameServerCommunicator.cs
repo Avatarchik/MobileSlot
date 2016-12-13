@@ -232,9 +232,9 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         Close(SlotSocket.CloseReason.Destory);
     }
 
-    void OnApplicationQuit()
+    static public void Dispose()
     {
-        Close(SlotSocket.CloseReason.ApplicationQuit);
+        if( _instance != null ) _instance.Close( SlotSocket.CloseReason.ApplicationQuit );
     }
 }
 
