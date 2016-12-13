@@ -8,6 +8,9 @@ public class GameManager : Singleton<GameManager>
 {
 	public SoundPlayer soundPlayer;
     public SceneLoader loader;
+
+	bool _isLobby;
+
     override protected void Awake()
     {
         base.Awake();
@@ -27,18 +30,37 @@ public class GameManager : Singleton<GameManager>
 	[RuntimeInitializeOnLoadMethodAttribute]
     public static void GameInitialize()
     {
+		Application.targetFrameRate  = GlobalConfig.TargetFrameRate;
+		
+		if( Screen.width != GlobalConfig.ReferenceWidth || Screen.height != GlobalConfig.ReferenceHeight )
+		{
+			Screen.SetResolution( Screen.width, Screen.width * GlobalConfig.ReferenceHeight / GlobalConfig.ReferenceWidth, false );
+		}
+		
 		SceneLoader.CheckScene();
     }
+	
+	void Start()
+	{
+		_isLobby = SceneLoader.CurrentScene.name == SceneLoader.SC_LOBBY;
+	}
 
     public void GameLoad(GameItemDTO data)
     {
         loader.Load("Game" + data.ID.ToString("00"));
+
+		_isLobby = false;
     }
 
-    public void GameReady()
+    public void SceneReady()
     {
-        loader.IsGameReady = true;
+        loader.IsSceneReady = true;
     }
+
+	public void GoToLobby()
+	{
+		loader.Load( SceneLoader.SC_LOBBY );
+	}
 
     void OnApplicationQuit()
     {

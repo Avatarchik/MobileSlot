@@ -1,17 +1,18 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+
+using System;
 using System.Collections;
-using System.IO;
 
 public class SceneLoader : MonoBehaviour
 {
-    static public string SC_START = "Main";
+    static public string SC_LOBBY = "Lobby";
     static public string SC_GAME01 = "Game01";
     static public string SC_GAME02 = "Game02";
 
     static public string[] sceneNamesInBuild;
-    static public Scene LastScene { get; private set; }
+    static public Scene CurrentScene { get; private set; }
 
     static public void CheckScene()
     {
@@ -21,7 +22,7 @@ public class SceneLoader : MonoBehaviour
         {
             Application.backgroundLoadingPriority = ThreadPriority.High;
 
-            sceneNamesInBuild = new string[] { SC_START, SC_GAME01, SC_GAME02 };
+            sceneNamesInBuild = new string[] { SC_LOBBY, SC_GAME01, SC_GAME02 };
 
             Scene startScene = SceneManager.GetActiveScene();
             string startSceneName = startScene.name;
@@ -32,7 +33,7 @@ public class SceneLoader : MonoBehaviour
             }
 
 
-            LastScene = startScene;
+            CurrentScene = startScene;
         }
         catch (System.Exception e)
         {
@@ -58,12 +59,15 @@ public class SceneLoader : MonoBehaviour
     public Text progressText;
     public float ProgressBarSpeed = 2f;
 
-    public bool IsGameReady { get; set; }
+    public bool IsSceneReady { get; set; }
+    public bool IsLoading { get; private set; }
 
     string _sceneToLoad = "";
     AsyncOperation _asyncOperation;
     float _loadingProgress;
     RectTransform _loadingScreenRtf;
+
+    Action _loadCallback;
 
     void Awake()
     {
@@ -76,25 +80,24 @@ public class SceneLoader : MonoBehaviour
         visible = false;
     }
 
-    void Reset()
+    public void Load(string sceneName, Action cb = null)
     {
-        IsGameReady = false;
-        SetProgress(0f);
-        _loadingProgress = 0f;
-    }
+        if( IsLoading ) return;
+        if (CurrentScene.name == sceneName) return;
 
-    public void Load(string sceneName)
-    {
-        if (LastScene.name == sceneName) return;
-
-        if (string.IsNullOrEmpty(sceneName)) _sceneToLoad = SC_START;
+        if (string.IsNullOrEmpty(sceneName)) _sceneToLoad = SC_LOBBY;
         else _sceneToLoad = sceneName;
 
         Debug.Log("load scene: " + _sceneToLoad);
 
-        visible = true;
+        IsLoading = true;
 
-        Reset();
+        _loadCallback = cb;
+        _loadingProgress = 0f;
+
+        visible = true;
+        IsSceneReady = false;
+        SetProgress(0f);
 
         ShowLoadingScreen();
 
@@ -152,7 +155,7 @@ public class SceneLoader : MonoBehaviour
         _asyncOperation.allowSceneActivation = true;
 
         //씬 전환 이후 게임의 준비완료 신호 대기( 서버접속, 로그인, 초기화, 동적 로딩 등등)
-        while (IsGameReady == false)
+        while (IsSceneReady == false)
         {
             yield return null;
         }
@@ -169,7 +172,8 @@ public class SceneLoader : MonoBehaviour
 
     IEnumerator LoadingComplete()
     {
-        Debug.Log("Game Loading Complete");
+        Debug.Log( "'" + _sceneToLoad + "' scene Loading Complete");
+        IsLoading = false;
         yield return StartCoroutine(loadingScreen.FadeTo(1f, 0f));
         visible = false;
     }

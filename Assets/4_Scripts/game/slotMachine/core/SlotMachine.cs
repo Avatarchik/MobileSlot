@@ -207,7 +207,7 @@ public class SlotMachine : MonoBehaviour
 
         SetState(MachineState.Idle);
 
-        GameManager.Instance.GameReady();
+        GameManager.Instance.SceneReady();
     }
 
     IEnumerator Idle_Enter()

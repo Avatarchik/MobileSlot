@@ -21,13 +21,7 @@ public class Lobby : SingletonSimple<Lobby>
 	void Start()
 	{
 		Debug.Log("lobby start");
-		Application.targetFrameRate  = GlobalConfig.TargetFrameRate;
-		
-		if( Screen.width != GlobalConfig.ReferenceWidth || Screen.height != GlobalConfig.ReferenceHeight )
-		{
-			Screen.SetResolution( Screen.width, Screen.width * GlobalConfig.ReferenceHeight / GlobalConfig.ReferenceWidth, false );
-		}
 
-		Debug.Log("lobby start ok ");
+		GameManager.Instance.SceneReady();
 	}
 }
