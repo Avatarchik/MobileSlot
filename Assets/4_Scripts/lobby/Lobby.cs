@@ -15,7 +15,7 @@ public class Lobby : SingletonSimple<Lobby>
 		_data = new LobbyData();
 		_data.SetTestDatas();
 
-		CanvasUtil.CanvasSetting( GetComponent<Canvas>());
+		CanvasUtil.CanvasSetting(GetComponent<Canvas>(), GlobalConfig.ReferenceWidth, GlobalConfig.ReferenceHeight, GlobalConfig.PixelPerUnit );
 	}
 
 	void Start()

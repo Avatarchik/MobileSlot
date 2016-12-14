@@ -1,29 +1,13 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
-
+//todo
+//적절한 클래스로 분리하자
 public static class ExtensionMethods
 {
-    /// <summary>
-    /// 배열을 slice
-    /// </summary>
-    public static T[] Slice<T>(this T[] arr,
-                               int indexFrom, int indexTo)
-    {
-        if (indexFrom > indexTo)
-        {
-            throw new ArgumentOutOfRangeException("indexFrom is bigger than indexTo!");
-        }
-
-        int length = indexTo - indexFrom;
-        T[] result = new T[length];
-        Array.Copy(arr, indexFrom, result, 0, length);
-
-        return result;
-    }
-
     /// <summary>
     /// double 을 000,000,000 형태로 바꾼다
     /// </summary>
@@ -32,40 +16,173 @@ public static class ExtensionMethods
         return self.ToString("#,##0");
     }
 
+
+
     /// <summary>
-    /// 애니메이터가 특정 파라메터를 포함하는지 알아낸다.
+    /// UIGroup 컴포넌트의 alpha 를 fade
     /// </summary>
-    public static bool HasParameterOfType(this Animator self,
-                                          string name, AnimatorControllerParameterType type)
+    public static IEnumerator FadeTo(this CanvasGroup self,
+                                     float toA, float duration = 0.2f, Action cb = null)
     {
-        var parameters = self.parameters;
-        foreach (var currParam in parameters)
+        float fromA = self.alpha;
+        yield return self.FadeTo(fromA, toA, duration, cb);
+    }
+    public static IEnumerator FadeTo(this CanvasGroup self,
+                                     float fromA, float toA, float duration = 0.2f, Action cb = null)
+    {
+        self.alpha = fromA;
+
+        if (duration > 0)
         {
-            if (currParam.type == type && currParam.name == name)
+            float t = 0f;
+            while (self.alpha != toA)
             {
-                return true;
+                if (self == null) yield break;
+
+                self.alpha = Mathf.Lerp(fromA, toA, t);
+                t += Time.deltaTime / duration;
+                yield return null;
             }
         }
-        return false;
+
+        self.alpha = toA;
+
+        if (cb != null) cb();
+
+        yield break;
     }
 
     /// <summary>
-    /// UIGroup 컴포넌트의 alpha 를 fado
+    /// Graphic 을 상속한 컴포넌트의 alpha 를 fade
     /// </summary>
-    public static IEnumerator FadeTo(this CanvasGroup self,
-                                     float from, float to, float duration = 0.2f, Action cb = null)
+    public static IEnumerator FadeTo(this Graphic g,
+                                     float toA, float duration, Action cb = null)
     {
-        self.alpha = from;
+        float fromA = g.color.a;
+        yield return g.FadeTo(fromA, toA, duration, cb);
+    }
 
-        float t = 0f;
-        while (self.alpha != to)
+    public static IEnumerator FadeTo(this Graphic g,
+                                     float fromA, float toA, float duration, Action cb = null)
+    {
+        SetAlpha(g, fromA);
+
+        if (duration > 0)
         {
-            self.alpha = Mathf.Lerp(from, to, t);
-            t += Time.deltaTime / duration;
-            yield return null;
+            float t = 0f;
+            while (t < 1)
+            {
+                if (g == null) yield break;
+
+                SetAlpha(g, Mathf.Lerp(fromA, toA, t));
+                t += Time.deltaTime / duration;
+                yield return null;
+            }
         }
 
+        SetAlpha(g, toA);
+
         if (cb != null) cb();
+        yield break;
+    }
+
+    public static IEnumerator ChangeColor(this Graphic g,
+                                          Color toColor, float duration, Action cb = null)
+    {
+        if (duration > 0)
+        {
+            Color startColor = g.color;
+            float t = 0f;
+            while (t < 1)
+            {
+                if (g == null) yield break;
+
+                Color newColor = Color.Lerp(startColor, toColor, t);
+                g.color = newColor;
+
+                t += Time.deltaTime / duration;
+
+                yield return null;
+            }
+        }
+
+        g.color = toColor;
+
+        if (cb != null) cb();
+
+        yield break;
+    }
+
+    public static void SetAlpha(Graphic g, float alpha)
+    {
+        Color color = g.color;
+        color.a = alpha;
+        g.color = color;
+    }
+
+    /// <summary>
+    /// rebderer 을 상속한 컴포넌트의 alpha 를 fade
+    /// </summary>
+    public static IEnumerator FadeTo(this Renderer r,
+                                    float fromA, float toA, float duration, Action cb = null)
+    {
+        if (duration > 0)
+        {
+            float t = 0f;
+            while (t < 1)
+            {
+                if (r == null) yield break;
+
+                SetAlpha(r, Mathf.Lerp(fromA, toA, t));
+                t += Time.deltaTime / duration;
+                yield return null;
+            }
+        }
+
+        SetAlpha(r, toA);
+
+        if (cb != null) cb();
+
+        yield break;
+    }
+
+    public static void SetAlpha(Renderer r, float alpha)
+    {
+        if (r == null) return;
+        Color color = r.material.color;
+        color.a = alpha;
+        r.material.color = color;
+    }
+
+    public static IEnumerator ChangeColor(this Renderer r,
+                                          Color toColor, float duration, Action cb = null)
+    {
+        Color fromColor = r.material.color;
+        yield return r.ChangeColor(fromColor, toColor, duration, cb);
+    }
+
+    public static IEnumerator ChangeColor(this Renderer r,
+                                          Color fromColor, Color toColor, float duration, Action cb = null)
+    {
+        if (duration > 0)
+        {
+            float t = 0f;
+            while (t < 1f)
+            {
+                if (r == null) yield break;
+
+                r.material.color = Color.Lerp(fromColor, toColor, t);
+                t += Time.deltaTime / duration;
+
+                yield return null;
+            }
+        }
+
+        r.material.color = toColor;
+
+        if (cb != null) cb();
+
+        yield break;
     }
 
 
@@ -89,6 +206,4 @@ public static class ExtensionMethods
 
         if (cb != null) cb();
     }
-
-
 }

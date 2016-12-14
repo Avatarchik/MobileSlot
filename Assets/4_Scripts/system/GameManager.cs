@@ -6,10 +6,14 @@ using DG.Tweening;
 
 public class GameManager : Singleton<GameManager>
 {
-	public SoundPlayer soundPlayer;
+    static public string SC_LOBBY = "Lobby";
+    static public string SC_GAME01 = "Game01";
+    static public string SC_GAME02 = "Game02";
+
+    public SoundPlayer soundPlayer;
     public SceneLoader loader;
 
-	bool _isLobby;
+    bool _isLobby;
 
     override protected void Awake()
     {
@@ -26,30 +30,30 @@ public class GameManager : Singleton<GameManager>
         DOTween.defaultEaseType = Ease.Linear;
     }
 
-	//런타임 시작 시 처음 한번 실행 된다.(awake 이후)
-	[RuntimeInitializeOnLoadMethodAttribute]
+    //처음 시작 시 한번 실행(awake 이후 )
+    [RuntimeInitializeOnLoadMethodAttribute]
     public static void GameInitialize()
     {
-		Application.targetFrameRate  = GlobalConfig.TargetFrameRate;
-		
-		if( Screen.width != GlobalConfig.ReferenceWidth || Screen.height != GlobalConfig.ReferenceHeight )
-		{
-			Screen.SetResolution( Screen.width, Screen.width * GlobalConfig.ReferenceHeight / GlobalConfig.ReferenceWidth, false );
-		}
-		
-		SceneLoader.CheckScene();
+        Application.targetFrameRate = GlobalConfig.TargetFrameRate;
+
+        if (Screen.width != GlobalConfig.ReferenceWidth || Screen.height != GlobalConfig.ReferenceHeight)
+        {
+            Screen.SetResolution(Screen.width, Screen.width * GlobalConfig.ReferenceHeight / GlobalConfig.ReferenceWidth, false);
+        }
+
+        SceneLoader.CheckScene( new string[] { SC_LOBBY, SC_GAME01, SC_GAME02 } );
     }
-	
-	void Start()
-	{
-		_isLobby = SceneLoader.CurrentScene.name == SceneLoader.SC_LOBBY;
-	}
+
+    void Start()
+    {
+        _isLobby = SceneLoader.CurrentScene.name == SC_LOBBY;
+    }
 
     public void GameLoad(GameItemDTO data)
     {
         loader.Load("Game" + data.ID.ToString("00"));
 
-		_isLobby = false;
+        _isLobby = false;
     }
 
     public void SceneReady()
@@ -57,16 +61,16 @@ public class GameManager : Singleton<GameManager>
         loader.IsSceneReady = true;
     }
 
-	public void GoToLobby()
-	{
-		loader.Load( SceneLoader.SC_LOBBY );
-	}
+    public void GoToLobby()
+    {
+        loader.Load(SC_LOBBY);
+    }
 
     void OnApplicationQuit()
     {
         Debug.Log("Application Quit!");
 
-		GameServerCommunicator.Dispose();
+        GameServerCommunicator.Dispose();
     }
 
     void OnApplicationFocus(bool focusStatus)

@@ -5,24 +5,20 @@ using UnityEngine.UI;
 using System;
 using System.Collections;
 
+using lpesign;
+
 public class SceneLoader : MonoBehaviour
 {
-    static public string SC_LOBBY = "Lobby";
-    static public string SC_GAME01 = "Game01";
-    static public string SC_GAME02 = "Game02";
-
     static public string[] sceneNamesInBuild;
     static public Scene CurrentScene { get; private set; }
 
-    static public void CheckScene()
+    static public void CheckScene(string[] scenes)
     {
-        Debug.Log("Check Scene...");
-
         try
         {
             Application.backgroundLoadingPriority = ThreadPriority.High;
 
-            sceneNamesInBuild = new string[] { SC_LOBBY, SC_GAME01, SC_GAME02 };
+            sceneNamesInBuild = scenes;
 
             Scene startScene = SceneManager.GetActiveScene();
             string startSceneName = startScene.name;
@@ -71,7 +67,7 @@ public class SceneLoader : MonoBehaviour
 
     void Awake()
     {
-        CanvasUtil.CanvasSetting(canvas);
+        CanvasUtil.CanvasSetting(canvas, GlobalConfig.ReferenceWidth, GlobalConfig.ReferenceHeight, GlobalConfig.PixelPerUnit);
     }
 
     void Start()
@@ -82,11 +78,11 @@ public class SceneLoader : MonoBehaviour
 
     public void Load(string sceneName, Action cb = null)
     {
-        if( IsLoading ) return;
+        if (string.IsNullOrEmpty(sceneName)) return;
+        if (IsLoading) return;
         if (CurrentScene.name == sceneName) return;
 
-        if (string.IsNullOrEmpty(sceneName)) _sceneToLoad = SC_LOBBY;
-        else _sceneToLoad = sceneName;
+        _sceneToLoad = sceneName;
 
         Debug.Log("load scene: " + _sceneToLoad);
 
@@ -107,7 +103,7 @@ public class SceneLoader : MonoBehaviour
 
     void ShowLoadingScreen()
     {
-        StartCoroutine(loadingScreen.FadeTo(0f, 1f));
+        StartCoroutine(loadingScreen.FadeTo(0f, 1f, 0.2f));
         StartCoroutine(_loadingScreenRtf.LocalScaleTo(0f, 1f));
     }
 
@@ -172,9 +168,9 @@ public class SceneLoader : MonoBehaviour
 
     IEnumerator LoadingComplete()
     {
-        Debug.Log( "'" + _sceneToLoad + "' scene Loading Complete");
+        Debug.Log("'" + _sceneToLoad + "' scene Loading Complete");
         IsLoading = false;
-        yield return StartCoroutine(loadingScreen.FadeTo(1f, 0f));
+        yield return StartCoroutine(loadingScreen.FadeTo(1f, 0f, 0.2f));
         visible = false;
     }
 

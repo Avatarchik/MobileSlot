@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
-using System.Collections.Generic;
 using DG.Tweening;
+using lpesign;
 
 namespace Game
 {
@@ -27,7 +26,7 @@ namespace Game
 
         void Awake()
         {
-            CanvasUtil.CanvasSetting(GetComponent<Canvas>());
+            CanvasUtil.CanvasSetting(GetComponent<Canvas>(), GlobalConfig.ReferenceWidth, GlobalConfig.ReferenceHeight, GlobalConfig.PixelPerUnit );
         }
 
         void Start()

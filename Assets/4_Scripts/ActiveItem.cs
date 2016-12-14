@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+using lpesign;
+
 public abstract class ActiveItem : MonoBehaviour
 {
     enum State
