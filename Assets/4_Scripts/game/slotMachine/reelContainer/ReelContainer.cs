@@ -152,6 +152,8 @@ namespace Game
             // DescSpinOrder(x => x.Spin());                            //시작 순서를 반대로 할 수 있다.
             // UpdateStartOrder(new int[] { 2, 1, 0 },x => x.Spin());   //시작 순서를 커스텀 시킬 수 있다.
             UpdateStartOrder(x => x.Spin());
+
+            SlotSoundPlayer.Instance.Spin();
         }
 
         public void ReceivedSymbol(ResDTO.Spin.Payout.SpinInfo spinInfo)
@@ -170,6 +172,8 @@ namespace Game
             UpdateSpinInfo(spinInfo);
             UpdateStartOrder(x => x.BonusSpin(spinInfo));
             CheckNextReel();
+
+            SlotSoundPlayer.Instance.Spin();
         }
 
         public void FreeSpin(ResDTO.Spin.Payout.SpinInfo spinInfo)
@@ -178,6 +182,8 @@ namespace Game
             UpdateSpinInfo(spinInfo);
             UpdateStartOrder(x => x.FreeSpin(spinInfo));
             CheckNextReel();
+
+            SlotSoundPlayer.Instance.FreeSpin();
         }
 
         public void StopSpin()
