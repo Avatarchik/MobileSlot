@@ -5,7 +5,6 @@ namespace lpesign
 {
     public class GameObjectUtil
     {
-
         static public GameObject Create(string name, Transform parent = null)
         {
             GameObject go = new GameObject(name);
