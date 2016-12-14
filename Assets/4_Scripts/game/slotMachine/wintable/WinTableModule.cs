@@ -3,51 +3,54 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class WinTableModule : MonoBehaviour
+namespace Game
 {
-    [SerializeField]
-    WinTableItem[] _items;
-    void Awake()
+    public class WinTableModule : MonoBehaviour
     {
-        _items = GetComponentsInChildren<WinTableItem>().OrderBy(p => p.Index).ToArray();
-    }
-
-    public void PlayAllWin(WinItemList info)
-    {
-        ActiveWins(info.WinTablesIndices);
-
-    }
-
-    public void PlayEachWin(WinItemList.Item item)
-    {
-        ActiveWin(item.WinTable.Value);
-    }
-
-    void ActiveWin(int index)
-    {
-        for (var i = 0; i < _items.Length; ++i)
+        [SerializeField]
+        WinTableItem[] _items;
+        void Awake()
         {
-            var item = _items[i];
-            if (i == index) item.Active();
-            else item.Deactive();
+            _items = GetComponentsInChildren<WinTableItem>().OrderBy(p => p.Index).ToArray();
         }
-    }
 
-    void ActiveWins(List<int> indices)
-    {
-        for (var i = 0; i < _items.Length; ++i)
+        public void PlayAllWin(WinItemList info)
         {
-            var item = _items[i];
-            if (indices.Contains(i)) item.Active();
-            else item.Deactive();
+            ActiveWins(info.WinTablesIndices);
+
         }
-    }
 
-    public void Clear()
-    {
-        for (var i = 0; i < _items.Length; ++i)
+        public void PlayEachWin(WinItemList.Item item)
         {
-            _items[i].Default();
+            ActiveWin(item.WinTable.Value);
+        }
+
+        void ActiveWin(int index)
+        {
+            for (var i = 0; i < _items.Length; ++i)
+            {
+                var item = _items[i];
+                if (i == index) item.Active();
+                else item.Deactive();
+            }
+        }
+
+        void ActiveWins(List<int> indices)
+        {
+            for (var i = 0; i < _items.Length; ++i)
+            {
+                var item = _items[i];
+                if (indices.Contains(i)) item.Active();
+                else item.Deactive();
+            }
+        }
+
+        public void Clear()
+        {
+            for (var i = 0; i < _items.Length; ++i)
+            {
+                _items[i].Default();
+            }
         }
     }
 }

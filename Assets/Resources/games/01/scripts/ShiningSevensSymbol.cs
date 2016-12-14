@@ -1,6 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ShiningSevensSymbol : Symbol
+namespace Game.ShiningSevens
 {
+    public class ShiningSevensSymbol : Symbol
+    {
+        
+    }
 }
+

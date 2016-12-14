@@ -1,7 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class WinTableItem : ActiveItem
+namespace Game
 {
-    
+    public class WinTableItem : ActiveItem
+    {
+
+    }
 }

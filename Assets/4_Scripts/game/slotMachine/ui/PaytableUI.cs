@@ -2,91 +2,94 @@
 using UnityEngine.UI;
 using System.Collections;
 
-[RequireComponent(typeof(CanvasGroup))]
-public class PaytableUI : AbstractSlotMachineUIModule
+namespace Game
 {
-    public Image page;
-    public Sprite[] pageList;
-
-    [Header("Buttons")]
-    public Button btnBack;
-    public Button btnPrev;
-    public Button btnNext;
-
-    int _curerntPageIndex;
-    int _lastPageIndex;
-
-    CanvasGroup _group;
-
-    void Awake()
+    [RequireComponent(typeof(CanvasGroup))]
+    public class PaytableUI : AbstractSlotMachineUIModule
     {
-        _lastPageIndex = pageList.Length - 1;
+        public Image page;
+        public Sprite[] pageList;
 
-        if (btnPrev != null) btnPrev.onClick.AddListener(PrevPage);
-        if (btnNext != null) btnNext.onClick.AddListener(NextPage);
-        btnBack.onClick.AddListener(Close);
+        [Header("Buttons")]
+        public Button btnBack;
+        public Button btnPrev;
+        public Button btnNext;
 
-        _group = GetComponent<CanvasGroup>();
+        int _curerntPageIndex;
+        int _lastPageIndex;
 
-        SetPage(0);
-        Close();
-    }
+        CanvasGroup _group;
 
-    public void Open()
-    {
-        _group.alpha = 1;
-        _group.interactable = true;
-        _group.blocksRaycasts = true;
-
-        SetPage(0);
-    }
-
-    public void Close()
-    {
-        _group.alpha = 0;
-        _group.interactable = false;
-        _group.blocksRaycasts = false;
-    }
-
-    void SetPage(int page)
-    {
-        _curerntPageIndex = Mathf.Clamp(page, 0, _lastPageIndex);
-        UpdatePage();
-        UpdateButtonState();
-    }
-
-    void PrevPage()
-    {
-        SetPage(_curerntPageIndex - 1);
-    }
-
-    void NextPage()
-    {
-        SetPage(_curerntPageIndex + 1);
-    }
-
-    void UpdatePage()
-    {
-        Sprite sprite = pageList[_curerntPageIndex];
-        page.sprite = sprite;
-    }
-
-    void UpdateButtonState()
-    {
-        if (_curerntPageIndex <= 0)
+        void Awake()
         {
-            if (btnPrev != null) btnPrev.interactable = false;
-            if (btnNext != null) btnNext.interactable = true;
+            _lastPageIndex = pageList.Length - 1;
+
+            if (btnPrev != null) btnPrev.onClick.AddListener(PrevPage);
+            if (btnNext != null) btnNext.onClick.AddListener(NextPage);
+            btnBack.onClick.AddListener(Close);
+
+            _group = GetComponent<CanvasGroup>();
+
+            SetPage(0);
+            Close();
         }
-        else if (_curerntPageIndex >= _lastPageIndex)
+
+        public void Open()
         {
-            if (btnPrev != null) btnPrev.interactable = true;
-            if (btnNext != null) btnNext.interactable = false;
+            _group.alpha = 1;
+            _group.interactable = true;
+            _group.blocksRaycasts = true;
+
+            SetPage(0);
         }
-        else
+
+        public void Close()
         {
-            if (btnPrev != null) btnPrev.interactable = true;
-            if (btnNext != null) btnNext.interactable = true;
+            _group.alpha = 0;
+            _group.interactable = false;
+            _group.blocksRaycasts = false;
+        }
+
+        void SetPage(int page)
+        {
+            _curerntPageIndex = Mathf.Clamp(page, 0, _lastPageIndex);
+            UpdatePage();
+            UpdateButtonState();
+        }
+
+        void PrevPage()
+        {
+            SetPage(_curerntPageIndex - 1);
+        }
+
+        void NextPage()
+        {
+            SetPage(_curerntPageIndex + 1);
+        }
+
+        void UpdatePage()
+        {
+            Sprite sprite = pageList[_curerntPageIndex];
+            page.sprite = sprite;
+        }
+
+        void UpdateButtonState()
+        {
+            if (_curerntPageIndex <= 0)
+            {
+                if (btnPrev != null) btnPrev.interactable = false;
+                if (btnNext != null) btnNext.interactable = true;
+            }
+            else if (_curerntPageIndex >= _lastPageIndex)
+            {
+                if (btnPrev != null) btnPrev.interactable = true;
+                if (btnNext != null) btnNext.interactable = false;
+            }
+            else
+            {
+                if (btnPrev != null) btnPrev.interactable = true;
+                if (btnNext != null) btnNext.interactable = true;
+            }
         }
     }
 }

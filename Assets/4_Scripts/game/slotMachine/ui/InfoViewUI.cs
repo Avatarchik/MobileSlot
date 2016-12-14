@@ -3,101 +3,103 @@ using UnityEngine.UI;
 using System.Collections;
 using DG.Tweening;
 
-
-public class InfoViewUI : AbstractSlotMachineUIModule
+namespace Game
 {
-    public Text txtLine;
-    public Text txtBet;
-    public Text txtTotalBet;
-    public Text txtWin;
-
-    SlotBetting _betting;
-
-    double _lineBet;
-    double _totalBet;
-    double _win;
-    Tweener _tweenWin;
-
-    void Awake()
+    public class InfoViewUI : AbstractSlotMachineUIModule
     {
-        txtLine.text = "";
-        txtBet.text = "";
-        txtTotalBet.text = "";
-        txtWin.text = "";
-    }
+        public Text txtLine;
+        public Text txtBet;
+        public Text txtTotalBet;
+        public Text txtWin;
 
-    override public void Init(SlotMachineUI slotUI)
-    {
-        base.Init(slotUI);
+        SlotBetting _betting;
 
-        _betting = _ui.SlotMachine.Config.COMMON.Betting;
-        _betting.OnUpdateLineBetIndex += OnUpdateLineBetHandler;
+        double _lineBet;
+        double _totalBet;
+        double _win;
+        Tweener _tweenWin;
 
-        SetLineNum(_ui.SlotMachine.Config.paylineTable.Length);
-        SetWin(0);
+        void Awake()
+        {
+            txtLine.text = "";
+            txtBet.text = "";
+            txtTotalBet.text = "";
+            txtWin.text = "";
+        }
 
-        OnUpdateLineBetHandler();
-    }
+        override public void Init(SlotMachineUI slotUI)
+        {
+            base.Init(slotUI);
 
-    void OnUpdateLineBetHandler()
-    {
-        SetLineBet(_betting.LineBet);
-        SetTotalBet(_betting.TotalBet);
-    }
+            _betting = _ui.SlotMachine.Config.COMMON.Betting;
+            _betting.OnUpdateLineBetIndex += OnUpdateLineBetHandler;
 
-    public void SkipTakeCoin()
-    {
-        if (_tweenWin != null) _tweenWin.Complete( true );
-    }
+            SetLineNum(_ui.SlotMachine.Config.paylineTable.Length);
+            SetWin(0);
 
-    public void AddWin(WinBalanceInfo info)
-    {
-        SetWin(_win + info.win, info.duration);
-    }
+            OnUpdateLineBetHandler();
+        }
 
-    public void SetWin(double win, float duration = 0f)
-    {
-        if (win == _win || duration == 0f) UpdateWin(win);
-        else _tweenWin = DOTween.To(() => _win, x => UpdateWin(x), win, duration).OnComplete(WinComplete).Play();
-    }
+        void OnUpdateLineBetHandler()
+        {
+            SetLineBet(_betting.LineBet);
+            SetTotalBet(_betting.TotalBet);
+        }
 
-    void WinComplete()
-    {
-        _tweenWin = null;
-    }
+        public void SkipTakeCoin()
+        {
+            if (_tweenWin != null) _tweenWin.Complete(true);
+        }
 
-    void UpdateWin(double win)
-    {
-        _win = win;
-        txtWin.text = _win.ToBalance();
-    }
+        public void AddWin(WinBalanceInfo info)
+        {
+            SetWin(_win + info.win, info.duration);
+        }
 
-    void SetLineBet(double bet, float duration = 0.2f)
-    {
-        if (_lineBet == 0 || bet <= _lineBet || duration == 0f) UpdateLineBet(bet);
-        else DOTween.To(() => _lineBet, x => UpdateLineBet(x), bet, duration).Play();
-    }
+        public void SetWin(double win, float duration = 0f)
+        {
+            if (win == _win || duration == 0f) UpdateWin(win);
+            else _tweenWin = DOTween.To(() => _win, x => UpdateWin(x), win, duration).OnComplete(WinComplete).Play();
+        }
 
-    void UpdateLineBet(double bet)
-    {
-        _lineBet = bet;
-        txtBet.text = bet.ToBalance();
-    }
+        void WinComplete()
+        {
+            _tweenWin = null;
+        }
 
-    void SetTotalBet(double bet, float duration = 0.2f)
-    {
-        if (_totalBet == 0 || bet <= _totalBet || duration == 0f) UpdateTotalBet(bet);
-        else DOTween.To(() => _totalBet, x => UpdateTotalBet(x), bet, duration).Play();
-    }
+        void UpdateWin(double win)
+        {
+            _win = win;
+            txtWin.text = _win.ToBalance();
+        }
 
-    void UpdateTotalBet(double bet)
-    {
-        _totalBet = bet;
-        txtTotalBet.text = bet.ToBalance();
-    }
+        void SetLineBet(double bet, float duration = 0.2f)
+        {
+            if (_lineBet == 0 || bet <= _lineBet || duration == 0f) UpdateLineBet(bet);
+            else DOTween.To(() => _lineBet, x => UpdateLineBet(x), bet, duration).Play();
+        }
 
-    void SetLineNum(int num)
-    {
-        txtLine.text = num.ToString();
+        void UpdateLineBet(double bet)
+        {
+            _lineBet = bet;
+            txtBet.text = bet.ToBalance();
+        }
+
+        void SetTotalBet(double bet, float duration = 0.2f)
+        {
+            if (_totalBet == 0 || bet <= _totalBet || duration == 0f) UpdateTotalBet(bet);
+            else DOTween.To(() => _totalBet, x => UpdateTotalBet(x), bet, duration).Play();
+        }
+
+        void UpdateTotalBet(double bet)
+        {
+            _totalBet = bet;
+            txtTotalBet.text = bet.ToBalance();
+        }
+
+        void SetLineNum(int num)
+        {
+            txtLine.text = num.ToString();
+        }
     }
 }

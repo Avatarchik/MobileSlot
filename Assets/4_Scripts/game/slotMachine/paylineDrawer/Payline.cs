@@ -1,38 +1,41 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Payline : MonoBehaviour
+namespace Game
 {
-    [SerializeField]
-    int _index;
-
-    public int Index { get { return _index; } }
-
-    SpriteRenderer _renderer;
-
-    void Awake()
+    public class Payline : MonoBehaviour
     {
-        _renderer = GetComponent<SpriteRenderer>();
+        [SerializeField]
+        int _index;
 
-        if (_renderer != null)
+        public int Index { get { return _index; } }
+
+        SpriteRenderer _renderer;
+
+        void Awake()
         {
-            _renderer.sortingLayerName = Layers.Sorting.PAYLINE;
-            _renderer.sortingOrder = _index;
+            _renderer = GetComponent<SpriteRenderer>();
+
+            if (_renderer != null)
+            {
+                _renderer.sortingLayerName = Layers.Sorting.PAYLINE;
+                _renderer.sortingOrder = _index;
+            }
         }
-    }
 
-    void Start()
-    {
-        Hide();
-    }
+        void Start()
+        {
+            Hide();
+        }
 
-    public void Show()
-    {
-        _renderer.enabled = true;
-    }
+        public void Show()
+        {
+            _renderer.enabled = true;
+        }
 
-    public void Hide()
-    {
-        _renderer.enabled = false;
+        public void Hide()
+        {
+            _renderer.enabled = false;
+        }
     }
 }

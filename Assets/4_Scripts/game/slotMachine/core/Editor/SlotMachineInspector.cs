@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using UnityEditor;
+using Game;
 
 [CustomEditor(typeof(SlotMachine))]
 public class SlotMachineInspector : Editor

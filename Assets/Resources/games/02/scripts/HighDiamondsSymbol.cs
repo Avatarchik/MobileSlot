@@ -1,7 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class HighDiamondsSymbol : Symbol
+namespace Game.HighDiamonds
 {
+    public class HighDiamondsSymbol : Symbol
+    {
 
+    }
 }

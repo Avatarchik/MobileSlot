@@ -3,143 +3,146 @@ using UnityEngine.UI;
 
 using System;
 
-public class ControllerUI : AbstractSlotMachineUIModule
+namespace Game
 {
-    public Button btnPaytable;
-    public Button btnBetDecrease;
-    public Button btnBetIncrease;
-    public Toggle btnFast;
-    public Toggle btnAuto;
-    public Button btnSpin;
-    public Button btnStop;
-
-    SlotModel _model;
-    SlotBetting _betting;
-
-    void Awake()
+    public class ControllerUI : AbstractSlotMachineUIModule
     {
-        if (btnStop != null) btnStop.image.enabled = false;
-    }
+        public Button btnPaytable;
+        public Button btnBetDecrease;
+        public Button btnBetIncrease;
+        public Toggle btnFast;
+        public Toggle btnAuto;
+        public Button btnSpin;
+        public Button btnStop;
 
-    override public void Init(SlotMachineUI slotUI)
-    {
-        base.Init(slotUI);
+        SlotModel _model;
+        SlotBetting _betting;
 
-        _model = SlotModel.Instance;
-        _model.OnUpdateAutoSpinCount += (count) =>
+        void Awake()
         {
-            UpdateAutoButton(_model.IsAutoSpin);
-        };
+            if (btnStop != null) btnStop.image.enabled = false;
+        }
 
-
-        _betting = _ui.SlotMachine.Config.COMMON.Betting;
-        _betting.OnUpdateLineBetIndex += () =>
+        override public void Init(SlotMachineUI slotUI)
         {
-            UpdateButtonState();
-        };
+            base.Init(slotUI);
+
+            _model = SlotModel.Instance;
+            _model.OnUpdateAutoSpinCount += (count) =>
+            {
+                UpdateAutoButton(_model.IsAutoSpin);
+            };
 
 
-        btnPaytable.onClick.AddListener(() =>
-        {
-            _ui.OpenPaytable();
-        });
+            _betting = _ui.SlotMachine.Config.COMMON.Betting;
+            _betting.OnUpdateLineBetIndex += () =>
+            {
+                UpdateButtonState();
+            };
 
-        btnSpin.onClick.AddListener(() =>
-        {
-            _ui.SlotMachine.TrySpin();
-        });
 
-        if (btnStop != null)
-        {
-            btnStop.onClick.AddListener(() =>
+            btnPaytable.onClick.AddListener(() =>
+            {
+                _ui.OpenPaytable();
+            });
+
+            btnSpin.onClick.AddListener(() =>
             {
                 _ui.SlotMachine.TrySpin();
             });
+
+            if (btnStop != null)
+            {
+                btnStop.onClick.AddListener(() =>
+                {
+                    _ui.SlotMachine.TrySpin();
+                });
+            }
+
+            btnBetDecrease.onClick.AddListener(() =>
+            {
+                _betting.Decrease();
+            });
+
+            btnBetIncrease.onClick.AddListener(() =>
+            {
+                _betting.Increase();
+            });
+
+            btnFast.onValueChanged.AddListener((b) =>
+            {
+                _model.IsFastSpin = b;
+            });
+
+            btnAuto.onValueChanged.AddListener((b) =>
+            {
+                if (b) _model.StartAutoSpin();
+                else _model.StopAutoSpin();
+            });
+
+            UpdateButtonState();
         }
 
-        btnBetDecrease.onClick.AddListener(() =>
+        void OnUpdateAutoSpinCountListener(int remainCount)
         {
-            _betting.Decrease();
-        });
-
-        btnBetIncrease.onClick.AddListener(() =>
-        {
-            _betting.Increase();
-        });
-
-        btnFast.onValueChanged.AddListener((b) =>
-        {
-            _model.IsFastSpin = b;
-        });
-
-        btnAuto.onValueChanged.AddListener((b) =>
-        {
-            if (b) _model.StartAutoSpin();
-            else _model.StopAutoSpin();
-        });
-
-        UpdateButtonState();
-    }
-
-    void OnUpdateAutoSpinCountListener(int remainCount)
-    {
-        btnAuto.isOn = _model.IsAutoSpin;
-    }
-
-    void UpdateAutoButton(bool isAuto)
-    {
-        btnAuto.isOn = isAuto;
-    }
-
-    void UpdateButtonState()
-    {
-        if (_betting.IsFirstBet)
-        {
-            btnBetDecrease.interactable = false;
-            btnBetIncrease.interactable = true;
+            btnAuto.isOn = _model.IsAutoSpin;
         }
-        else if (_betting.IsLastBet)
+
+        void UpdateAutoButton(bool isAuto)
         {
-            btnBetDecrease.interactable = true;
-            btnBetIncrease.interactable = false;
+            btnAuto.isOn = isAuto;
         }
-        else
+
+        void UpdateButtonState()
         {
-            btnBetDecrease.interactable = true;
-            btnBetIncrease.interactable = true;
+            if (_betting.IsFirstBet)
+            {
+                btnBetDecrease.interactable = false;
+                btnBetIncrease.interactable = true;
+            }
+            else if (_betting.IsLastBet)
+            {
+                btnBetDecrease.interactable = true;
+                btnBetIncrease.interactable = false;
+            }
+            else
+            {
+                btnBetDecrease.interactable = true;
+                btnBetIncrease.interactable = true;
+            }
         }
-    }
 
-    public void Spin()
-    {
-        btnSpin.interactable = false;
-        // if( btnStop != null ) btnStop.image.enabled = false;
-    }
-
-    public void ReceivedSymbol()
-    {
-        btnSpin.interactable = true;
-
-        if (btnStop != null)
+        public void Spin()
         {
-            btnSpin.image.enabled = false;
-            btnStop.image.enabled = true;
+            btnSpin.interactable = false;
+            // if( btnStop != null ) btnStop.image.enabled = false;
         }
-    }
 
-    public void StopSpin()
-    {
-        btnSpin.interactable = false;
+        public void ReceivedSymbol()
+        {
+            btnSpin.interactable = true;
 
-        btnSpin.image.enabled = true;
-        if (btnStop != null) btnStop.image.enabled = false;
-    }
+            if (btnStop != null)
+            {
+                btnSpin.image.enabled = false;
+                btnStop.image.enabled = true;
+            }
+        }
 
-    public void ReelStopComplete()
-    {
-        btnSpin.interactable = true;
+        public void StopSpin()
+        {
+            btnSpin.interactable = false;
 
-        btnSpin.image.enabled = true;
-        if (btnStop != null) btnStop.image.enabled = false;
+            btnSpin.image.enabled = true;
+            if (btnStop != null) btnStop.image.enabled = false;
+        }
+
+        public void ReelStopComplete()
+        {
+            btnSpin.interactable = true;
+
+            btnSpin.image.enabled = true;
+            if (btnStop != null) btnStop.image.enabled = false;
+        }
     }
 }
