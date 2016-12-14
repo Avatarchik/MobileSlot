@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+
 using System.Collections.Generic;
 
 namespace lpesign
@@ -19,19 +20,19 @@ namespace lpesign
         [Header("BGM")]
         [SerializeField]
         bool _enableBGM = true;
-        [Range(0, 1)]
-        public float bgmMultiplier = 0.3f;
+        [Range(0, 2)]
+        public float bgmMultiplier = 1f;
 
         [Header("SFX")]
         [SerializeField]
         bool _enableSFX = true;
-        [Range(0, 1)]
+        [Range(0, 2)]
         public float sfxMultiplier = 1f;
         public int maxChannels = 5;
 
         [Header("PALETTE")]
-        public List<AudioClip> basicClips;
-        public List<SoundCategory> categoryList;
+        public AudioClip[] basicClips;
+        public SoundCategory[] categoryList;
         #endregion
 
         AudioSource _BGMChannel;
@@ -59,29 +60,85 @@ namespace lpesign
             _soundMap = new Dictionary<string, AudioClip>();
             _categoryMap = new Dictionary<string, SoundCategory>();
 
-            foreach (AudioClip clip in basicClips)
-            {
-                _soundMap.Add(clip.name, clip);
-            }
+            Initialize(basicClips, categoryList);
+        }
 
-            foreach (SoundCategory category in categoryList)
+        public void Initialize(AudioClip[] basicClips, SoundCategory[] categoryList)
+        {
+            Clear();
+
+            this.basicClips = basicClips;
+            this.categoryList = categoryList;
+
+            AddSound(basicClips);
+            AddSound(categoryList);
+        }
+
+        void RegisterSound(string key, AudioClip sound)
+        {
+            _soundMap.Add(key, sound);
+        }
+
+        void AddSound(AudioClip[] sounds)
+        {
+            if (sounds == null) return;
+
+            foreach (AudioClip clip in sounds)
+            {
+                if (clip == null) continue;
+
+                RegisterSound(clip.name, clip);
+            }
+        }
+
+        void AddSound(SoundCategory[] categories)
+        {
+            if (categories == null) return;
+
+            foreach (SoundCategory category in categories)
             {
                 _categoryMap.Add(category.name, category);
+
                 foreach (AudioClip clip in category.clips)
                 {
-                    string clipName = clip.name;
+                    if (clip == null) continue;
 
-                    if (_soundMap.ContainsKey(category.name + "/" + clipName))
+                    string clipName = clip.name;
+                    string fullName = category.name + "/" + clipName;
+
+                    if (_soundMap.ContainsKey(fullName))
                     {
                         int i = 0;
-                        while (_soundMap.ContainsKey(category.name + "/" + clipName))
+                        while (_soundMap.ContainsKey(fullName))
                         {
                             i++;
                             clipName = clip.name + i;
+                            fullName = category.name + "/" + clipName;
                         }
                     }
-                    _soundMap.Add(category.name + "/" + clipName, clip);
+
+                    _soundMap.Add(fullName, clip);
                 }
+            }
+        }
+
+        public void Clear()
+        {
+            if (basicClips != null) basicClips = null;
+            if (categoryList != null) categoryList = null;
+
+            _soundMap.Clear();
+            _categoryMap.Clear();
+
+            if (_BGMChannel.isPlaying) _BGMChannel.Stop();
+            _BGMChannel.clip = null;
+
+            for (int i = 0; i < maxChannels; ++i)
+            {
+                var ch = _SFXChannels[i];
+                if (ch.isPlaying) ch.Stop();
+                ch.clip = null;
+                ch.transform.localPosition = Vector3.zero;
             }
         }
 
@@ -123,6 +180,19 @@ namespace lpesign
             return _BGMChannel;
         }
 
+        public void PauseBGM()
+        {
+            _BGMChannel.Pause();
+        }
+        public void ResumeBGM()
+        {
+            _BGMChannel.UnPause();
+        }
+        public void StopBGM()
+        {
+            _BGMChannel.Stop();
+        }
+
         public AudioSource PlaySFX(string name, float volume = 1f, float pitch = 1f)
         {
             return PlaySFX(name, volume, pitch, Vector3.zero);
@@ -160,8 +230,8 @@ namespace lpesign
                 }
             }
 
-            if (canPlay == false ) ch = _SFXChannels[0];
-            if( ch == null ) return null;
+            if (canPlay == false) ch = _SFXChannels[0];
+            if (ch == null) return null;
 
             ch.transform.position = position;
             ch.clip = clip;
