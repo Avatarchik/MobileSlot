@@ -4,26 +4,30 @@ using System.Collections.Generic;
 
 namespace lpesign
 {
+    [System.Serializable]
+    public class SoundSchema : PropertyAttribute
+    {
+        public string name;
+        public AudioClip clip;
+    }
+
+    [System.Serializable]
+    public class SoundCategory
+    {
+        public string name;
+        public SoundSchema[] sounds;
+    }
+
     //todo
     //run 중엔 public 변수가 아니라
     //내부적으로 생성한 palette 와 categorymap 이 보여지는게 좋을 것 같다.
     public class SoundPlayer : MonoBehaviour
     {
-        [System.Serializable]
-        public class SoundSchema : PropertyAttribute
-        {
-            public string name;
-            public AudioClip clip;
-        }
-
-        [System.Serializable]
-        public class SoundCategory
-        {
-            public string name;
-            public SoundSchema[] sounds;
-        }
-
         #region inspector
+        // [SoundSchema("Test")]
+        public SoundSchema testSchema;
+
+        //
         [Header("BGM")]
         [SerializeField]
         bool _enableBGM = true;
