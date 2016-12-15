@@ -3,6 +3,7 @@
 using UnityEditor;
 using DG.DOTweenEditor.Core;
 
+using lpesign;
 
 [CustomPropertyDrawer(typeof(Size2D))]
 public class Size2DDrawer : PropertyDrawer
@@ -52,4 +53,44 @@ public class MoveTweenInfoDrawer : PropertyDrawer
 		
 		EditorGUI.EndProperty();
     }
+}
+
+[CustomPropertyDrawer (typeof(SoundSchemaAttribute))]
+public class SoundSchemaDrawer : PropertyDrawer
+{
+	SoundSchemaAttribute TargetAttribute{ get{ return attribute as SoundSchemaAttribute; }}
+	// Draw the property inside the given rect
+	public override void OnGUI (Rect position, SerializedProperty property, GUIContent label)
+	{
+		Debug.Log("--------------------------");
+		SoundSchemaAttribute attr = TargetAttribute;
+
+		SerializedObject obj = property.serializedObject;
+		Debug.Log( obj );
+		Debug.Log( obj is SoundSchema );
+		Debug.Log( obj is SoundSchemaAttribute );
+
+		SerializedProperty myFloat = obj.FindProperty( "myFloat" );
+		SerializedProperty myschemaName = obj.FindProperty( "schemaName" );
+
+		Debug.Log( myFloat.objectReferenceValue is SoundSchema );
+		Debug.Log( myschemaName.objectReferenceValue is SoundSchema );
+
+		Debug.Log( property.serializedObject.targetObject );//Test( ShowDecoratorDrawerExample );
+		Debug.Log( myFloat );
+
+
+
+		if( property.serializedObject.targetObject is  Component)
+		{
+			var component = property.serializedObject.targetObject as Component;
+			Debug.Log("ok " + component );
+		}
+		else
+		{
+			Debug.Log("fail");
+		}
+
+		Debug.Log("--------------------------");
+	}
 }

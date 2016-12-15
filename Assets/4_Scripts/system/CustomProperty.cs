@@ -1,4 +1,6 @@
-﻿using System;
+﻿using UnityEngine;
+
+using System;
 
 using DG.Tweening;
 
@@ -30,5 +32,14 @@ public struct MoveTweenInfo
     {
         this.distance = distance;
         this.duration = duration;
+    }
+}
+
+public class SoundSchemaAttribute: PropertyAttribute
+{
+    public string attrName;
+    public SoundSchemaAttribute( string attrName )
+    {
+        this.attrName = attrName;
     }
 }
