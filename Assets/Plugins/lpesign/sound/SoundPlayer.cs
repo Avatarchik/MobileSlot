@@ -10,10 +10,17 @@ namespace lpesign
     public class SoundPlayer : MonoBehaviour
     {
         [System.Serializable]
+        public class SoundSchema : PropertyAttribute
+        {
+            public string name;
+            public AudioClip clip;
+        }
+
+        [System.Serializable]
         public class SoundCategory
         {
             public string name;
-            public List<AudioClip> clips;
+            public SoundSchema[] sounds;
         }
 
         #region inspector
@@ -31,14 +38,14 @@ namespace lpesign
         public int maxChannels = 5;
 
         [Header("PALETTE")]
-        public AudioClip[] basicClips;
+        public SoundSchema[] basicClips;
         public SoundCategory[] categoryList;
         #endregion
 
         AudioSource _BGMChannel;
         List<AudioSource> _SFXChannels;
 
-        Dictionary<string, AudioClip> _soundMap;
+        Dictionary<string, SoundSchema> _soundMap;
         Dictionary<string, SoundCategory> _categoryMap;
 
         void Awake()
@@ -57,13 +64,13 @@ namespace lpesign
             }
 
             //create PALETTE
-            _soundMap = new Dictionary<string, AudioClip>();
+            _soundMap = new Dictionary<string, SoundSchema>();
             _categoryMap = new Dictionary<string, SoundCategory>();
 
             Initialize(basicClips, categoryList);
         }
 
-        public void Initialize(AudioClip[] basicClips, SoundCategory[] categoryList)
+        public void Initialize(SoundSchema[] basicClips, SoundCategory[] categoryList)
         {
             Clear();
 
@@ -74,16 +81,16 @@ namespace lpesign
             AddSound(categoryList);
         }
 
-        void RegisterSound(string key, AudioClip sound)
+        void RegisterSound(string key, SoundSchema sound)
         {
             _soundMap.Add(key, sound);
         }
 
-        void AddSound(AudioClip[] sounds)
+        void AddSound(SoundSchema[] sounds)
         {
             if (sounds == null) return;
 
-            foreach (AudioClip clip in sounds)
+            foreach (SoundSchema clip in sounds)
             {
                 if (clip == null) continue;
 
@@ -99,11 +106,11 @@ namespace lpesign
             {
                 _categoryMap.Add(category.name, category);
 
-                foreach (AudioClip clip in category.clips)
+                foreach (SoundSchema snd in category.sounds)
                 {
-                    if (clip == null) continue;
+                    if (snd == null) continue;
 
-                    string clipName = clip.name;
+                    string clipName = snd.name;
                     string fullName = category.name + "/" + clipName;
 
                     if (_soundMap.ContainsKey(fullName))
@@ -112,12 +119,12 @@ namespace lpesign
                         while (_soundMap.ContainsKey(fullName))
                         {
                             i++;
-                            clipName = clip.name + i;
+                            clipName = snd.name + i;
                             fullName = category.name + "/" + clipName;
                         }
                     }
 
-                    _soundMap.Add(fullName, clip);
+                    _soundMap.Add(fullName, snd);
                 }
             }
         }
@@ -160,8 +167,13 @@ namespace lpesign
         {
             if (string.IsNullOrEmpty(name)) return null;
 
-            var clip = FindClip(name);
-            return PlayBGM(FindClip(name), volume, pitch);
+            var sound = FindSound(name);
+            return PlayBGM(FindSound(name), volume, pitch);
+        }
+
+        public AudioSource PlayBGM(SoundSchema sound, float volume = 1f, float pitch = 1f)
+        {
+            return PlayBGM(sound.clip, volume, pitch);
         }
 
         public AudioSource PlayBGM(AudioClip clip, float volume = 1f, float pitch = 1f)
@@ -202,8 +214,8 @@ namespace lpesign
         {
             if (string.IsNullOrEmpty(name)) return null;
 
-            var clip = FindClip(name);
-            return PlaySFX(clip, volume, pitch, position);
+            SoundSchema sound = FindSound(name);
+            return PlaySFX(sound.clip, volume, pitch, position);
         }
 
         public AudioSource PlaySFX(AudioClip clip, float volume = 1f, float pitch = 1f)
@@ -242,9 +254,9 @@ namespace lpesign
             return ch;
         }
 
-        public AudioClip FindClip(string name)
+        public SoundSchema FindSound(string name)
         {
-            AudioClip clip = null;
+            SoundSchema sound = null;
 
             if (name.Contains("/"))
             {
@@ -257,18 +269,18 @@ namespace lpesign
                     (clipName == "Random" || clipName == "*"))
                 {
                     var relativeCategory = _categoryMap[categoryName];
-                    var ranidx = (int)Random.Range(0, relativeCategory.clips.Count);
-                    clip = relativeCategory.clips[ranidx];
-                    return clip;
+                    var ranidx = (int)Random.Range(0, relativeCategory.sounds.Length);
+                    sound = relativeCategory.sounds[ranidx];
+                    return sound;
                 }
             }
 
             if (_soundMap.ContainsKey(name))
             {
-                clip = _soundMap[name];
+                sound = _soundMap[name];
             }
 
-            return clip;
+            return sound;
         }
 
         public bool bgmMute

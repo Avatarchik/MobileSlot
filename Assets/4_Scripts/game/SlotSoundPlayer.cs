@@ -7,12 +7,16 @@ namespace Game
 {
     public class SlotSoundPlayer : SingletonSimple<SlotSoundPlayer>
     {
-        public AudioClip[] basicClips;
-        public SoundPlayer.SoundCategory[] categoryList;
+        [System.Serializable]
+        public class SlotSoundList
+        {
+            public AudioClip BGM;
+            public AudioClip BGM_FREE;
+        }
+
+        public SlotSoundList soundList;
 
 
-        public AudioClip BGM;
-        public AudioClip BGM_FREE;
 
         public AudioClip[] spins;
 
