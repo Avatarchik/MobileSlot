@@ -4,30 +4,12 @@ using System.Collections.Generic;
 
 namespace lpesign
 {
-    [System.Serializable]
-    public class SoundSchema : PropertyAttribute
-    {
-        public string name;
-        public AudioClip clip;
-    }
-
-    [System.Serializable]
-    public class SoundCategory
-    {
-        public string name;
-        public SoundSchema[] sounds;
-    }
-
     //todo
     //run 중엔 public 변수가 아니라
     //내부적으로 생성한 palette 와 categorymap 이 보여지는게 좋을 것 같다.
     public class SoundPlayer : MonoBehaviour
     {
         #region inspector
-        // [SoundSchema("Test")]
-        public SoundSchema testSchema;
-
-        //
         [Header("BGM")]
         [SerializeField]
         bool _enableBGM = true;
@@ -43,14 +25,14 @@ namespace lpesign
 
         [Header("PALETTE")]
         public SoundSchema[] basicClips;
-        public SoundCategory[] categoryList;
+        public SoundGroup[] categoryList;
         #endregion
 
         AudioSource _BGMChannel;
         List<AudioSource> _SFXChannels;
 
         Dictionary<string, SoundSchema> _soundMap;
-        Dictionary<string, SoundCategory> _categoryMap;
+        Dictionary<string, SoundGroup> _categoryMap;
 
         void Awake()
         {
@@ -69,17 +51,19 @@ namespace lpesign
 
             //create PALETTE
             _soundMap = new Dictionary<string, SoundSchema>();
-            _categoryMap = new Dictionary<string, SoundCategory>();
+            _categoryMap = new Dictionary<string, SoundGroup>();
 
             Initialize(basicClips, categoryList);
         }
 
-        public void Initialize(SoundSchema[] basicClips, SoundCategory[] categoryList)
+        public void Initialize(SoundSchema[] basicClips, SoundGroup[] categoryList)
         {
             Clear();
 
             this.basicClips = basicClips;
             this.categoryList = categoryList;
+
+            return;
 
             AddSound(basicClips);
             AddSound(categoryList);
@@ -94,25 +78,25 @@ namespace lpesign
         {
             if (sounds == null) return;
 
-            foreach (SoundSchema clip in sounds)
+            foreach (SoundSchema schema in sounds)
             {
-                if (clip == null) continue;
+                if (schema.clip == null) continue;
 
-                RegisterSound(clip.name, clip);
+                RegisterSound(schema.name, schema);
             }
         }
 
-        void AddSound(SoundCategory[] categories)
+        void AddSound(SoundGroup[] categories)
         {
             if (categories == null) return;
 
-            foreach (SoundCategory category in categories)
+            foreach (SoundGroup category in categories)
             {
                 _categoryMap.Add(category.name, category);
 
                 foreach (SoundSchema snd in category.sounds)
                 {
-                    if (snd == null) continue;
+                    if (snd.clip == null) continue;
 
                     string clipName = snd.name;
                     string fullName = category.name + "/" + clipName;
@@ -261,7 +245,7 @@ namespace lpesign
         public SoundSchema FindSound(string name)
         {
             SoundSchema sound = null;
-
+            
             if (name.Contains("/"))
             {
                 //split category and name
@@ -273,7 +257,7 @@ namespace lpesign
                     (clipName == "Random" || clipName == "*"))
                 {
                     var relativeCategory = _categoryMap[categoryName];
-                    var ranidx = (int)Random.Range(0, relativeCategory.sounds.Length);
+                    var ranidx = (int)Random.Range(0, relativeCategory.sounds.Count);
                     sound = relativeCategory.sounds[ranidx];
                     return sound;
                 }

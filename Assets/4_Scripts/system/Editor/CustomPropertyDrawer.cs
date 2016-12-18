@@ -30,13 +30,27 @@ public class Size2DDrawer : PropertyDrawer
     }
 }
 
+/*
+public struct MoveTweenInfo
+{
+    public float distance;
+    public float duration;
+
+    public MoveTweenInfo( float distance, float duration )
+    {
+        this.distance = distance;
+        this.duration = duration;
+    }
+}
+*/
+
 [CustomPropertyDrawer(typeof(MoveTweenInfo))]
 public class MoveTweenInfoDrawer : PropertyDrawer
 {
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label)
     {
-		label = EditorGUI.BeginProperty( position, label, property );
-		Rect contentPos =  EditorGUI.PrefixLabel( position, label );
+		label = EditorGUI.BeginProperty( rect, label, property );
+		Rect contentPos =  EditorGUI.PrefixLabel( rect, label );
 
 		int indent = EditorGUI.indentLevel;
         EditorGUI.indentLevel = 0;
@@ -53,44 +67,4 @@ public class MoveTweenInfoDrawer : PropertyDrawer
 		
 		EditorGUI.EndProperty();
     }
-}
-
-[CustomPropertyDrawer (typeof(SoundSchemaAttribute))]
-public class SoundSchemaDrawer : PropertyDrawer
-{
-	SoundSchemaAttribute TargetAttribute{ get{ return attribute as SoundSchemaAttribute; }}
-	// Draw the property inside the given rect
-	public override void OnGUI (Rect position, SerializedProperty property, GUIContent label)
-	{
-		Debug.Log("--------------------------");
-		SoundSchemaAttribute attr = TargetAttribute;
-
-		SerializedObject obj = property.serializedObject;
-		Debug.Log( obj );
-		Debug.Log( obj is SoundSchema );
-		Debug.Log( obj is SoundSchemaAttribute );
-
-		SerializedProperty myFloat = obj.FindProperty( "myFloat" );
-		SerializedProperty myschemaName = obj.FindProperty( "schemaName" );
-
-		Debug.Log( myFloat.objectReferenceValue is SoundSchema );
-		Debug.Log( myschemaName.objectReferenceValue is SoundSchema );
-
-		Debug.Log( property.serializedObject.targetObject );//Test( ShowDecoratorDrawerExample );
-		Debug.Log( myFloat );
-
-
-
-		if( property.serializedObject.targetObject is  Component)
-		{
-			var component = property.serializedObject.targetObject as Component;
-			Debug.Log("ok " + component );
-		}
-		else
-		{
-			Debug.Log("fail");
-		}
-
-		Debug.Log("--------------------------");
-	}
 }

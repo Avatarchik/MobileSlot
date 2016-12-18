@@ -34,12 +34,3 @@ public struct MoveTweenInfo
         this.duration = duration;
     }
 }
-
-public class SoundSchemaAttribute: PropertyAttribute
-{
-    public string attrName;
-    public SoundSchemaAttribute( string attrName )
-    {
-        this.attrName = attrName;
-    }
-}

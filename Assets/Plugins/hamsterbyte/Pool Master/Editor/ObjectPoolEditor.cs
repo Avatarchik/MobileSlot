@@ -79,6 +79,9 @@ public class ObjectPoolEditor : Editor {
 	}
 
 	public override void OnInspectorGUI () {
+		DrawDefaultInspector();
+		EditorGUILayout.Space();
+		
 		GUILayoutOption[] options = { GUILayout.ExpandWidth (true)};
 		oPool = (ObjectPool)target;
 		if (foldouts.Count < oPool.pools.Count) {
