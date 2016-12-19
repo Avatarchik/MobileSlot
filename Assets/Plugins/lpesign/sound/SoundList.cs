@@ -23,13 +23,18 @@ namespace lpesign
 
         public string name;
         public PlayType type;
-        public List<SoundSchema> sounds;
+        public SoundSchema[] sounds;
+
+        public SoundGroup(string groupName)
+        {
+            this.name = groupName;
+        }
     }
 
     [Serializable]
     public class SoundList : MonoBehaviour
     {
         public SoundSchema[] basic;
-        public SoundGroup[] categories;
+        public List<SoundGroup> groups;
     }
 }

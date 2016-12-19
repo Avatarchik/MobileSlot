@@ -2,6 +2,9 @@
 using UnityEditor;
 using UnityEditorInternal;
 
+using System;
+using System.Collections;
+
 namespace lpesign.UnityEditor
 {
 
@@ -9,15 +12,30 @@ namespace lpesign.UnityEditor
     {
         protected T _script;
         protected MonoScript _mono;
+        protected Color _defaultBGColor;
+        protected Color _defaultColor;
+        protected float _singleHeight;
 
-        protected void FindScript()
+        /// <summary>
+        /// Initialize is must called when OnEnable
+        /// </summary>
+        protected void Initialize()
         {
             _script = (T)target;
+
+            _defaultColor = GUI.color;
+            _defaultBGColor = GUI.backgroundColor;
+
+            _singleHeight = EditorGUIUtility.singleLineHeight;
+        }
+
+        void OnEnable()
+        {
         }
 
         protected void DrawScript()
         {
-            if (_script == null) FindScript();
+            if (_script == null) Initialize();
 
             GUI.enabled = false;
             _mono = EditorGUILayout.ObjectField("Script", MonoScript.FromMonoBehaviour(_script), typeof(T), false) as MonoScript;
@@ -33,8 +51,18 @@ namespace lpesign.UnityEditor
             if (string.IsNullOrEmpty(lineName) == false) GUILayout.Label(lineName, EditorStyles.boldLabel);
         }
 
-        // 1. public ReorderableList(IList elements, Type elementType),
-        // 2. public ReorderableList(SerializedObject serializedObject, SerializedProperty elements).
+        //----------------------------------------------------------------------------------------------
+        // Create ReorderableList
+        //drawElementCallback       (Rect rect, int index, bool isActive, bool isFocused)
+        //drawHeaderCallback        (Rect rect)
+        //onReorderCallback         (ReorderableList list)
+        //onSelectCallback          (ReorderableList list)
+        //onAddCallback             (ReorderableList list)
+        //onAddDropdownCallback     (Rect buttonRect, ReorderableList list)
+        //onRemoveCallback          (ReorderableList list)
+        //onCanRemoveCallback bool  (ReorderableList list)
+        //onChangedCallback         (ReorderableList list)
+        //----------------------------------------------------------------------------------------------
         protected ReorderableList CreateReorderableList(string propertyName,
                                                         string HeaderName = "",
                                                         bool draggable = true,
@@ -42,28 +70,30 @@ namespace lpesign.UnityEditor
                                                         bool displayRemoveButton = true)
         {
             SerializedProperty property = serializedObject.FindProperty(propertyName);
-            return CreateReorderableList(property, HeaderName);
+            return CreateReorderableList(property, HeaderName, draggable, displayAddButton, displayRemoveButton);
         }
 
         protected ReorderableList CreateReorderableList(SerializedProperty property,
-                                                        string HeaderName = "",
+                                                        string headerName = "",
                                                         bool draggable = true,
                                                         bool displayAddButton = true,
                                                         bool displayRemoveButton = true)
         {
-            bool displayHeader = !string.IsNullOrEmpty(HeaderName);
+            bool displayHeader = !string.IsNullOrEmpty(headerName);
 
             var list = new ReorderableList(serializedObject, property, draggable, displayHeader, displayAddButton, displayRemoveButton);
-            if (displayHeader)
-            {
-                list.drawHeaderCallback = (Rect rect) =>
-                {
-                    GUI.color = Color.yellow;
-                    EditorGUI.LabelField(rect, HeaderName, EditorStyles.boldLabel);
-                    GUI.color = Color.white;
-                };
-            }
+            if (displayHeader) AddDrawHeaderCallbackToReorderList(ref list, headerName);
             return list;
+        }
+
+        void AddDrawHeaderCallbackToReorderList(ref ReorderableList list, string headerName)
+        {
+            list.drawHeaderCallback = (Rect rect) =>
+            {
+                GUI.color = Color.yellow;
+                EditorGUI.LabelField(rect, headerName, EditorStyles.boldLabel);
+                GUI.color = Color.white;
+            };
         }
     }
 }

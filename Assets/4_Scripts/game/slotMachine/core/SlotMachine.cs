@@ -97,7 +97,6 @@ namespace Game
                 System.Reflection.BindingFlags.Instance |
                 System.Reflection.BindingFlags.NonPublic
             );
-
             if (methodInfo == null) return DoNothing;
             else return Delegate.CreateDelegate(typeof(Func<IEnumerator>), this, methodInfo) as Func<IEnumerator>;
         }
@@ -300,7 +299,6 @@ namespace Game
             yield break;
         }
 
-
         void OnSpinListener(ResDTO.Spin dto)
         {
             if (_currentState == MachineState.Spin)
@@ -443,12 +441,6 @@ namespace Game
 
         IEnumerator FreeSpinEnd_Enter()
         {
-            //250,750
-            //475,750
-            //307750 57000
-
-            Debug.Log("free end");
-
             if (_paylineModule != null) _paylineModule.Clear();
 
             _model.FreeSpinEnd();
@@ -614,7 +606,6 @@ namespace Game
                 _model.HasNextSpin == false)
             {
                 _bookedSpin = true;
-                Debug.Log("예약!!!!");
             }
 
             SetState(MachineState.CheckNextSpin);
@@ -706,7 +697,7 @@ namespace Game
             this.winType = winType;
         }
 
-        public string ToString()
+        public override string ToString()
         {
             return string.Format("{0} win. ( duration:{1}, skipDelay:{2}, multi:{3}, type:{4})", win, duration, skipDelay, winMultiplier, winType);
         }

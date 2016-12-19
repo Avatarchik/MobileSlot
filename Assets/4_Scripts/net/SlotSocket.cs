@@ -306,7 +306,6 @@ public abstract class SlotSocket
         return sendBuffers;
     }
 
-
     void SendComplete(IAsyncResult ar)
     {
         try
