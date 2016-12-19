@@ -108,20 +108,20 @@ namespace Game.ShiningSevens
             //startSymbol
             mainSlotConfig.SetStartSymbols(new string[,]
             {
-            { L0, SR, L0, SG, L0 },
-            { BB, L0, W0, L0, BG },
-            { L0, SB, L0, SG, L0 }
+                { L0, SR, L0, SG, L0 },
+                { BB, L0, W0, L0, BG },
+                { L0, SB, L0, SG, L0 }
             });
 
             //paylineTable
             int[][] paylineTable =
             {
-            new int[] {1,1,1},
-            new int[] {0,0,0},
-            new int[] {2,2,2},
-            new int[] {0,1,2},
-            new int[] {2,1,0}
-        };
+                new int[] {1,1,1},
+                new int[] {0,0,0},
+                new int[] {2,2,2},
+                new int[] {0,1,2},
+                new int[] {2,1,0}
+            };
             mainSlotConfig.paylineTable = paylineTable;
 
 
@@ -130,9 +130,9 @@ namespace Game.ShiningSevens
             //릴스트립도 가변배열로 고쳐야함
             mainSlotConfig.NormalStrip = new ReelStrip(new string[][]
             {
-            new string[] {SG,BG,SB,BR,SB,W0,SG,BR,SB,BR,SG,BR,BG,SB,W0},
-            new string[] {SG,BR,SB,BR,SB,W0,SG,BG,SB,BG,SG,BG,BR,SB,BG},
-            new string[] {SG,BG,W0,BR,SB,SR,SB,BR,SB,SG,BR,BG,W0,BR,BR}
+                new string[] {SG,BG,SB,BR,SB,W0,SG,BR,SB,BR,SG,BR,BG,SB,W0},
+                new string[] {SG,BR,SB,BR,SB,W0,SG,BG,SB,BG,SG,BG,BR,SB,BG},
+                new string[] {SG,BG,W0,BR,SB,SR,SB,BR,SB,SG,BR,BG,W0,BR,BR}
             }, ReelStrip.ReelStripType.USE_NULL);
         }
 

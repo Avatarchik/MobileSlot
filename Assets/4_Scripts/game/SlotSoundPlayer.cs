@@ -10,32 +10,6 @@ namespace Game
         /*
         public class SlotSoundList
         {
-            public AudioClip BGM;
-            public AudioClip BGM_FREE;
-            public AudioClip intro;
-
-            [Header("FreeSpin")]
-            public AudioClip win;
-            public AudioClip winEnd;
-            public AudioClip bigWin;
-            public AudioClip megaWin;
-            public AudioClip jackpot;
-
-            [Header("FreeSpin")]
-            public AudioClip freeSpinTrigger;
-            public AudioClip freeSpinReady;
-            public AudioClip freeSpinReadyLoop;
-            public AudioClip freeSpinNumbering;
-            public AudioClip freeSpinComplete;
-            public AudioClip freeSpinCongratulation;
-
-            [Header("Button")]
-            public AudioClip btnSpin;
-            public AudioClip btnFast;
-            public AudioClip btnDecrease;
-            public AudioClip btnIncrease;
-            public AudioClip btnCommon;
-
             [Header("Group")]
             public AudioClipGroup spin;
             public AudioClipGroup spinStop;
@@ -43,8 +17,6 @@ namespace Game
             public AudioClipGroup progressiveWin;
         }
         */
-
-        public SoundList soundList;
 
         SoundPlayer _player;
 
