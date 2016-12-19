@@ -8,30 +8,40 @@ using lpesign.UnityEditor;
 [CustomEditor(typeof(SoundList))]
 public class SoundListInspector : UsableEditor<SoundList>
 {
-    float _singleHeight;
     ReorderableList _basicList;
+    ReorderableList[] _groupList;
 
     void OnEnable()
     {
-        FindScript();
+        Initialize();
 
-        _singleHeight = EditorGUIUtility.singleLineHeight;
+        //createBasicList
+        var basicProperty = serializedObject.FindProperty("basic");
+        _basicList = CreateSoundSchemaList(basicProperty, "Basic");
 
-        _basicList = CreateReorderableList("basic", "Basic Category");
-        _basicList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+        //createGroupList
+        var groups = serializedObject.FindProperty("groups");
+        var groupCount = groups.arraySize;
+        _groupList = new ReorderableList[groupCount];
+        for (var i = 0; i < groupCount; ++i)
         {
-            SerializedProperty element = _basicList.serializedProperty.GetArrayElementAtIndex(index);
-            OnSchemaGUi(rect, element, null);
+            var g = groups.GetArrayElementAtIndex(i);
+            var soundsProperty = g.FindPropertyRelative("sounds");
+            var list = CreateSoundSchemaList(soundsProperty);
+            _groupList[i] = list;
+        }
+    }
+
+    ReorderableList CreateSoundSchemaList(SerializedProperty property, string headerName = "")
+    {
+        var list = CreateReorderableList(property, headerName);
+        list.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+        {
+            SerializedProperty element = list.serializedProperty.GetArrayElementAtIndex(index);
+            OnSchemaGUI(rect, element, null);
         };
 
-        _basicList.onRemoveCallback = (ReorderableList l) =>
-        {
-            if (EditorUtility.DisplayDialog("Really?", "delete", "Yes", "No"))
-            {
-                ReorderableList.defaultBehaviours.DoRemoveButton(l);
-            }
-        };
-        _basicList.onAddCallback = (ReorderableList l) =>
+        list.onAddCallback = (ReorderableList l) =>
         {
             var index = l.serializedProperty.arraySize;
             l.serializedProperty.arraySize++;
@@ -41,68 +51,10 @@ public class SoundListInspector : UsableEditor<SoundList>
             element.FindPropertyRelative("name").stringValue = "NEW " + index;
             element.FindPropertyRelative("clip").objectReferenceValue = null;
         };
+        return list;
     }
 
-    public override void OnInspectorGUI()
-    {
-        DrawDefaultInspector();
-        DrawRowLine("Custom Inspector");
-
-        DrawScript();
-
-        serializedObject.Update();
-
-        _basicList.DoLayoutList();
-
-        DrawGroup();
-
-        serializedObject.ApplyModifiedProperties();
-    }
-
-    void DrawGroup()
-    {
-        EditorGUILayout.BeginVertical("button");
-        var categories = _script.categories;
-        for (var i = 0; i < categories.Length; ++i)
-        {
-            var category = categories[i];
-            EditorGUILayout.LabelField(category.name, EditorStyles.boldLabel, GUILayout.MaxWidth(130));
-            _basicList.DoLayoutList();
-        }
-        EditorGUILayout.EndVertical();
-
-        /*
-        GUILayoutOption[] options = { GUILayout.ExpandWidth(true) };
-        EditorGUILayout.BeginVertical("button", options);
-        EditorGUILayout.LabelField("test1", EditorStyles.boldLabel, GUILayout.MaxWidth(130));
-        EditorGUILayout.LabelField("test2", EditorStyles.boldLabel, GUILayout.MaxWidth(130));
-        EditorGUILayout.EndVertical();
-
-        EditorGUILayout.BeginVertical();
-        EditorGUILayout.LabelField("test1", EditorStyles.boldLabel, GUILayout.MaxWidth(130));
-        EditorGUILayout.LabelField("test2", EditorStyles.boldLabel, GUILayout.MaxWidth(130));
-        EditorGUILayout.EndVertical();
-
-        EditorGUILayout.BeginVertical("button");
-        EditorGUILayout.LabelField("test3", EditorStyles.boldLabel, GUILayout.MaxWidth(130));
-        EditorGUILayout.LabelField("test4", EditorStyles.boldLabel, GUILayout.MaxWidth(130));
-        EditorGUILayout.EndVertical();
-
-		DrawRowLine("horizontal");
-
-        EditorGUILayout.BeginHorizontal("button");
-        EditorGUILayout.LabelField("test3", EditorStyles.boldLabel, GUILayout.MaxWidth(130));
-        EditorGUILayout.LabelField("test4", EditorStyles.boldLabel, GUILayout.MaxWidth(130));
-        EditorGUILayout.EndHorizontal();
-
-		EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("test3", EditorStyles.boldLabel, GUILayout.MaxWidth(130));
-        EditorGUILayout.LabelField("test4", EditorStyles.boldLabel, GUILayout.MaxWidth(130));
-        EditorGUILayout.EndHorizontal();
-		*/
-    }
-
-    public void OnSchemaGUi(Rect rect, SerializedProperty property, GUIContent label)
+    void OnSchemaGUI(Rect rect, SerializedProperty property, GUIContent label)
     {
         rect.y += 2;
 
@@ -111,6 +63,73 @@ public class SoundListInspector : UsableEditor<SoundList>
 
         EditorGUI.PropertyField(posA, property.FindPropertyRelative("name"), GUIContent.none);
         EditorGUI.PropertyField(posB, property.FindPropertyRelative("clip"), GUIContent.none);
+    }
+
+    public override void OnInspectorGUI()
+    {
+        DrawScript();
+
+        serializedObject.Update();
+
+        DrawBasic();
+        DrawGroup();
+
+        serializedObject.ApplyModifiedProperties();
+    }
+
+    void DrawBasic()
+    {
+        _basicList.DoLayoutList();
+    }
+
+    void DrawGroup()
+    {
+        SerializedProperty property = serializedObject.FindProperty("groups");
+
+        EditorGUILayout.BeginVertical("button");
+        EditorGUILayout.LabelField("Groups", EditorStyles.boldLabel, GUILayout.MaxWidth(130));
+        for (var i = 0; i < property.arraySize; ++i)
+        {
+            EditorGUILayout.BeginVertical("button");
+            GUILayout.Space(3);
+
+            var element = property.GetArrayElementAtIndex(i);
+
+            var groupName = element.FindPropertyRelative("name");
+            var type = element.FindPropertyRelative("type");
+            var sounds = element.FindPropertyRelative("sounds");
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUIUtility.labelWidth = 40f;
+            EditorGUILayout.PropertyField(groupName, GUILayout.MinWidth(160));
+            EditorGUILayout.PropertyField(type, GUILayout.MinWidth(110));
+            GUILayout.FlexibleSpace();
+
+            GUI.backgroundColor = Color.red;
+            if (GUILayout.Button("X"))
+            {
+                if (EditorUtility.DisplayDialog("Delete " + groupName + "?", "Are you sure you want to delete " + groupName + "? This action cannot be undone.", "Delete", "Cancel"))
+                {
+                    _script.groups.RemoveAt(i);
+                }
+            }
+            GUI.backgroundColor = _defaultBGColor;
+            EditorGUILayout.EndHorizontal();
+
+            var list = _groupList[i];
+            list.DoLayoutList();
+            EditorGUILayout.EndVertical();
+        }
+
+        GUI.backgroundColor = Color.green;
+        if (GUILayout.Button("AddGroup"))
+        {
+            _script.groups.Add(new SoundGroup("new Group" + _script.groups.Count));
+        }
+
+        GUI.backgroundColor = _defaultBGColor;
+
+        EditorGUILayout.EndVertical();
     }
 }
 

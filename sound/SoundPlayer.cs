@@ -90,16 +90,16 @@ namespace lpesign
         {
             if (categories == null) return;
 
-            foreach (SoundGroup category in categories)
+            foreach (SoundGroup soundGroup in categories)
             {
-                _categoryMap.Add(category.name, category);
+                _categoryMap.Add(soundGroup.name, soundGroup);
 
-                foreach (SoundSchema snd in category.sounds)
+                foreach (SoundSchema snd in soundGroup.sounds)
                 {
                     if (snd.clip == null) continue;
 
                     string clipName = snd.name;
-                    string fullName = category.name + "/" + clipName;
+                    string fullName = soundGroup.name + "/" + clipName;
 
                     if (_soundMap.ContainsKey(fullName))
                     {
@@ -108,7 +108,7 @@ namespace lpesign
                         {
                             i++;
                             clipName = snd.name + i;
-                            fullName = category.name + "/" + clipName;
+                            fullName = soundGroup.name + "/" + clipName;
                         }
                     }
 
@@ -257,7 +257,7 @@ namespace lpesign
                     (clipName == "Random" || clipName == "*"))
                 {
                     var relativeCategory = _categoryMap[categoryName];
-                    var ranidx = (int)Random.Range(0, relativeCategory.sounds.Count);
+                    var ranidx = (int)Random.Range(0, relativeCategory.sounds.Length);
                     sound = relativeCategory.sounds[ranidx];
                     return sound;
                 }
