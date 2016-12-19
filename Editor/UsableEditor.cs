@@ -11,6 +11,7 @@ namespace lpesign.UnityEditor
     public class UsableEditor<T> : Editor where T : MonoBehaviour
     {
         protected T _script;
+
         protected MonoScript _mono;
         protected Color _defaultBGColor;
         protected Color _defaultColor;
@@ -19,7 +20,7 @@ namespace lpesign.UnityEditor
         /// <summary>
         /// Initialize is must called when OnEnable
         /// </summary>
-        protected void Initialize()
+        virtual protected void Initialize()
         {
             _script = (T)target;
 
@@ -27,10 +28,6 @@ namespace lpesign.UnityEditor
             _defaultBGColor = GUI.backgroundColor;
 
             _singleHeight = EditorGUIUtility.singleLineHeight;
-        }
-
-        void OnEnable()
-        {
         }
 
         protected void DrawScript()

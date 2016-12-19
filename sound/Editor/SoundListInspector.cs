@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
+using System.Collections.Generic;
 
 using lpesign;
 using lpesign.UnityEditor;
@@ -14,7 +15,12 @@ public class SoundListInspector : UsableEditor<SoundList>
     void OnEnable()
     {
         Initialize();
+        _script.Initialize();
+        CreaetReorderLists();
+    }
 
+    protected void CreaetReorderLists()
+    {
         //createBasicList
         var basicProperty = serializedObject.FindProperty("basic");
         _basicList = CreateSoundSchemaList(basicProperty, "Basic");
@@ -71,10 +77,29 @@ public class SoundListInspector : UsableEditor<SoundList>
 
         serializedObject.Update();
 
+        DrawDefaultButton();
         DrawBasic();
         DrawGroup();
+        DrawClearAllButton();
 
         serializedObject.ApplyModifiedProperties();
+    }
+
+    void DrawDefaultButton()
+    {
+        // GUI.enabled = false;
+        GUI.backgroundColor = Color.cyan;
+        if (GUILayout.Button("DefaultSetting", GUILayout.Height(40)))
+        {
+            if (EditorUtility.DisplayDialog("Set Default?", "Are you sure you want to set all list? This action cannot be undone.", "Set Default", "Cancel"))
+            {
+                _script.Clear();
+                _script.CreateDefaultList();
+            }
+        }
+        GUI.backgroundColor = _defaultBGColor;
+        // GUI.enabled = true;
+        GUILayout.Space(8);
     }
 
     void DrawBasic()
@@ -88,6 +113,12 @@ public class SoundListInspector : UsableEditor<SoundList>
 
         EditorGUILayout.BeginVertical("button");
         EditorGUILayout.LabelField("Groups", EditorStyles.boldLabel, GUILayout.MaxWidth(130));
+        GUI.backgroundColor = Color.green;
+        if (GUILayout.Button("AddGroup"))
+        {
+            _script.groups.Add(new SoundGroup("new Group" + _script.groups.Count));
+        }
+        GUI.backgroundColor = _defaultBGColor;
         for (var i = 0; i < property.arraySize; ++i)
         {
             EditorGUILayout.BeginVertical("button");
@@ -121,15 +152,21 @@ public class SoundListInspector : UsableEditor<SoundList>
             EditorGUILayout.EndVertical();
         }
 
-        GUI.backgroundColor = Color.green;
-        if (GUILayout.Button("AddGroup"))
-        {
-            _script.groups.Add(new SoundGroup("new Group" + _script.groups.Count));
-        }
-
-        GUI.backgroundColor = _defaultBGColor;
-
         EditorGUILayout.EndVertical();
+    }
+
+    void DrawClearAllButton()
+    {
+        GUILayout.Space(10);
+        GUI.backgroundColor = Color.red;
+        if (GUILayout.Button("AllClear"))
+        {
+            if (EditorUtility.DisplayDialog("Clear All Sounds?", "Are you sure you want to clear all sounds? This action cannot be undone.", "Clear All", "Cancel"))
+            {
+                _script.Clear();
+            }
+        }
+        GUI.backgroundColor = _defaultBGColor;
     }
 }
 
