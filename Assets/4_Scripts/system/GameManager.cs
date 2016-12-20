@@ -51,6 +51,8 @@ public class GameManager : Singleton<GameManager>
 
     public void GameLoad(GameItemDTO data)
     {
+        if( _isLobby == false ) return;
+
         loader.Load("Game" + data.ID.ToString("00"));
 
         _isLobby = false;
@@ -63,7 +65,9 @@ public class GameManager : Singleton<GameManager>
 
     public void GoToLobby()
     {
-        loader.Load(SC_LOBBY);
+        if( _isLobby ) return;
+
+        loader.Load(SC_LOBBY, ()=> _isLobby = true );
     }
 
     void OnApplicationQuit()
