@@ -64,11 +64,11 @@ public class SoundListInspector : UsableEditor<SoundList>
     {
         rect.y += 2;
 
-        Rect posA = new Rect(rect.x, rect.y, 90, _singleHeight);
+        Rect posA = new Rect(rect.x, rect.y, 180, _singleHeight);
         Rect posB = new Rect(posA.xMax, rect.y, rect.width - posA.width, _singleHeight);
 
-        EditorGUI.PropertyField(posA, property.FindPropertyRelative("name"), GUIContent.none);
-        EditorGUI.PropertyField(posB, property.FindPropertyRelative("clip"), GUIContent.none);
+        EditorGUI.PropertyField(posA, property.FindPropertyRelative("_name"), GUIContent.none);
+        EditorGUI.PropertyField(posB, property.FindPropertyRelative("_clip"), GUIContent.none);
     }
 
     public override void OnInspectorGUI()
@@ -126,13 +126,12 @@ public class SoundListInspector : UsableEditor<SoundList>
 
             var element = property.GetArrayElementAtIndex(i);
 
-            var groupName = element.FindPropertyRelative("name");
+            var groupName = element.FindPropertyRelative("_name");
             var type = element.FindPropertyRelative("type");
-            var sounds = element.FindPropertyRelative("sounds");
 
             EditorGUILayout.BeginHorizontal();
             EditorGUIUtility.labelWidth = 40f;
-            EditorGUILayout.PropertyField(groupName, GUILayout.MinWidth(160));
+            EditorGUILayout.PropertyField(groupName, GUILayout.MinWidth(200));
             EditorGUILayout.PropertyField(type, GUILayout.MinWidth(110));
             GUILayout.FlexibleSpace();
 
