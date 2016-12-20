@@ -81,7 +81,31 @@ namespace Game
 
         public void Spin()
         {
-            // _player.PlaySFX(sp);
+            _player.PlaySFX("SPIN");
+        }
+
+        public void ReelStop()
+        {
+            _player.PlaySFX("REEL_STOP");
+
+            /*
+            var tgSounds: Vector.<SoundSchema>;
+			if( mModel.isFreeSpin )
+			{
+				tgSounds = STOP_SOUNDS;
+			}
+			else
+			{
+				tgSounds = STOP_SOUNDS;
+			}
+			
+			if( tgSounds == null || tgSounds.length == 0 ) return;
+			
+			var column: int = reel.column;
+			if( column >= tgSounds.length ) column = tgSounds.length - 1;
+			var schema: SoundSchema = tgSounds[ column ];
+			SoundPlayer.sfx.play( schema );
+            */
         }
 
         public void FreeSpin()

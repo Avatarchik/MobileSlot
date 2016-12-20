@@ -328,6 +328,8 @@ namespace Game
             RemoveSymbolsExceptNecessary();
             AlignSymbols(-_config.tweenLastBackInfo.distance);
 
+            SlotSoundList.Instance.ReelStop();
+
             if (_config.tweenLastBackInfo.distance != 0)
             {
                 var backOutTween = _symbolContainer.DOLocalMove(Vector3.zero, _config.tweenLastBackInfo.duration);

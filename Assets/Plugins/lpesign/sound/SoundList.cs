@@ -11,7 +11,7 @@ namespace lpesign
         protected string _name;
 
         [SerializeField]
-        AudioClip _clip;
+        protected AudioClip _clip;
 
         public string Name { get { return _name; } }
         virtual public AudioClip Clip { get { return _clip; } }
@@ -33,13 +33,33 @@ namespace lpesign
         }
 
         public PlayType type;
-        public SoundSchema[] sounds;
+
+        [SerializeField]
+        SoundSchema[] _sounds;
+
+        List<SoundSchema> _organizedSounds;
+
+        public List<SoundSchema> Sounds { get { return _organizedSounds; } }
 
         override public AudioClip Clip
         {
             get
             {
-                return null;
+                if (_organizedSounds == null || _organizedSounds.Count == 0) return null;
+
+                Debug.Log( _name + " count: " + _organizedSounds.Count);
+
+                SoundSchema schema = null;
+
+                if (_organizedSounds.Count == 1)
+                {
+                    schema = _organizedSounds[0];
+                }
+
+                schema = _organizedSounds[0];
+
+                if (schema == null) return null;
+                else return schema.Clip;
             }
         }
 
@@ -55,39 +75,51 @@ namespace lpesign
 
         public SoundGroup(string name, int count) : base(name)
         {
-            sounds = new SoundSchema[count];
+            _sounds = new SoundSchema[count];
             for (var i = 0; i < count; ++i)
             {
-                sounds[i] = new SoundSchema(i.ToString());
+                _sounds[i] = new SoundSchema(i.ToString());
             }
         }
 
         public SoundGroup(string name, string[] childs) : base(name)
         {
-            sounds = new SoundSchema[childs.Length];
+            _sounds = new SoundSchema[childs.Length];
             for (var i = 0; i < childs.Length; ++i)
             {
-                sounds[i] = new SoundSchema(childs[i]);
+                _sounds[i] = new SoundSchema(childs[i]);
             }
         }
 
         public SoundGroup(string name, SoundSchema[] sounds) : base(name)
         {
-            this.sounds = sounds;
+            this._sounds = sounds;
+        }
+
+        public void Organize()
+        {
+            _organizedSounds = new List<SoundSchema>();
+
+            foreach (var sound in _sounds)
+            {
+                if (sound.Clip == null) continue;
+
+                _organizedSounds.Add(sound);
+            }
         }
     }
 
     public class SoundList : MonoBehaviour
     {
-        public bool Initialized;
         public List<SoundSchema> basic;
         public List<SoundGroup> groups;
 
-        public void Initialize()
+        public void Organize()
         {
-            if (Initialized) return;
-            CreateDefaultList();
-            Initialized = true;
+            foreach (var soundGroup in groups)
+            {
+                soundGroup.Organize();
+            }
         }
 
         virtual public void CreateDefaultList()
@@ -98,9 +130,8 @@ namespace lpesign
 
         public void Clear()
         {
-            Initialized = false;
-            basic = null;
-            groups = null;
+            basic.Clear();
+            groups.Clear();
         }
     }
 }

@@ -31,6 +31,8 @@ namespace lpesign
 
         StringBuilder _sb;
 
+        public SoundList SoundList { get { return _soundList; } }
+
         void Awake()
         {
             _soundMap = new Dictionary<string, SoundSchema>();
@@ -78,6 +80,7 @@ namespace lpesign
             Clear();
 
             _soundList = soundList;
+            _soundList.Organize();
 
             foreach (var sound in _soundList.basic)
             {
@@ -99,11 +102,11 @@ namespace lpesign
 
         void AddSoundGroup(SoundGroup soundGroup)
         {
-            Debug.Log("Add SoundGroup : " + soundGroup.Name);
+            // Debug.Log("Add SoundGroup : " + soundGroup.Name);
 
             RegisterSound(soundGroup.Name, soundGroup);
 
-            foreach (SoundSchema sound in soundGroup.sounds)
+            foreach (SoundSchema sound in soundGroup.Sounds)
             {
                 _sb.Append(soundGroup.Name);
                 _sb.Append(SoundGroup.SEPARATOR);
@@ -117,7 +120,7 @@ namespace lpesign
 
         void RegisterSound(string key, SoundSchema sound)
         {
-            Debug.Log("RegisterSound > " + key);
+            //Debug.Log("RegisterSound > " + key);
             _soundMap.Add(key, sound);
         }
 
@@ -144,8 +147,16 @@ namespace lpesign
         public AudioSource PlayBGM(string name, float volume = 1f, float pitch = 1f)
         {
             if (string.IsNullOrEmpty(name)) return null;
-
-            return PlayBGM(FindSound(name), volume, pitch);
+            var sound = FindSound(name);
+            if (sound == null)
+            {
+                Debug.LogWarning("sound(" + name + ") is null");
+                return null;
+            }
+            else
+            {
+                return PlayBGM(sound, volume, pitch);
+            }
         }
 
         public AudioSource PlayBGM(SoundSchema sound, float volume = 1f, float pitch = 1f)
@@ -191,8 +202,16 @@ namespace lpesign
         {
             if (string.IsNullOrEmpty(name)) return null;
 
-            SoundSchema sound = FindSound(name);
-            return PlaySFX(sound.Clip, volume, pitch, position);
+            var sound = FindSound(name);
+            if (sound == null)
+            {
+                Debug.LogWarning("sound(" + name + ") is null");
+                return null;
+            }
+            else
+            {
+                return PlaySFX(sound.Clip, volume, pitch, position);
+            }
         }
 
         public AudioSource PlaySFX(AudioClip clip, float volume = 1f, float pitch = 1f)
