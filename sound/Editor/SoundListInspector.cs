@@ -15,7 +15,6 @@ public class SoundListInspector : UsableEditor<SoundList>
     void OnEnable()
     {
         Initialize();
-        _script.Initialize();
         CreaetReorderLists();
     }
 
@@ -32,7 +31,7 @@ public class SoundListInspector : UsableEditor<SoundList>
         for (var i = 0; i < groupCount; ++i)
         {
             var g = groups.GetArrayElementAtIndex(i);
-            var soundsProperty = g.FindPropertyRelative("sounds");
+            var soundsProperty = g.FindPropertyRelative("_sounds");
             var list = CreateSoundSchemaList(soundsProperty);
             _groupList[i] = list;
         }
