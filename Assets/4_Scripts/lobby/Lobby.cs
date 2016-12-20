@@ -5,23 +5,23 @@ using System.Collections;
 
 public class Lobby : SingletonSimple<Lobby>
 {
-	private LobbyData _data;
-	public LobbyData Data{ get{ return _data;}}
+    private LobbyData _data;
+    public LobbyData Data { get { return _data; } }
 
-	override protected void Awake()
-	{
-		base.Awake();
+    override protected void Awake()
+    {
+        base.Awake();
 
-		_data = new LobbyData();
-		_data.SetTestDatas();
+        _data = new LobbyData();
+        _data.SetTestDatas();
 
-		CanvasUtil.CanvasSetting(GetComponent<Canvas>(), GlobalConfig.ReferenceWidth, GlobalConfig.ReferenceHeight, GlobalConfig.PixelPerUnit );
-	}
+        GetComponent<Canvas>().SetReferenceSize(GlobalConfig.ReferenceWidth, GlobalConfig.ReferenceHeight, GlobalConfig.PixelPerUnit);
+    }
 
-	void Start()
-	{
-		Debug.Log("lobby start");
+    void Start()
+    {
+        Debug.Log("lobby start");
 
-		GameManager.Instance.SceneReady();
-	}
+        GameManager.Instance.SceneReady();
+    }
 }

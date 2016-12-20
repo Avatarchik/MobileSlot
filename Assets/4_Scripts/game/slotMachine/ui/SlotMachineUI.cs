@@ -26,7 +26,7 @@ namespace Game
 
         void Awake()
         {
-            CanvasUtil.CanvasSetting(GetComponent<Canvas>(), GlobalConfig.ReferenceWidth, GlobalConfig.ReferenceHeight, GlobalConfig.PixelPerUnit );
+            GetComponent<Canvas>().SetReferenceSize(GlobalConfig.ReferenceWidth, GlobalConfig.ReferenceHeight, GlobalConfig.PixelPerUnit);
         }
 
         void Start()

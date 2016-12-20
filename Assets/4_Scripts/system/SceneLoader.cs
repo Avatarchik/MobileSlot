@@ -67,7 +67,7 @@ public class SceneLoader : MonoBehaviour
 
     void Awake()
     {
-        CanvasUtil.CanvasSetting(canvas, GlobalConfig.ReferenceWidth, GlobalConfig.ReferenceHeight, GlobalConfig.PixelPerUnit);
+        canvas.SetReferenceSize(GlobalConfig.ReferenceWidth, GlobalConfig.ReferenceHeight, GlobalConfig.PixelPerUnit);
     }
 
     void Start()
@@ -95,16 +95,10 @@ public class SceneLoader : MonoBehaviour
         IsSceneReady = false;
         SetProgress(0f);
 
-        ShowLoadingScreen();
-
-        StartCoroutine(LoadAsync());
-        StartCoroutine(AnimatingProgressBar());
-    }
-
-    void ShowLoadingScreen()
-    {
         StartCoroutine(loadingScreen.FadeTo(0f, 1f, 0.2f));
         StartCoroutine(_loadingScreenRtf.LocalScaleTo(0f, 1f));
+        StartCoroutine(LoadAsync());
+        StartCoroutine(AnimatingProgressBar());
     }
 
     IEnumerator AnimatingProgressBar()
@@ -170,6 +164,13 @@ public class SceneLoader : MonoBehaviour
     {
         Debug.Log("'" + _sceneToLoad + "' scene Loading Complete");
         IsLoading = false;
+
+        if (_loadCallback != null)
+        {
+            _loadCallback();
+            _loadCallback = null;
+        }
+
         yield return StartCoroutine(loadingScreen.FadeTo(1f, 0f, 0.2f));
         visible = false;
     }
