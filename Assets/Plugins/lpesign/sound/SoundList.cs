@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace lpesign
@@ -8,46 +7,72 @@ namespace lpesign
     [Serializable]
     public class SoundSchema
     {
-        public string name;
-        public AudioClip clip;
+        [SerializeField]
+        protected string _name;
+
+        [SerializeField]
+        AudioClip _clip;
+
+        public string Name { get { return _name; } }
+        virtual public AudioClip Clip { get { return _clip; } }
+
         public SoundSchema(string name)
         {
-            this.name = name;
+            _name = name;
         }
     }
 
     [Serializable]
-    public class SoundGroup
+    public class SoundGroup : SoundSchema
     {
+        static public string SEPARATOR = "/";
         public enum PlayType
         {
-            RANDOM,
-            Loop
+            Random,
+            Order
         }
 
-        public string name;
         public PlayType type;
         public SoundSchema[] sounds;
 
-        public SoundGroup(string groupName)
+        override public AudioClip Clip
         {
-            this.name = groupName;
-        }
-
-        public SoundGroup(string groupName, int count)
-        {
-            this.name = groupName;
-
-            sounds = new SoundSchema[ count ];
-            for( var i = 0; i < count; ++i )
+            get
             {
-                sounds[i] = new SoundSchema( i.ToString());
+                return null;
             }
         }
 
-        public SoundGroup(string groupName, SoundSchema[] sounds)
+        public SoundGroup(string name) : base(name)
         {
-            this.name = groupName;
+            /*
+            var relativeCategory = _groupMap[categoryName];
+            var ranidx = (int)Random.Range(0, relativeCategory.sounds.Length);
+            sound = relativeCategory.sounds[ranidx];
+            return sound;
+            */
+        }
+
+        public SoundGroup(string name, int count) : base(name)
+        {
+            sounds = new SoundSchema[count];
+            for (var i = 0; i < count; ++i)
+            {
+                sounds[i] = new SoundSchema(i.ToString());
+            }
+        }
+
+        public SoundGroup(string name, string[] childs) : base(name)
+        {
+            sounds = new SoundSchema[childs.Length];
+            for (var i = 0; i < childs.Length; ++i)
+            {
+                sounds[i] = new SoundSchema(childs[i]);
+            }
+        }
+
+        public SoundGroup(string name, SoundSchema[] sounds) : base(name)
+        {
             this.sounds = sounds;
         }
     }
@@ -55,7 +80,7 @@ namespace lpesign
     public class SoundList : MonoBehaviour
     {
         public bool Initialized;
-        public SoundSchema[] basic;
+        public List<SoundSchema> basic;
         public List<SoundGroup> groups;
 
         public void Initialize()
@@ -67,7 +92,7 @@ namespace lpesign
 
         virtual public void CreateDefaultList()
         {
-            basic = new SoundSchema[0];
+            basic = new List<SoundSchema>();
             groups = new List<SoundGroup>();
         }
 

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections.Generic;
 
 using lpesign;
@@ -7,52 +8,105 @@ namespace Game
 {
     public class SlotSoundList : SoundList
     {
-        //todo
-        //현재 씬의 슬롯 config 을 얻어와야 한다.
+        public static SlotSoundList Instance;
+        SoundPlayer _player;
+
+        void Awake()
+        {
+            Instance = this;
+        }
+
+        void Start()
+        {
+            _player = FindObjectOfType<SoundPlayer>();
+            if (_player == null) throw new NullReferenceException("SoundPlayer cannot be null");
+
+            _player.SetSoundList(this);
+        }
+
         override public void CreateDefaultList()
         {
-            int columnCount = 3;
-            int progressiveCount = 5;
+            base.CreateDefaultList();
+
+            //todo
+            //현재 씬의 슬롯 config 을 얻어와서 설정에 따라 스마트하게 되어야 한다.
+            int columnCount = 5;
             bool useFreespin = false;
 
-            basic = new SoundSchema[]
+            bool useProgressive = false;
+            int progressiveCount = 5;
+
+            //create sound
+            basic.Add(new SoundSchema("INTRO"));
+            basic.Add(new SoundSchema("BGM"));
+            basic.Add(new SoundSchema("WIN"));
+            basic.Add(new SoundSchema("WIN_END"));
+
+            //create Group
+            groups.Add(new SoundGroup("SPIN", columnCount));
+            groups.Add(new SoundGroup("REEL_STOP", columnCount));
+            groups.Add(new SoundGroup("BTN", new string[] { "SPIN", "FAST", "DECREASE", "DECREASE", "COMMON" }));
+            groups.Add(new SoundGroup("SPECIAL_WIN", new string[] { "JACKPOT", "MEGAWIN", "BIGWIN" }));
+
+            //todo
+            //SCATTER 종류와 수 타입을 config 에서 얻어와 돌려야 한다
+            groups.Add(new SoundGroup("EXPECT", columnCount));
+            groups.Add(new SoundGroup("SCATTER_STOP", columnCount));
+
+            //optional
+            if (useFreespin)
             {
-                new SoundSchema("INTRO"),
-                new SoundSchema("BGM"),
-                new SoundSchema("BGM_FREE"),
+                basic.Add(new SoundSchema("BGM_FREE"));
+                basic.Add(new SoundSchema("FREESPIN_TRIGGER"));
+                basic.Add(new SoundSchema("FREESPIN_READY"));
+                basic.Add(new SoundSchema("FREESPIN_READY_LOOP"));
+                basic.Add(new SoundSchema("FREESPIN_NUMBERING"));
+                basic.Add(new SoundSchema("FREESPIN_COMPLETE"));
+                basic.Add(new SoundSchema("FREESPIN_CONGRATULATION"));
 
-                new SoundSchema("BTN_SPIN"),
-                new SoundSchema("BTN_FAST"),
-                new SoundSchema("BTN_DECREASE"),
-                new SoundSchema("BTN_INCREASE"),
-                new SoundSchema("BTN_COMMON"),
+                groups.Add(new SoundGroup("FREE_REEL_STOP", columnCount));
+            }
 
-                new SoundSchema("FREESPIN_TRIGGER"),
-                new SoundSchema("FREESPIN_READY"),
-                new SoundSchema("FREESPIN_READY_LOOP"),
-                new SoundSchema("FREESPIN_NUMBERING"),
-                new SoundSchema("FREESPIN_COMPLETE"),
-                new SoundSchema("FREESPIN_CONGRATULATION")
-            };
-
-            groups = new List<SoundGroup>()
+            if (useProgressive)
             {
-                new SoundGroup("SPIN",columnCount),
-                new SoundGroup("REEL_STOP",columnCount),
-                new SoundGroup("FREE_REEL_STOP",columnCount),
-                new SoundGroup("SCATTER_STOP",columnCount),
-                new SoundGroup("EXPECT", columnCount ),
-                new SoundGroup("WIN_PROGRESSIVE", progressiveCount),
-                new SoundGroup("WIN_NORMAL", new SoundSchema[]
-                {
-                    new SoundSchema("DEFAULT"),
-                    new SoundSchema("END"),
-                    new SoundSchema("JACKPOT"),
-                    new SoundSchema("MEGAWIN"),
-                    new SoundSchema("BIGWIN"),
-                    new SoundSchema("JMB_END"),
-                })
-            };
+                groups.Add(new SoundGroup("PROGRESSIVE_STOP", progressiveCount));
+                groups.Add(new SoundGroup("PROGRESSIVE_WIN", progressiveCount));
+            }
+        }
+
+        public void BGM()
+        {
+            _player.PlayBGM("BGM");
+        }
+
+        public void Spin()
+        {
+            // _player.PlaySFX(sp);
+        }
+
+        public void FreeSpin()
+        {
+            // _player.PlaySFX(spins[0]);
+        }
+
+        public void PlayFreeSpinTrigger()
+        {
+
+        }
+
+        public void StopFreeSpinTrigger()
+        {
+
+        }
+
+        public void PlayFreeSpinReady()
+        {
+
+        }
+
+        public void StopFreeSpinReady()
+        {
+
         }
     }
 }

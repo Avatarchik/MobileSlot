@@ -206,8 +206,9 @@ namespace Game
 
             _freeSpinDirector = GetComponentInChildren<FreeSpinDirector>();
 
+            SlotSoundList.Instance.BGM();
+            
             SetState(MachineState.Idle);
-
             GameManager.Instance.SceneReady();
         }
 
@@ -286,6 +287,8 @@ namespace Game
             _reelContainer.Spin();
             _topboard.Spin();
 
+            SlotSoundList.Instance.Spin();
+
             if (_testSendData != null)
             {
                 GameServerCommunicator.Instance.Send(_testSendData);
@@ -363,7 +366,7 @@ namespace Game
 
         IEnumerator FreeSpinTrigger_Enter()
         {
-            SlotSoundPlayer.Instance.PlayFreeSpinTrigger();
+            SlotSoundList.Instance.PlayFreeSpinTrigger();
 
             _reelContainer.FreeSpinTrigger();
             _topboard.FreeSpinTrigger();
@@ -377,7 +380,7 @@ namespace Game
 
         IEnumerator FreeSpinTrigger_Exit()
         {
-            SlotSoundPlayer.Instance.StopFreeSpinTrigger();
+            SlotSoundList.Instance.StopFreeSpinTrigger();
             yield break;
         }
 
@@ -385,7 +388,7 @@ namespace Game
         {
             if (_paylineModule != null) _paylineModule.Clear();
 
-            SlotSoundPlayer.Instance.PlayFreeSpinReady();
+            SlotSoundList.Instance.PlayFreeSpinReady();
 
             _reelContainer.FreeSpinReady();
             _topboard.FreeSpinReady();
@@ -418,7 +421,7 @@ namespace Game
 
         IEnumerator FreeSpinReady_Exit()
         {
-            SlotSoundPlayer.Instance.StopFreeSpinReady();
+            SlotSoundList.Instance.StopFreeSpinReady();
             _freeSpinDirector.Close();
             yield break;
         }
@@ -437,6 +440,8 @@ namespace Game
             _topboard.FreeSpin();
             _ui.FreeSpin();
             _reelContainer.FreeSpin(_lastSpinInfo);
+
+            SlotSoundList.Instance.FreeSpin();
         }
 
         IEnumerator FreeSpinEnd_Enter()
@@ -659,6 +664,7 @@ namespace Game
             yield return new WaitForSeconds(_config.transition.LockReel_BonusSpin);
 
             _reelContainer.BonusSpin(_lastSpinInfo);
+            SlotSoundList.Instance.Spin();
 
             yield break;
         }
