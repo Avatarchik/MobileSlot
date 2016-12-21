@@ -206,6 +206,9 @@ namespace Game
 
             _freeSpinDirector = GetComponentInChildren<FreeSpinDirector>();
 
+            //todo
+            //씬에 수동으로 스크립트를 부착해줘야 한다.
+            //반드시 존재하도록 조치가 필요
             SlotSoundPlayer.Instance.Initialize();
             SlotSoundPlayer.Instance.PlayBGM();
 
