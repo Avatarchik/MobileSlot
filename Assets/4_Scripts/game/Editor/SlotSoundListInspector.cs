@@ -7,7 +7,7 @@ using lpesign;
 
 namespace Game
 {
-    [CustomEditor(typeof(SlotSoundList))]
+    [CustomEditor(typeof(SlotSoundPlayer))]
     public class SlotSoundListInspector : SoundListInspector
     {
         public override void OnInspectorGUI()

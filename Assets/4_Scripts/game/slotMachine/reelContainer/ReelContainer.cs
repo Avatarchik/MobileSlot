@@ -242,7 +242,7 @@ namespace Game
         {
             if (_nextStopIndex >= _config.Column)
             {
-                ReelAllCompleted();
+                ReelStopCompleted();
                 return;
             }
 
@@ -268,6 +268,7 @@ namespace Game
                 }
 
                 nextReel.SpinToExpect();
+                SlotSoundPlayer.Instance.Expect();
                 return;
             }
 
@@ -283,7 +284,7 @@ namespace Game
             }
         }
 
-        void ReelAllCompleted()
+        void ReelStopCompleted()
         {
             if (OnReelStopComplete != null) OnReelStopComplete();
         }

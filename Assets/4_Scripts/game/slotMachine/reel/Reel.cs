@@ -328,7 +328,7 @@ namespace Game
             RemoveSymbolsExceptNecessary();
             AlignSymbols(-_config.tweenLastBackInfo.distance);
 
-            SlotSoundList.Instance.ReelStop();
+            SlotSoundPlayer.Instance.ReelStop();
 
             if (_config.tweenLastBackInfo.distance != 0)
             {
