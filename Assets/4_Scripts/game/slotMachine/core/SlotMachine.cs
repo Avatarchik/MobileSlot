@@ -206,8 +206,9 @@ namespace Game
 
             _freeSpinDirector = GetComponentInChildren<FreeSpinDirector>();
 
+            SlotSoundPlayer.Instance.Initialize();
             SlotSoundPlayer.Instance.PlayBGM();
-            
+
             SetState(MachineState.Idle);
             GameManager.Instance.SceneReady();
         }

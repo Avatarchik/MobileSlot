@@ -52,7 +52,7 @@ namespace Game
             Instance = this;
         }
 
-        void Start()
+        public void Initialize()
         {
             _player = FindObjectOfType<SoundPlayer>();
             if (_player == null) throw new NullReferenceException("SoundPlayer cannot be null");
