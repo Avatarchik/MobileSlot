@@ -29,14 +29,16 @@ namespace lpesign
         public enum PlayType
         {
             Random,
-            Order
+            Order,
+            CHOOSE
         }
 
         public PlayType type;
-
         [SerializeField]
         SoundSchema[] _sounds;
 
+        int _count;
+        int _orderInex;
         List<SoundSchema> _organizedSounds;
 
         public List<SoundSchema> Sounds { get { return _organizedSounds; } }
@@ -45,36 +47,62 @@ namespace lpesign
         {
             get
             {
-                if (_organizedSounds == null || _organizedSounds.Count == 0) return null;
-
-                Debug.Log( _name + " count: " + _organizedSounds.Count);
+                if (_organizedSounds == null || _count == 0) return null;
 
                 SoundSchema schema = null;
 
-                if (_organizedSounds.Count == 1)
+                if (_count == 1)
                 {
                     schema = _organizedSounds[0];
                 }
+                else
+                {
+                    switch (type)
+                    {
+                        case PlayType.CHOOSE:
+                            //recommend Choose Method
+                            schema = _organizedSounds[0];
+                            break;
 
-                schema = _organizedSounds[0];
+                        case PlayType.Random:
+                            var ranIndex = (int)UnityEngine.Random.Range(0, _count);
+                            schema = _organizedSounds[ranIndex];
+                            break;
+
+                        case PlayType.Order:
+                            schema = _organizedSounds[_orderInex];
+
+                            Debug.Log("order: " + _orderInex + ", name: " + schema.Name + ",( group:" + Name + ")");
+
+                            if (++_orderInex >= _count) _orderInex = 0;
+                            break;
+                    }
+                }
 
                 if (schema == null) return null;
                 else return schema.Clip;
             }
         }
 
-        public SoundGroup(string name) : base(name)
+        public AudioClip Choose(string name)
         {
-            /*
-            var relativeCategory = _groupMap[categoryName];
-            var ranidx = (int)Random.Range(0, relativeCategory.sounds.Length);
-            sound = relativeCategory.sounds[ranidx];
-            return sound;
-            */
+            for (var i = 0; i < _count; ++i)
+            {
+                var sound = _organizedSounds[i];
+                if (sound.Name == name) return sound.Clip;
+            }
+
+            return null;
         }
 
-        public SoundGroup(string name, int count) : base(name)
+        public SoundGroup(string name) : base(name)
         {
+
+        }
+
+        public SoundGroup(string name, PlayType type, int count) : base(name)
+        {
+            this.type = type;
             _sounds = new SoundSchema[count];
             for (var i = 0; i < count; ++i)
             {
@@ -82,8 +110,9 @@ namespace lpesign
             }
         }
 
-        public SoundGroup(string name, string[] childs) : base(name)
+        public SoundGroup(string name, PlayType type, string[] childs) : base(name)
         {
+            this.type = type;
             _sounds = new SoundSchema[childs.Length];
             for (var i = 0; i < childs.Length; ++i)
             {
@@ -91,13 +120,15 @@ namespace lpesign
             }
         }
 
-        public SoundGroup(string name, SoundSchema[] sounds) : base(name)
+        public SoundGroup(string name, PlayType type, SoundSchema[] sounds) : base(name)
         {
+            this.type = type;
             this._sounds = sounds;
         }
 
         public void Organize()
         {
+            _orderInex = 0;
             _organizedSounds = new List<SoundSchema>();
 
             foreach (var sound in _sounds)
@@ -106,6 +137,8 @@ namespace lpesign
 
                 _organizedSounds.Add(sound);
             }
+
+            _count = _organizedSounds.Count;
         }
     }
 

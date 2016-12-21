@@ -250,6 +250,16 @@ namespace lpesign
             return ch;
         }
 
+        public void StopSFX( string name )
+        {
+            
+        }
+
+        public void StopSFX( AudioClip clip )
+        {
+
+        }
+
         public bool bgmMute
         {
             set
