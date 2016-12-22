@@ -31,10 +31,11 @@ namespace Game
         {
             base.Init(slotUI);
 
-            _betting = _ui.SlotMachine.Config.COMMON.Betting;
+            _betting = _ui.SlotMachine.Config.Betting;
             _betting.OnUpdateLineBetIndex += OnUpdateLineBetHandler;
 
-            SetLineNum(_ui.SlotMachine.Config.paylineTable.Length);
+            SetLineNum(_ui.SlotMachine.Config.Main.paylineTable.Length);
+            
             SetWin(0);
 
             OnUpdateLineBetHandler();

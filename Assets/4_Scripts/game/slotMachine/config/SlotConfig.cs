@@ -14,8 +14,13 @@ namespace Game
     /// 모든 머신의 공통적인 설정과 개별 설정을 분리해서 정의한다.
     /// </summary>
     [Serializable]
-    public class SlotConfig
+    [ExecuteInEditMode]
+    public class SlotConfig : MonoBehaviour
     {
+        //------------------------------------------------------------------
+        //custom enum
+        //------------------------------------------------------------------
+        #region customn enum
         public enum FreeSpinTriggerType
         {
             Auto,
@@ -45,94 +50,164 @@ namespace Game
             MEGAWIN,
             JACPOT
         }
+        #endregion
 
         //------------------------------------------------------------------
-        //게임 속 머신 공통 설정
+        //Slot 공통 설정
+        //------------------------------------------------------------------
+
+        public int ID;
+        public string Host;
+        public int Port;
+        public string Version;
+        public SlotBetting Betting;
+        public bool DebugSymbolArea;//심볼 영역을 표시할지 여부
+        public bool DebugTestSpin;//심볼 영역을 표시할지 여부
+
+        [SerializeField]
+        List<MachineConfig> _machienList;
+        public MachineConfig Main
+        {
+            get
+            {
+                if (_machienList.Count == 0) return null;
+                else return _machienList[0];
+            }
+        }
+
+        public void AddMachine(MachineConfig machine)
+        {
+            _machienList.Add(machine);
+        }
+
+        //------------------------------------------------------------------
+        //게임 개별 머신
         //------------------------------------------------------------------
         [Serializable]
-        public class CommonConfig
+        public class MachineConfig
         {
-            public int ID;
-            public string Host;
-            public int Port;
-            public string Version;
-            public SlotBetting Betting;
-            public bool DebugSymbolArea;//심볼 영역을 표시할지 여부
-            public bool DebugTestSpin;//심볼 영역을 표시할지 여부
+            [Header("Base")]
+            public int Row;
+            public int Column;
+
+            [Header("Symbol")]
+            public Size2D SymbolSize;
+            public Size2D NullSymbolSize;
+
+            [Header("FreeSpin")]
+            public bool UseFreeSpin;
+            public FreeSpinTriggerType TriggerType;
+            public FreeSpinRetriggerType RetriggerType;
+
+            public int[][] paylineTable;
+
+            [Header("Scatter")]
+            public List<ScatterInfo> scatters;
+
+            [Header("Reel")]
+            public Reel ReelPrefab;
+            public Size2D ReelSize;
+            public float ReelSpace;
+            public float ReelGap;
+
+
+            [Header("Spin")]
+            public int MarginSymbolCount;//릴 위아래 여유 심볼 수
+            public int IncreaseCount;//다음 릴로 갈 수록 더 생겨야할 심볼 수
+            public int SpiningSymbolCount;//스핀 한 세트 당 심볼 수
+            public int SpinCountThreshold;//서버가 응답이 빠르더라도 최소한 돌아야할 스핀 세트 수 
+            public float SpinSpeedPerSec;//스핀 초당 속도
+            public float DelayEachReel;//각 릴 사이의 스핀 시작 딜레이
+            public MoveTweenInfo tweenFirstBackInfo;//첫번재 스핀에 정보
+            public MoveTweenInfo tweenLastBackInfo;//마지막 스핀이 정보
+
+            [Header("Transition")]
+            public Transition transition;
+
+
+            [Header("NameMap")]
+            public SymbolNameMap NameMap;
+
+            //reelStrip
+            ReelStrip _normalStrip;
+            ReelStrip _freeStrip;
+
+            public ReelStrip NormalStrip
+            {
+                set { _normalStrip = value; }
+                get { return _normalStrip; }
+            }
+
+            public ReelStrip FreeStrip
+            {
+                set { _freeStrip = value; }
+                get { return _freeStrip ?? _normalStrip; }
+            }
+
+            //startSymbols
+            string[,] _startSymbolNames;
+            public void SetStartSymbols(string[,] startSymbolNames)
+            {
+                _startSymbolNames = startSymbolNames;
+            }
+
+            public string GetStartSymbolAt(int col, int row)
+            {
+                return _startSymbolNames[col, row];
+            }
+
+            public void AddSccaterInfo(string symbolname, int limit, int[] ableReel)
+            {
+                if (scatters == null) scatters = new List<ScatterInfo>();
+
+                var info = new ScatterInfo(symbolname, limit, ableReel);
+                scatters.Add(info);
+            }
+        }
+    }
+
+    //todo
+    //symbol 정의를 내릴때 포함시키자
+    [Serializable]
+    public class ScatterInfo
+    {
+        public string symbolName;
+        public int limit;
+        public int[] ableReel;
+        public AudioClip[] stopSounds;
+
+        int _index;
+
+        public ScatterInfo(string symbolname, int limit, int[] ableReel)
+        {
+            this.symbolName = symbolname;
+            this.limit = limit;
+            this.ableReel = ableReel;
+            this.stopSounds = new AudioClip[ableReel.Length];
+
+            Reset();
         }
 
-        //------------------------------------------------------------------
-        //게임 속 머신 개별
-        //------------------------------------------------------------------
-        [Header("Global")]
-        public CommonConfig COMMON;
-
-        [Header("Base")]
-        public int Row;
-        public int Column;
-
-        [Header("Symbol")]
-        public Size2D SymbolSize;
-        public Size2D NullSymbolSize;
-
-        [Header("FreeSpin")]
-        public bool UseFreeSpin;
-        public FreeSpinTriggerType TriggerType;
-        public FreeSpinRetriggerType RetriggerType;
-
-        [Header("PaylineTable")]
-        public int[][] paylineTable;
-
-        [Header("Reel")]
-        public Reel ReelPrefab;
-        public Size2D ReelSize;
-        public float ReelSpace;
-        public float ReelGap;
-
-
-        [Header("Spin")]
-        public int MarginSymbolCount;//릴 위아래 여유 심볼 수
-        public int IncreaseCount;//다음 릴로 갈 수록 더 생겨야할 심볼 수
-        public int SpiningSymbolCount;//스핀 한 세트 당 심볼 수
-        public int SpinCountThreshold;//서버가 응답이 빠르더라도 최소한 돌아야할 스핀 세트 수 
-        public float SpinSpeedPerSec;//스핀 초당 속도
-        public float DelayEachReel;//각 릴 사이의 스핀 시작 딜레이
-        public MoveTweenInfo tweenFirstBackInfo;//첫번재 스핀에 정보
-        public MoveTweenInfo tweenLastBackInfo;//마지막 스핀이 정보
-
-        [Header("Transition")]
-        public Transition transition;
-
-
-        [Header("NameMap")]
-        public SymbolNameMap NameMap;
-
-        //startSymbols
-        string[,] _startSymbolNames;
-        public void SetStartSymbols(string[,] startSymbolNames)
+        public void Reset()
         {
-            _startSymbolNames = startSymbolNames;
+            _index = 0;
         }
 
-        public string GetStartSymbolAt(int col, int row)
+        public bool CheckScattered(Reel reel, out AudioClip stopSound)
         {
-            return _startSymbolNames[col, row];
-        }
+            Debug.Log("reel: " + reel.Column + " check ableReel: " + string.Join(",", ableReel.Select(x => x.ToString()).ToArray()));
 
-        //reelStrip
-        ReelStrip _normalStrip;
-        ReelStrip _freeStrip;
+            if (Array.IndexOf(ableReel, reel.Column) == -1 ||
+                reel.ContainsByName(symbolName) == false)
+            {
+                stopSound = null;
+                Debug.Log("no scatterd: " + Array.IndexOf(ableReel, reel.Column) + " : " + reel.ContainsByName(symbolName));
+                return false;
+            }
 
-        public ReelStrip NormalStrip
-        {
-            set { _normalStrip = value; }
-            get { return _normalStrip; }
-        }
-
-        public ReelStrip FreeStrip
-        {
-            set { _freeStrip = value; }
-            get { return _freeStrip ?? _normalStrip; }
+            Debug.Log(symbolName + " scattered");
+            stopSound = stopSounds[_index++];
+            return true;
         }
     }
 

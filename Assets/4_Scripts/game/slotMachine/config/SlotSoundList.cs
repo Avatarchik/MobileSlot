@@ -6,7 +6,7 @@ using lpesign;
 
 namespace Game
 {
-    public class SlotSoundPlayer : SoundList
+    public class SlotSoundList : SoundList
     {
         const string INTRO = "INTRO";
         const string BGM = "BGM";
@@ -44,8 +44,9 @@ namespace Game
         const string FREE_REEL_STOP = "FREE_REEL_STOP";
         const string PROGRESSIVE_WIN = "PROGRESSIVE_WIN";
 
-        public static SlotSoundPlayer Instance;
+        public static SlotSoundList Instance;
         SoundPlayer _player;
+        public SoundPlayer Player { get { return _player; } }
 
         void Awake()
         {
@@ -84,14 +85,6 @@ namespace Game
             groups.Add(new SoundGroup(BTN, SoundGroup.PlayType.CHOOSE, new string[] { BTN_SPIN, BTN_FAST, BTN_DECREASE, BTN_INCREASE, BTN_COMMON }));
             groups.Add(new SoundGroup(SPECIAL_WIN, SoundGroup.PlayType.CHOOSE, new string[] { SPECIAL_WIN_JACKPOT, SPECIAL_WIN_MEGAWIN, SPECIAL_WIN_BIGWIN }));
 
-            //todo
-            //SCATTER 종류와 수 타입을 config 에서 얻어와 돌려야 한다
-            string scatterName = "DIA";
-            int scatterableReelCount = 5;
-            int scatterLimitCount = 7;
-            groups.Add(new SoundGroup(scatterName, SoundGroup.PlayType.Order, scatterableReelCount));
-            groups.Add(new SoundGroup(scatterName + "_STOP", SoundGroup.PlayType.CHOOSE, scatterLimitCount));
-
             //optional
             if (useFreespin)
             {
@@ -115,6 +108,11 @@ namespace Game
         public void PlayBGM()
         {
             _player.PlayBGM(BGM);
+        }
+
+        public void PlaySFX()
+        {
+
         }
 
         AudioSource _spinChannel;

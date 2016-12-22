@@ -66,9 +66,9 @@ namespace Game
         public void Initialize(SlotConfig config)
         {
             _config = config;
-            _symbolNecessaryCount = _config.Row + _config.MarginSymbolCount * 2;
-            _lastSymbolNames = new string[_config.Row];
-            _receivedSymbolNames = new string[_config.Row];
+            _symbolNecessaryCount = _config.Main.Row + _config.Main.MarginSymbolCount * 2;
+            _lastSymbolNames = new string[_config.Main.Row];
+            _receivedSymbolNames = new string[_config.Main.Row];
 
             CreateStartSymbols();
         }
@@ -79,15 +79,15 @@ namespace Game
 
             for (var i = 0; i < _symbolNecessaryCount; ++i)
             {
-                var sname = _config.GetStartSymbolAt(_column, i);
+                var sname = _config.Main.GetStartSymbolAt(_column, i);
                 AddSymbolToTail(CreateSymbol(sname));
             }
 
             AlignSymbols();
 
-            for (var i = 0; i < _config.Row; ++i)
+            for (var i = 0; i < _config.Main.Row; ++i)
             {
-                _lastSymbolNames[i] = _config.GetStartSymbolAt(_column, _config.MarginSymbolCount + i);
+                _lastSymbolNames[i] = _config.Main.GetStartSymbolAt(_column, _config.Main.MarginSymbolCount + i);
             }
         }
 
@@ -109,7 +109,7 @@ namespace Game
         virtual protected float GetStartSymbolPos()
         {
             var res = 0f;
-            for (var i = 0; i < _config.MarginSymbolCount; ++i)
+            for (var i = 0; i < _config.Main.MarginSymbolCount; ++i)
             {
                 res += _symbols[i].Height;
             }
@@ -153,11 +153,11 @@ namespace Game
 
             _isReceived = true;
 
-            string[] reelData = spinInfo.GetReelData(_column, _config.Row);
+            string[] reelData = spinInfo.GetReelData(_column, _config.Main.Row);
 
             for (var i = 0; i < reelData.Length; ++i)
             {
-                _receivedSymbolNames[i] = _config.NameMap.GetSymbolName(reelData[i]);
+                _receivedSymbolNames[i] = _config.Main.NameMap.GetSymbolName(reelData[i]);
             }
 
             //Debug.Log(string.Join(",", _receivedSymbolNames));
@@ -193,7 +193,7 @@ namespace Game
             {
                 TweenFirst();
             }
-            else if (_spinCount <= _config.SpinCountThreshold || _isReceived == false || Loop)
+            else if (_spinCount <= _config.Main.SpinCountThreshold || _isReceived == false || Loop)
             {
                 TweenLiner();
             }
@@ -213,26 +213,26 @@ namespace Game
         {
             Tweener tweenBack = null;
 
-            if (_config.tweenFirstBackInfo.distance > 0)
+            if (_config.Main.tweenFirstBackInfo.distance > 0)
             {
-                var backPos = _symbolContainer.position + new Vector3(0f, _config.tweenFirstBackInfo.distance, 0f);
-                tweenBack = _symbolContainer.DOMove(backPos, _config.tweenFirstBackInfo.duration);
+                var backPos = _symbolContainer.position + new Vector3(0f, _config.Main.tweenFirstBackInfo.distance, 0f);
+                tweenBack = _symbolContainer.DOMove(backPos, _config.Main.tweenFirstBackInfo.duration);
                 tweenBack.SetEase(Ease.OutSine);
-                _spinDis += _config.tweenFirstBackInfo.distance;
+                _spinDis += _config.Main.tweenFirstBackInfo.distance;
             }
 
-            AddSpiningSymbols(_config.SpiningSymbolCount);
+            AddSpiningSymbols(_config.Main.SpiningSymbolCount);
 
             UpdateSpinDestination();
 
-            var duration = _spinDis / _config.SpinSpeedPerSec;
+            var duration = _spinDis / _config.Main.SpinSpeedPerSec;
             var tween = _symbolContainer.DOLocalMove(_spinDestination, duration);
             // tween.SetEase(Ease.Linear);
             tween.SetEase(Ease.InCubic);
 
             //todo
             //시퀀스 매 생성하지 않고 재활용 하기
-            var startDelay = StartOrder * _config.DelayEachReel;
+            var startDelay = StartOrder * _config.Main.DelayEachReel;
             Sequence firstTweenSequence = DOTween.Sequence();
             firstTweenSequence.PrependInterval(startDelay);
             if (tweenBack != null) firstTweenSequence.Append(tweenBack);
@@ -244,9 +244,9 @@ namespace Game
 
         virtual protected void TweenLiner()
         {
-            AddSpiningSymbols(_config.SpiningSymbolCount);
+            AddSpiningSymbols(_config.Main.SpiningSymbolCount);
 
-            var duration = _spinDis / _config.SpinSpeedPerSec;
+            var duration = _spinDis / _config.Main.SpinSpeedPerSec;
 
             UpdateSpinDestination();
 
@@ -260,17 +260,18 @@ namespace Game
         {
             _isTweenLast = true;
 
-            AddSpiningSymbols(StartOrder * _config.IncreaseCount);
+            AddSpiningSymbols(StartOrder * _config.Main.IncreaseCount);
             ComposeLastSpiningSymbols();
 
-            _spinDis -= _config.tweenFirstBackInfo.distance;
-            _spinDis += _config.tweenLastBackInfo.distance;
+            _spinDis -= _config.Main.tweenFirstBackInfo.distance;
+            _spinDis += _config.Main.tweenLastBackInfo.distance;
             UpdateSpinDestination();
 
-            var duration = _spinDis / _config.SpinSpeedPerSec;
+            var duration = _spinDis / _config.Main.SpinSpeedPerSec;
             var tween = _symbolContainer.DOLocalMove(_spinDestination, duration);
             tween.SetEase(Ease.Linear);
-            tween.OnComplete(SpinReelComplete).Play();
+            tween.OnComplete(SpinReelComplete);
+            tween.Play();
 
             _spinTween = tween;
         }
@@ -279,7 +280,7 @@ namespace Game
         {
             AddInterpolationSymbols();
             AddResultSymbols();
-            AddSpiningSymbols(_config.MarginSymbolCount);
+            AddSpiningSymbols(_config.Main.MarginSymbolCount);
         }
 
         public void StopSpin()
@@ -298,8 +299,8 @@ namespace Game
             {
                 ComposeLastSpiningSymbols();
 
-                _spinDis -= _config.tweenFirstBackInfo.distance;
-                _spinDis += _config.tweenLastBackInfo.distance;
+                _spinDis -= _config.Main.tweenFirstBackInfo.distance;
+                _spinDis += _config.Main.tweenLastBackInfo.distance;
                 UpdateSpinDestination();
             }
 
@@ -326,13 +327,13 @@ namespace Game
             ExpectType = SlotConfig.ExpectReelType.Null;
 
             RemoveSymbolsExceptNecessary();
-            AlignSymbols(-_config.tweenLastBackInfo.distance);
+            AlignSymbols(-_config.Main.tweenLastBackInfo.distance);
 
-            SlotSoundPlayer.Instance.ReelStop();
+            SlotSoundList.Instance.ReelStop();
 
-            if (_config.tweenLastBackInfo.distance != 0)
+            if (_config.Main.tweenLastBackInfo.distance != 0)
             {
-                var backOutTween = _symbolContainer.DOLocalMove(Vector3.zero, _config.tweenLastBackInfo.duration);
+                var backOutTween = _symbolContainer.DOLocalMove(Vector3.zero, _config.Main.tweenLastBackInfo.duration);
                 backOutTween.SetEase(Ease.OutBack);
                 backOutTween.Play();
             }
@@ -445,6 +446,17 @@ namespace Game
             UpdateSymbolState(Symbol.SymbolType.FreeSpinScatter, Symbol.SymbolState.Trigger);
         }
 
+        protected Symbol CreateSymbol(string symbolName)
+        {
+            Symbol symbol = GamePool.Instance.SpawnSymbol(symbolName);
+
+            if (symbol == null) throw new System.NullReferenceException("Symbol '" + symbolName + "' is null");
+
+            if (symbol != null && symbol.IsInitialized == false) symbol.Initialize(symbolName, _config);
+
+            return symbol;
+        }
+
         void UpdateSymbolState(Symbol.SymbolState state)
         {
             var count = _symbols.Count;
@@ -459,13 +471,13 @@ namespace Game
                                 bool includeMarginSymbol = false,
                                 string[] ignoreNames = null)
         {
-            var startIndex = _config.MarginSymbolCount;
-            var length = _symbols.Count - _config.MarginSymbolCount;
+            var startIndex = _config.Main.MarginSymbolCount;
+            var length = _symbols.Count - _config.Main.MarginSymbolCount;
 
             if (includeMarginSymbol)
             {
                 startIndex = 0;
-                length = length + _config.MarginSymbolCount;
+                length = length + _config.Main.MarginSymbolCount;
             }
 
             for (var i = startIndex; i < length; ++i)
@@ -484,27 +496,37 @@ namespace Game
             }
         }
 
-        protected Symbol CreateSymbol(string symbolName)
+        public Symbol GetSymbolAt(int row, bool includeMarginSymbol = false)
         {
-            Symbol symbol = GamePool.Instance.SpawnSymbol(symbolName);
+            if (includeMarginSymbol == false) row += _config.Main.MarginSymbolCount;
 
-            if (symbol == null) throw new System.NullReferenceException("Symbol '" + symbolName + "' is null");
-
-            if (symbol != null && symbol.IsInitialized == false) symbol.Initialize(symbolName, _config);
-
-            return symbol;
-        }
-
-        public Symbol GetSymbolAt(int row)
-        {
-            row += _config.MarginSymbolCount;
             if (row < 0 || _symbols.Count <= row) throw new System.ArgumentOutOfRangeException();
             return _symbols[row];
         }
 
+        public bool ContainsByName(string symbolname, bool includeMarginSymbol = false)
+        {
+            var startIndex = _config.Main.MarginSymbolCount;
+            var length = _symbols.Count - _config.Main.MarginSymbolCount;
+
+            if (includeMarginSymbol)
+            {
+                startIndex = 0;
+                length = length + _config.Main.MarginSymbolCount;
+            }
+
+            for (var i = startIndex; i < length; ++i)
+            {
+                var symbol = _symbols[i];
+                if (symbol.SymbolName == symbolname) return true;
+            }
+
+            return false;
+        }
+
         ReelStrip GetCurrentStrip()
         {
-            return _config.NormalStrip;
+            return _config.Main.NormalStrip;
         }
 
         string GetAddedSymbolNames()

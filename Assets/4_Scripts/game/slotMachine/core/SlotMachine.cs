@@ -116,7 +116,21 @@ namespace Game
             }
         }
 #endif
+        void Start()
+        {
+            _config = FindObjectOfType<SlotConfig>();
+            if (_config == null) throw new NullReferenceException("SlotConfig can not be null!");
 
+            if (_config.DebugTestSpin)
+            {
+                gameObject.AddComponent<DebugHelper>();
+            }
+
+            Debug.Log(_config.Main.paylineTable == null ? "null" : "exist");
+
+            _betting = _config.Betting;
+            SetState(MachineState.Connecting);
+        }
 
         protected void SetState(MachineState next)
         {
@@ -145,25 +159,9 @@ namespace Game
             if (_stateEnter != null) _currentStateRoutine = StartCoroutine(_stateEnter());
         }
 
-        //EntryPoint
-        public void Run(SlotConfig config)
-        {
-            _config = config;
-
-            if (_config == null)
-            {
-                Debug.LogError("SlotConfig은 반드시 정의 되어야 합니다");
-                return;
-            }
-
-            _betting = _config.COMMON.Betting;
-
-            SetState(MachineState.Connecting);
-        }
-
         IEnumerator Connecting_Enter()
         {
-            GameServerCommunicator.Instance.Connect(_config.COMMON.Host, _config.COMMON.Port);
+            GameServerCommunicator.Instance.Connect(_config.Host, _config.Port);
 
             yield break;
         }
@@ -209,8 +207,8 @@ namespace Game
             //todo
             //씬에 수동으로 스크립트를 부착해줘야 한다.
             //반드시 존재하도록 조치가 필요
-            SlotSoundPlayer.Instance.Initialize();
-            SlotSoundPlayer.Instance.PlayBGM();
+            SlotSoundList.Instance.Initialize();
+            SlotSoundList.Instance.PlayBGM();
 
             SetState(MachineState.Idle);
             GameManager.Instance.SceneReady();
@@ -291,7 +289,7 @@ namespace Game
             _reelContainer.Spin();
             _topboard.Spin();
 
-            SlotSoundPlayer.Instance.Spin();
+            SlotSoundList.Instance.Spin();
 
             if (_testSendData != null)
             {
@@ -313,7 +311,7 @@ namespace Game
                 _model.SetSpinData(dto);
                 SetState(MachineState.ReceivedSymbol);
             }
-            else if (_config.TriggerType == SlotConfig.FreeSpinTriggerType.Select &&
+            else if (_config.Main.TriggerType == SlotConfig.FreeSpinTriggerType.Select &&
                      _currentState == MachineState.FreeSpinReady)
             {
                 _model.AccumulatePayout(_model.TotalPayout);
@@ -345,13 +343,13 @@ namespace Game
 
         void OnReelStopCompleteHandler()
         {
-            SlotSoundPlayer.Instance.StopSpin();
+            SlotSoundList.Instance.StopSpin();
             SetState(MachineState.ReelStopComplete);
         }
 
         IEnumerator ReelStopComplete_Enter()
         {
-            yield return new WaitForSeconds(_config.transition.ReelStopCompleteAfterDealy);
+            yield return new WaitForSeconds(_config.Main.transition.ReelStopCompleteAfterDealy);
 
             //결과 심볼들을 바탕으로 미리 계산 해야 하는 일들이 있다면 여기서 미리 계산한다.
             _ui.ReelStopComplete();
@@ -371,13 +369,13 @@ namespace Game
 
         IEnumerator FreeSpinTrigger_Enter()
         {
-            SlotSoundPlayer.Instance.PlayFreeSpinTrigger();
+            SlotSoundList.Instance.PlayFreeSpinTrigger();
 
             _reelContainer.FreeSpinTrigger();
             _topboard.FreeSpinTrigger();
             _ui.FreeSpinTrigger();
 
-            yield return new WaitForSeconds(_config.transition.FreeSpinTriggerDuration);
+            yield return new WaitForSeconds(_config.Main.transition.FreeSpinTriggerDuration);
 
             if (_lastSpinInfo.totalPayout > 0) SetState(MachineState.PlayWin);
             else SetState(MachineState.CheckNextSpin);
@@ -385,7 +383,7 @@ namespace Game
 
         IEnumerator FreeSpinTrigger_Exit()
         {
-            SlotSoundPlayer.Instance.StopFreeSpinTrigger();
+            SlotSoundList.Instance.StopFreeSpinTrigger();
             yield break;
         }
 
@@ -393,7 +391,7 @@ namespace Game
         {
             if (_paylineModule != null) _paylineModule.Clear();
 
-            SlotSoundPlayer.Instance.PlayFreeSpinReady();
+            SlotSoundList.Instance.PlayFreeSpinReady();
 
             _reelContainer.FreeSpinReady();
             _topboard.FreeSpinReady();
@@ -410,7 +408,7 @@ namespace Game
 
                 SetState(MachineState.FreeSpin);
             }
-            else if (_config.TriggerType == SlotConfig.FreeSpinTriggerType.Select)
+            else if (_config.Main.TriggerType == SlotConfig.FreeSpinTriggerType.Select)
             {
                 yield return StartCoroutine(_freeSpinDirector.Select());
 
@@ -426,7 +424,7 @@ namespace Game
 
         IEnumerator FreeSpinReady_Exit()
         {
-            SlotSoundPlayer.Instance.StopFreeSpinReady();
+            SlotSoundList.Instance.StopFreeSpinReady();
             _freeSpinDirector.Close();
             yield break;
         }
@@ -446,7 +444,7 @@ namespace Game
             _ui.FreeSpin();
             _reelContainer.FreeSpin(_lastSpinInfo);
 
-            SlotSoundPlayer.Instance.FreeSpin();
+            SlotSoundList.Instance.FreeSpin();
         }
 
         IEnumerator FreeSpinEnd_Enter()
@@ -534,7 +532,7 @@ namespace Game
 
             _reelContainer.PlayAllWin();
 
-            yield return new WaitForSeconds(_config.transition.PlayAllSymbols_WinBalance);
+            yield return new WaitForSeconds(_config.Main.transition.PlayAllSymbols_WinBalance);
 
             SetState(MachineState.TakeCoin);
         }
@@ -666,10 +664,10 @@ namespace Game
 
             _topboard.BonusSpin();
 
-            yield return new WaitForSeconds(_config.transition.LockReel_BonusSpin);
+            yield return new WaitForSeconds(_config.Main.transition.LockReel_BonusSpin);
 
             _reelContainer.BonusSpin(_lastSpinInfo);
-            SlotSoundPlayer.Instance.Spin();
+            SlotSoundList.Instance.Spin();
 
             yield break;
         }

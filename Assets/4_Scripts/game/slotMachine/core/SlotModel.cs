@@ -77,7 +77,7 @@ namespace Game
             else Owner.Reset();
 
             _config = slot.Config;
-            _betting = _config.COMMON.Betting;
+            _betting = _config.Betting;
 
             Reset();
             SetLoginData(dto);
@@ -145,7 +145,7 @@ namespace Game
             {
                 if (IsFreeSpinReTrigger)
                 {
-                    switch (_config.RetriggerType)
+                    switch (_config.Main.RetriggerType)
                     {
                         case SlotConfig.FreeSpinRetriggerType.Add:
                             FreeSpinAddedCount = _lastSpinInfo.freeSpinCount;

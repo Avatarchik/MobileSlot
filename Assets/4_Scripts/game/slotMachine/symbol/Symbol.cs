@@ -61,7 +61,7 @@ namespace Game
 
         virtual public void Initialize(string symbolName, SlotConfig config)
         {
-            Initialize(symbolName, config.SymbolSize, config.COMMON.DebugSymbolArea);
+            Initialize(symbolName, config.Main.SymbolSize, config.DebugSymbolArea);
         }
 
         protected void Initialize(string symbolName, Size2D areaSize, bool dipslayArea = false)

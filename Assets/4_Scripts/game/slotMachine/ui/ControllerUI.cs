@@ -34,7 +34,7 @@ namespace Game
             };
 
 
-            _betting = _ui.SlotMachine.Config.COMMON.Betting;
+            _betting = _ui.SlotMachine.Config.Betting;
             _betting.OnUpdateLineBetIndex += () =>
             {
                 UpdateButtonState();

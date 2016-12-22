@@ -62,8 +62,8 @@ namespace Game
 
         void CreateDefaultSpinOrder()
         {
-            _defaltOrder = new int[_config.Column];
-            for (var i = 0; i < _config.Column; ++i)
+            _defaltOrder = new int[_config.Main.Column];
+            for (var i = 0; i < _config.Main.Column; ++i)
             {
                 _defaltOrder[i] = i;
             }
@@ -73,7 +73,7 @@ namespace Game
         {
             _spinStartOrder = startOrder ?? _defaltOrder;
 
-            for (var i = 0; i < _config.Column; ++i)
+            for (var i = 0; i < _config.Main.Column; ++i)
             {
                 var lockCount = 0;
                 var reelIndex = _spinStartOrder[i];
@@ -104,11 +104,11 @@ namespace Game
         {
             if (_reels != null) return;
 
-            int count = _config.Column;
+            int count = _config.Main.Column;
 
             _reels = new List<Reel>(count);
 
-            var prefab = _config.ReelPrefab;
+            var prefab = _config.Main.ReelPrefab;
 
             for (var i = 0; i < count; ++i)
             {
@@ -118,7 +118,7 @@ namespace Game
                 reel.OnStop += OnStopListener;
 
                 reel.transform.SetParent(_tf);
-                reel.transform.localPosition = Vector3.right * _config.ReelSpace * i;
+                reel.transform.localPosition = Vector3.right * _config.Main.ReelSpace * i;
                 reel.Initialize(_config);
 
                 _reels.Add(reel);
@@ -158,7 +158,7 @@ namespace Game
         {
             UpdateSpinInfo(spinInfo);
 
-            for (var i = 0; i < _config.Column; ++i)
+            for (var i = 0; i < _config.Main.Column; ++i)
             {
                 _reels[i].ReceivedSymbol(spinInfo);
             }
@@ -182,7 +182,7 @@ namespace Game
 
         public void StopSpin()
         {
-            for (var i = 0; i < _config.Column; ++i)
+            for (var i = 0; i < _config.Main.Column; ++i)
             {
                 var reelIndex = _spinStartOrder[i];
                 var reel = _reels[reelIndex];
@@ -201,7 +201,7 @@ namespace Game
             {
                 if (fixedReel[i] == 1)
                 {
-                    if (i > 0) yield return new WaitForSeconds(_config.transition.EachLockReel);
+                    if (i > 0) yield return new WaitForSeconds(_config.Main.transition.EachLockReel);
 
                     _reels[i].Lock();
                 }
@@ -214,33 +214,74 @@ namespace Game
             //게임 별 구체화
             if (_slot.CurrentState == SlotMachine.MachineState.BonusSpin)
             {
-                for (var i = 0; i < _config.Column; ++i) if (_reels[i].IsLocked == false) _reels[i].ExpectType = SlotConfig.ExpectReelType.BonusSpin;
+                for (var i = 0; i < _config.Main.Column; ++i) if (_reels[i].IsLocked == false) _reels[i].ExpectType = SlotConfig.ExpectReelType.BonusSpin;
             }
         }
 
         void OnStopListener(Reel reel)
         {
-            // Debug.Log("reel " + reel.Column + " stopped");
+            // Debug.Log("^^^^^^ reel " + reel.Column + " stopped");
+            // Debug.Log("!!!! try CheckScatters");
             _lastStoppedReel = reel;
 
-            PlayStopEffect();
+            CheckScatters();
 
             ++_nextStopIndex;
 
             CheckNextReel();
         }
 
-        void PlayStopEffect()
+        void CheckScatters()
         {
-            if( _lastStoppedReel != null )
+            if (_config.Main.scatters == null) return;
+
+            var count = _config.Main.scatters.Count;
+
+            Debug.Log("------ CheckScatters: " + count);
+
+            for (var i = 0; i < count; ++i)
             {
-                
+                var info = _config.Main.scatters[i];
+                AudioClip stopSound;
+                if (info.CheckScattered(_lastStoppedReel, out stopSound))
+                {
+                    SlotSoundList.Instance.Player.PlaySFX(stopSound);
+                }
+                else
+                {
+                }
             }
+
+            /*
+            var res: Vector.<ASymbol> = mStoppedReel.getSymbolsByType( SymbolType.FREESPIN );
+			var count: int = res.length;
+			if( count == 0 ) return;
+			
+			if( mStoppedReel.column == 2 && getSymbolCount( SymbolType.FREESPIN ) < 1 )
+			{
+				return;
+			}
+			else if(  mStoppedReel.column == 4 && getSymbolCount( SymbolType.FREESPIN ) < 2)
+			{
+				return;
+			}
+			
+			var symbol: ASymbol;
+			for( var i: int = 0; i < count; ++i)
+			{
+				symbol = res[i];
+				symbol.setState( SymbolState.SCATTER );
+			}
+			
+			addSymbolCount( SymbolType.FREESPIN );
+			
+			SoundPlayer.manager.playScatterStop( SymbolType.FREESPIN );
+            */
         }
 
         void CheckNextReel()
         {
-            if (_nextStopIndex >= _config.Column)
+            if (_nextStopIndex >= _config.Main.Column)
             {
                 ReelStopCompleted();
                 return;
@@ -260,7 +301,7 @@ namespace Game
             {
                 IsExpecting = true;
 
-                for (var i = _nextStopIndex; i < _config.Column; ++i)
+                for (var i = _nextStopIndex; i < _config.Main.Column; ++i)
                 {
                     var reel = _reels[_spinStartOrder[i]];
                     if (i == _nextStopIndex) reel.Loop = false;
@@ -268,7 +309,7 @@ namespace Game
                 }
 
                 nextReel.SpinToExpect();
-                SlotSoundPlayer.Instance.Expect();
+                SlotSoundList.Instance.Expect();
                 return;
             }
 
@@ -276,7 +317,7 @@ namespace Game
             {
                 IsExpecting = false;
 
-                for (var i = _nextStopIndex; i < _config.Column; ++i)
+                for (var i = _nextStopIndex; i < _config.Main.Column; ++i)
                 {
                     var reel = _reels[_spinStartOrder[i]];
                     reel.Loop = false;
@@ -291,7 +332,7 @@ namespace Game
 
         public void FreeSpinTrigger()
         {
-            var count = _config.Column;
+            var count = _config.Main.Column;
             while (count-- > 0) _reels[count].FreeSpinTrigger();
         }
 
@@ -324,7 +365,7 @@ namespace Game
                 else
                 {
                     winItem.Type = WinItemList.Item.ItemType.Payline;
-                    winItem.PaylineRows = _config.paylineTable[lineData.line];
+                    winItem.PaylineRows = _config.Main.paylineTable[lineData.line];
                     winItem.PaylineIndex = lineData.line;
 
                     for (var col = 0; col < lineData.matches; ++col)
@@ -384,14 +425,14 @@ namespace Game
                     SetSymbolsToWin(item.Symbols);
                     if (OnPlayEachWin != null) OnPlayEachWin(item);
 
-                    yield return new WaitForSeconds(_config.transition.EachWin);
+                    yield return new WaitForSeconds(_config.Main.transition.EachWin);
                 }
                 else
                 {
                     PlayAllWin();
                     enume.Reset();
 
-                    yield return new WaitForSeconds(_config.transition.EachWinSummary);
+                    yield return new WaitForSeconds(_config.Main.transition.EachWinSummary);
                 }
             }
         }

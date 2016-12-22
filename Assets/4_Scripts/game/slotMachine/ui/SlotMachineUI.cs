@@ -40,7 +40,7 @@ namespace Game
 
             _model = SlotModel.Instance;
             _user = _model.Owner;
-            _betting = slot.Config.COMMON.Betting;
+            _betting = slot.Config.Betting;
 
             InitPaytable();
             InitInfo();

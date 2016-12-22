@@ -2,7 +2,7 @@
 
 namespace Game.ShiningSevens
 {
-    public class ShiningSevens : MonoBehaviour
+    public class ShiningSevens : SlotCreator
     {
         public const string W0 = "W0";
         public const string SR = "H0";
@@ -14,72 +14,62 @@ namespace Game.ShiningSevens
         public const string BR = "M2";
 
         public const string L0 = EmptySymbol.EMPTY;
-        public SlotConfig mainSlotConfig;
-
-        SlotMachine _machine;
-
-        void Awake()
+        override public void SettingByScript()
         {
+            base.SettingByScript();
             //------------------------------------------------------------------------------------
             // define Common info
             //------------------------------------------------------------------------------------
-
-            SlotConfig.CommonConfig commonInfo = new SlotConfig.CommonConfig()
+            _slotConfig.ID = 1;
+            _slotConfig.Host = "182.252.135.251";
+            _slotConfig.Port = 13100;
+            _slotConfig.Version = "0.0.1";
+            _slotConfig.Betting = new SlotBetting()
             {
-                ID = 1,
-                Host = "182.252.135.251",
-                Port = 13100,
-                Version = "0.0.1",
-
-                Betting = new SlotBetting()
+                BetTable = new double[]
                 {
-                    BetTable = new double[]
-                    {
                     100,200,500,1000,2000,
                     5000,10000,20000,50000,100000,
                     200000,300000,500000,1000000,2000000,
                     3000000,4000000,5000000,10000000,20000000
-                    },
-                    PaylineNum = 5
                 },
-
-                DebugSymbolArea = false,
-                DebugTestSpin = true
+                PaylineNum = 5
             };
+            _slotConfig.DebugSymbolArea = false;
+            _slotConfig.DebugTestSpin = true;
 
-            //slot setting
-            mainSlotConfig = new SlotConfig();
-            mainSlotConfig.COMMON = commonInfo;
-
-            //base
-            mainSlotConfig.Row = 3;
-            mainSlotConfig.Column = 3;
+            //------------------------------------------------------------------------------------
+            // define machienConfig
+            //------------------------------------------------------------------------------------
+            var machine = new SlotConfig.MachineConfig();
+            machine.Row = 3;
+            machine.Column = 3;
 
             //symbol
-            mainSlotConfig.SymbolSize = new Size2D(2.1f, 1.1f);
-            mainSlotConfig.NullSymbolSize = new Size2D(2.1f, 0.3f);
+            machine.SymbolSize = new Size2D(2.1f, 1.1f);
+            machine.NullSymbolSize = new Size2D(2.1f, 0.3f);
 
             //freespin
-            mainSlotConfig.UseFreeSpin = false;
+            machine.UseFreeSpin = false;
 
             //reel
-            mainSlotConfig.ReelPrefab = Resources.Load<Reel>("games/" + commonInfo.ID.ToString("00") + "/prefabs/Reel");
-            mainSlotConfig.ReelSize = new Size2D(2.1f, 2.5f);
-            mainSlotConfig.ReelSpace = 2.56f;
-            mainSlotConfig.ReelGap = 0.3f;
+            machine.ReelPrefab = Resources.Load<Reel>("games/" + _slotConfig.ID.ToString("00") + "/prefabs/Reel");
+            machine.ReelSize = new Size2D(2.1f, 2.5f);
+            machine.ReelSpace = 2.56f;
+            machine.ReelGap = 0.3f;
 
             //spin
-            mainSlotConfig.MarginSymbolCount = 1;
-            mainSlotConfig.SpiningSymbolCount = 5;
-            mainSlotConfig.IncreaseCount = 5;
-            mainSlotConfig.SpinCountThreshold = 5;
-            mainSlotConfig.SpinSpeedPerSec = 15f;
-            mainSlotConfig.DelayEachReel = 0.1f;
-            mainSlotConfig.tweenFirstBackInfo = new MoveTweenInfo(0.2f, 0.2f);
-            mainSlotConfig.tweenLastBackInfo = new MoveTweenInfo(0.2f, 0.3f);
+            machine.MarginSymbolCount = 1;
+            machine.SpiningSymbolCount = 5;
+            machine.IncreaseCount = 5;
+            machine.SpinCountThreshold = 5;
+            machine.SpinSpeedPerSec = 15f;
+            machine.DelayEachReel = 0.1f;
+            machine.tweenFirstBackInfo = new MoveTweenInfo(0.2f, 0.2f);
+            machine.tweenLastBackInfo = new MoveTweenInfo(0.2f, 0.3f);
 
             //transition
-            mainSlotConfig.transition = new Transition()
+            machine.transition = new Transition()
             {
                 ReelStopCompleteAfterDealy = 0.5f,
                 PlayAllSymbols_WinBalance = 0,
@@ -103,10 +93,10 @@ namespace Game.ShiningSevens
             nameMap.AddSymbolToMap("M2", BR);
 
             nameMap.AddSymbolToMap("L0", L0);
-            mainSlotConfig.NameMap = nameMap;
+            machine.NameMap = nameMap;
 
             //startSymbol
-            mainSlotConfig.SetStartSymbols(new string[,]
+            machine.SetStartSymbols(new string[,]
             {
                 { L0, SR, L0, SG, L0 },
                 { BB, L0, W0, L0, BG },
@@ -122,31 +112,18 @@ namespace Game.ShiningSevens
                 new int[] {0,1,2},
                 new int[] {2,1,0}
             };
-            mainSlotConfig.paylineTable = paylineTable;
+            machine.paylineTable = paylineTable;
 
 
             //strips
             //todo
             //릴스트립도 가변배열로 고쳐야함
-            mainSlotConfig.NormalStrip = new ReelStrip(new string[][]
+            machine.NormalStrip = new ReelStrip(new string[][]
             {
                 new string[] {SG,BG,SB,BR,SB,W0,SG,BR,SB,BR,SG,BR,BG,SB,W0},
                 new string[] {SG,BR,SB,BR,SB,W0,SG,BG,SB,BG,SG,BG,BR,SB,BG},
                 new string[] {SG,BG,W0,BR,SB,SR,SB,BR,SB,SG,BR,BG,W0,BR,BR}
             }, ReelStrip.ReelStripType.USE_NULL);
-        }
-
-        void Start()
-        {
-            _machine = FindObjectOfType<SlotMachine>();
-            if (_machine == null) Debug.LogError("Can't find SlotMachine.");
-
-            _machine.Run(mainSlotConfig);
-
-            if (mainSlotConfig.COMMON.DebugTestSpin)
-            {
-                gameObject.AddComponent<DebugHelper>();
-            }
         }
     }
 }

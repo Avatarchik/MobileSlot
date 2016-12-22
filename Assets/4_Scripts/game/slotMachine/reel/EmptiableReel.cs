@@ -13,12 +13,12 @@ namespace Game
         {
             if (float.IsNaN(_emptySymbolYOffset))
             {
-                _emptySymbolYOffset = (_config.ReelSize.height - (_config.SymbolSize.height + _config.NullSymbolSize.height * 2)) * 0.5f;
+                _emptySymbolYOffset = (_config.Main.ReelSize.height - (_config.Main.SymbolSize.height + _config.Main.NullSymbolSize.height * 2)) * 0.5f;
             }
 
             var res = base.GetStartSymbolPos();
 
-            Symbol firstSymbol = _symbols[_config.MarginSymbolCount];
+            Symbol firstSymbol = _symbols[_config.Main.MarginSymbolCount];
             if (firstSymbol is EmptySymbol) res -= _emptySymbolYOffset;
 
             return res;

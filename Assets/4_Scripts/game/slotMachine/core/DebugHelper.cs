@@ -69,7 +69,7 @@ namespace Game
             _machine.TrySpin(new SendData()
             {
                 cmd = command,
-                data = new ReqDTO.Spin() { lineBet = _machine.Config.COMMON.Betting.LineBet }
+                data = new ReqDTO.Spin() { lineBet = _machine.Config.Betting.LineBet }
             }); ;
         }
 
