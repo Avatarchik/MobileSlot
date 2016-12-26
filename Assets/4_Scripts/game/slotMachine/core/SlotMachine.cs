@@ -43,7 +43,7 @@ namespace Game
         SlotMachineUI _ui;
         SlotModel _model;
 
-        PaylineModule _paylineModule;
+        PaylineDisplayer _paylineDisplayer;
         ReelContainer _reelContainer;
         SlotBetting _betting;
         Topboard _topboard;
@@ -121,12 +121,7 @@ namespace Game
             _config = FindObjectOfType<SlotConfig>();
             if (_config == null) throw new NullReferenceException("SlotConfig can not be null!");
 
-            if (_config.DebugTestSpin)
-            {
-                gameObject.AddComponent<DebugHelper>();
-            }
-
-            Debug.Log(_config.Main.paylineTable == null ? "null" : "exist");
+            if (_config.DebugTestSpin) gameObject.AddComponent<DebugHelper>();
 
             _betting = _config.Betting;
             SetState(MachineState.Connecting);
@@ -200,15 +195,12 @@ namespace Game
             _topboard = GetComponentInChildren<Topboard>();
             if (_topboard == null) Debug.LogError("can't find Topboard");
 
-            _paylineModule = GetComponentInChildren<PaylineModule>();
+            _paylineDisplayer = GetComponentInChildren<PaylineDisplayer>();
 
             _freeSpinDirector = GetComponentInChildren<FreeSpinDirector>();
 
-            //todo
-            //씬에 수동으로 스크립트를 부착해줘야 한다.
-            //반드시 존재하도록 조치가 필요
-            SlotSoundList.Instance.Initialize();
-            SlotSoundList.Instance.PlayBGM();
+            SlotSoundList.Initialize();
+            SlotSoundList.PlayBGM();
 
             SetState(MachineState.Idle);
             GameManager.Instance.SceneReady();
@@ -283,13 +275,13 @@ namespace Game
         {
             _bookedSpin = false;
 
-            if (_paylineModule != null) _paylineModule.Clear();
+            if (_paylineDisplayer != null) _paylineDisplayer.Clear();
 
             _ui.Spin();
             _reelContainer.Spin();
             _topboard.Spin();
 
-            SlotSoundList.Instance.Spin();
+            SlotSoundList.Spin();
 
             if (_testSendData != null)
             {
@@ -343,7 +335,7 @@ namespace Game
 
         void OnReelStopCompleteHandler()
         {
-            SlotSoundList.Instance.StopSpin();
+            SlotSoundList.StopSpin();
             SetState(MachineState.ReelStopComplete);
         }
 
@@ -369,7 +361,7 @@ namespace Game
 
         IEnumerator FreeSpinTrigger_Enter()
         {
-            SlotSoundList.Instance.PlayFreeSpinTrigger();
+            SlotSoundList.PlayFreeSpinTrigger();
 
             _reelContainer.FreeSpinTrigger();
             _topboard.FreeSpinTrigger();
@@ -383,15 +375,15 @@ namespace Game
 
         IEnumerator FreeSpinTrigger_Exit()
         {
-            SlotSoundList.Instance.StopFreeSpinTrigger();
+            SlotSoundList.StopFreeSpinTrigger();
             yield break;
         }
 
         IEnumerator FreeSpinReady_Enter()
         {
-            if (_paylineModule != null) _paylineModule.Clear();
+            if (_paylineDisplayer != null) _paylineDisplayer.Clear();
 
-            SlotSoundList.Instance.PlayFreeSpinReady();
+            SlotSoundList.PlayFreeSpinReady();
 
             _reelContainer.FreeSpinReady();
             _topboard.FreeSpinReady();
@@ -424,7 +416,7 @@ namespace Game
 
         IEnumerator FreeSpinReady_Exit()
         {
-            SlotSoundList.Instance.StopFreeSpinReady();
+            SlotSoundList.StopFreeSpinReady();
             _freeSpinDirector.Close();
             yield break;
         }
@@ -444,12 +436,12 @@ namespace Game
             _ui.FreeSpin();
             _reelContainer.FreeSpin(_lastSpinInfo);
 
-            SlotSoundList.Instance.FreeSpin();
+            SlotSoundList.FreeSpin();
         }
 
         IEnumerator FreeSpinEnd_Enter()
         {
-            if (_paylineModule != null) _paylineModule.Clear();
+            if (_paylineDisplayer != null) _paylineDisplayer.Clear();
 
             _model.FreeSpinEnd();
 
@@ -632,7 +624,7 @@ namespace Game
             _ui.PlayAllWin(info);
             _topboard.PlayAllWin(info);
 
-            if (_paylineModule != null) _paylineModule.DrawAll(info);
+            if (_paylineDisplayer != null) _paylineDisplayer.DrawAll(info);
         }
 
         void OnPlayEachWinHandler(WinItemList.Item item)
@@ -640,7 +632,7 @@ namespace Game
             _ui.PlayEachWin(item);
             _topboard.PlayEachWin(item);
 
-            if (_paylineModule != null) _paylineModule.DrawLine(item);
+            if (_paylineDisplayer != null) _paylineDisplayer.DrawLine(item);
         }
 
         IEnumerator CheckNextSpin_Enter()
@@ -656,7 +648,7 @@ namespace Game
 
         IEnumerator BonusSpin_Enter()
         {
-            if (_paylineModule != null) _paylineModule.Clear();
+            if (_paylineDisplayer != null) _paylineDisplayer.Clear();
 
             _lastSpinInfo = _model.NextSpin();
 
@@ -667,7 +659,7 @@ namespace Game
             yield return new WaitForSeconds(_config.Main.transition.LockReel_BonusSpin);
 
             _reelContainer.BonusSpin(_lastSpinInfo);
-            SlotSoundList.Instance.Spin();
+            SlotSoundList.Spin();
 
             yield break;
         }

@@ -3,6 +3,7 @@
 using UnityEditor;
 
 using Game;
+using lpesign;
 
 [CustomPropertyDrawer(typeof(Size2D))]
 public class Size2DDrawer : PropertyDrawer
@@ -53,6 +54,25 @@ public class MoveTweenInfoDrawer : PropertyDrawer
         EditorGUI.EndProperty();
     }
 }
+
+// [CustomPropertyDrawer(typeof(MyDictionary))]
+// public class MyDictionaryDrawer : SerializableDictionaryDrawer<string, int> { }
+
+// [CustomPropertyDrawer(typeof(ReelStripList))]
+// public class ReelStripBundleDrawer : PropertyDrawer
+// {
+//     public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label)
+//     {
+//         label = EditorGUI.BeginProperty(rect, label, property);
+
+//         var map = property.FindPropertyRelative("_reelStrips");
+
+//         Debug.Log("map" + (map == null ? "null" : "exist"));
+//         Debug.Log(map);
+
+//         EditorGUI.EndProperty();
+//     }
+// }
 
 // [CustomPropertyDrawer(typeof(SlotBetting))]
 // public class SlotBettingDrawer : PropertyDrawer

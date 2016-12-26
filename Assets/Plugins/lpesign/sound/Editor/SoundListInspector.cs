@@ -88,11 +88,10 @@ public class SoundListInspector : UsableEditor<SoundList>
     {
         // GUI.enabled = false;
         GUI.backgroundColor = Color.cyan;
-        if (GUILayout.Button("DefaultSetting", GUILayout.Height(40)))
+        if (GUILayout.Button("SetBySlotConfig", GUILayout.Height(40)))
         {
-            if (EditorUtility.DisplayDialog("Set Default?", "Are you sure you want to set all list? This action cannot be undone.", "Set Default", "Cancel"))
+            if (EditorUtility.DisplayDialog("SetBySlotConfig?", "Are you sure you want to set all list? This action cannot be undone.", "OK", "Cancel"))
             {
-                _script.Clear();
                 _script.CreateDefaultList();
             }
         }
@@ -118,6 +117,7 @@ public class SoundListInspector : UsableEditor<SoundList>
             _script.groups.Add(new SoundGroup("new Group" + _script.groups.Count));
         }
         GUI.backgroundColor = _defaultBGColor;
+
         for (var i = 0; i < property.arraySize; ++i)
         {
             EditorGUILayout.BeginVertical("button");
@@ -145,8 +145,17 @@ public class SoundListInspector : UsableEditor<SoundList>
             GUI.backgroundColor = _defaultBGColor;
             EditorGUILayout.EndHorizontal();
 
-            var list = _groupList[i];
-            list.DoLayoutList();
+            try
+            {
+                var list = _groupList[i];
+                list.DoLayoutList();
+            }
+            catch (System.Exception e)
+            {
+                // Debug.Log(e.ToString());
+                // Debug.Log("i: " + i + ", len: " + _groupList.Length + ", arraySize:" + property.arraySize);
+            }
+
             EditorGUILayout.EndVertical();
         }
 

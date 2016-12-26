@@ -24,6 +24,7 @@ namespace Game.ShiningSevens
             _slotConfig.Host = "182.252.135.251";
             _slotConfig.Port = 13100;
             _slotConfig.Version = "0.0.1";
+            _slotConfig.UseJacpot = false;
             _slotConfig.Betting = new SlotBetting()
             {
                 BetTable = new double[]
@@ -82,48 +83,56 @@ namespace Game.ShiningSevens
 
             //symbolNameMap
             SymbolNameMap nameMap = new SymbolNameMap();
-            nameMap.AddSymbolToMap("W0", W0);
+            nameMap.Add("W0", W0);
 
-            nameMap.AddSymbolToMap("H0", SR);
-            nameMap.AddSymbolToMap("H1", SG);
-            nameMap.AddSymbolToMap("H2", SB);
+            nameMap.Add("H0", SR);
+            nameMap.Add("H1", SG);
+            nameMap.Add("H2", SB);
 
-            nameMap.AddSymbolToMap("M0", BB);
-            nameMap.AddSymbolToMap("M1", BG);
-            nameMap.AddSymbolToMap("M2", BR);
+            nameMap.Add("M0", BB);
+            nameMap.Add("M1", BG);
+            nameMap.Add("M2", BR);
 
-            nameMap.AddSymbolToMap("L0", L0);
-            machine.NameMap = nameMap;
+            nameMap.Add("L0", L0);
+            machine.nameMap = nameMap;
 
             //startSymbol
-            machine.SetStartSymbols(new string[,]
+            machine.SetStartSymbols(new string[][]
             {
-                { L0, SR, L0, SG, L0 },
-                { BB, L0, W0, L0, BG },
-                { L0, SB, L0, SG, L0 }
+                new string[]{ L0, SR, L0, SG, L0 },
+                new string[]{ BB, L0, W0, L0, BG },
+                new string[]{ L0, SB, L0, SG, L0  }
             });
 
             //paylineTable
-            int[][] paylineTable =
-            {
-                new int[] {1,1,1},
-                new int[] {0,0,0},
-                new int[] {2,2,2},
-                new int[] {0,1,2},
-                new int[] {2,1,0}
-            };
+            PaylineTable paylineTable = new PaylineTable
+            (
+                new int[][]
+                {
+                    new int[] {1,1,1},
+                    new int[] {0,0,0},
+                    new int[] {2,2,2},
+                    new int[] {0,1,2},
+                    new int[] {2,1,0}
+                }
+            );
+
             machine.paylineTable = paylineTable;
 
 
             //strips
             //todo
             //릴스트립도 가변배열로 고쳐야함
-            machine.NormalStrip = new ReelStrip(new string[][]
+            machine.reelStripBundle = new ReelStripList(new string[][]
             {
                 new string[] {SG,BG,SB,BR,SB,W0,SG,BR,SB,BR,SG,BR,BG,SB,W0},
                 new string[] {SG,BR,SB,BR,SB,W0,SG,BG,SB,BG,SG,BG,BR,SB,BG},
                 new string[] {SG,BG,W0,BR,SB,SR,SB,BR,SB,SG,BR,BG,W0,BR,BR}
-            }, ReelStrip.ReelStripType.USE_NULL);
+            }, ReelStrips.Type.USE_NULL);
+
+            //register machineconfig
+            _slotConfig.ClearMachines();
+            _slotConfig.AddMachine(machine);
         }
     }
 }

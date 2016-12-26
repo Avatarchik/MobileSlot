@@ -245,7 +245,7 @@ namespace Game
                 AudioClip stopSound;
                 if (info.CheckScattered(_lastStoppedReel, out stopSound))
                 {
-                    SlotSoundList.Instance.Player.PlaySFX(stopSound);
+                    SlotSoundList.PlaySFX(stopSound);
                 }
                 else
                 {
@@ -309,7 +309,7 @@ namespace Game
                 }
 
                 nextReel.SpinToExpect();
-                SlotSoundList.Instance.Expect();
+                SlotSoundList.Expect();
                 return;
             }
 
@@ -365,7 +365,7 @@ namespace Game
                 else
                 {
                     winItem.Type = WinItemList.Item.ItemType.Payline;
-                    winItem.PaylineRows = _config.Main.paylineTable[lineData.line];
+                    winItem.PaylineRows = _config.Main.paylineTable.GetPayline( lineData.line ).rows;
                     winItem.PaylineIndex = lineData.line;
 
                     for (var col = 0; col < lineData.matches; ++col)

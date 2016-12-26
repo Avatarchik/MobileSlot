@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace Game
 {
-    public class Payline : MonoBehaviour
+    public class PaylineRenderer : MonoBehaviour
     {
         [SerializeField]
         int _index;

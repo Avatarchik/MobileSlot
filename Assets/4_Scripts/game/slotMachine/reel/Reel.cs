@@ -40,7 +40,7 @@ namespace Game
         [SerializeField]
         protected string[] _receivedSymbolNames;
 
-        protected ReelStrip _currentStrip;
+        protected ReelStrips _currentStrips;
 
         [SerializeField]
         int _spinCount;
@@ -80,7 +80,8 @@ namespace Game
             for (var i = 0; i < _symbolNecessaryCount; ++i)
             {
                 var sname = _config.Main.GetStartSymbolAt(_column, i);
-                AddSymbolToTail(CreateSymbol(sname));
+                var symbol = CreateSymbol(sname);
+                AddSymbolToTail(symbol);
             }
 
             AlignSymbols();
@@ -138,7 +139,7 @@ namespace Game
             _isSpinning = true;
             _isReceived = false;
             _spinCount = 0;
-            _currentStrip = GetCurrentStrip();
+            _currentStrips = GetCurrentStrip();
 
             if (spinInfo != null) ReceivedSymbol(spinInfo);
 
@@ -157,7 +158,7 @@ namespace Game
 
             for (var i = 0; i < reelData.Length; ++i)
             {
-                _receivedSymbolNames[i] = _config.Main.NameMap.GetSymbolName(reelData[i]);
+                _receivedSymbolNames[i] = _config.Main.nameMap[reelData[i]];
             }
 
             //Debug.Log(string.Join(",", _receivedSymbolNames));
@@ -329,7 +330,7 @@ namespace Game
             RemoveSymbolsExceptNecessary();
             AlignSymbols(-_config.Main.tweenLastBackInfo.distance);
 
-            SlotSoundList.Instance.ReelStop();
+            SlotSoundList.ReelStop();
 
             if (_config.Main.tweenLastBackInfo.distance != 0)
             {
@@ -433,7 +434,7 @@ namespace Game
 
         virtual protected string GetSpiningSymbolName()
         {
-            return _currentStrip.GetRandom(_column);
+            return _currentStrips.GetRandom(_column);
         }
 
 
@@ -524,9 +525,9 @@ namespace Game
             return false;
         }
 
-        ReelStrip GetCurrentStrip()
+        ReelStrips GetCurrentStrip()
         {
-            return _config.Main.NormalStrip;
+            return _config.Main.reelStripBundle.GetStrips();
         }
 
         string GetAddedSymbolNames()

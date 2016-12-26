@@ -32,7 +32,7 @@ namespace Game
             //일반 추가
             if (topSpiningName == EmptySymbol.EMPTY && lastResultName == EmptySymbol.EMPTY)
             {
-                AddSpiningSymbol(_currentStrip.GetRandom(_column));
+                AddSpiningSymbol(_currentStrips.GetRandom(_column));
             }
             //널 추가 
             else if (topSpiningName != EmptySymbol.EMPTY && lastResultName != EmptySymbol.EMPTY)
@@ -58,7 +58,7 @@ namespace Game
         override protected string GetSpiningSymbolName()
         {
             if (_symbols[0] is EmptySymbol == false) return EmptySymbol.EMPTY;
-            else return _currentStrip.GetRandom(_column);
+            else return _currentStrips.GetRandom(_column);
         }
     }
 }

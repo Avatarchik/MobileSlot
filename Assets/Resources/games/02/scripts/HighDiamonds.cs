@@ -29,6 +29,7 @@ namespace Game.HighDiamonds
             _slotConfig.Host = "182.252.135.251";
             _slotConfig.Port = 13500;
             _slotConfig.Version = "0.0.1";
+            _slotConfig.UseJacpot = true;
             _slotConfig.Betting = new SlotBetting()
             {
                 BetTable = new double[]
@@ -47,14 +48,18 @@ namespace Game.HighDiamonds
             //------------------------------------------------------------------------------------
             // define machienConfig
             //------------------------------------------------------------------------------------
-
             var machine = new SlotConfig.MachineConfig();
+
+            //base
             machine.Row = 3;
             machine.Column = 5;
 
             //symbol
             machine.SymbolSize = new Size2D(1.04f, 0.68f);
             machine.NullSymbolSize = default(Size2D);
+
+            //scatters
+            machine.AddSccaterInfo(S0, 3, new int[] { 0, 2, 4 });
 
             //freespin
             machine.UseFreeSpin = true;
@@ -66,8 +71,6 @@ namespace Game.HighDiamonds
             machine.ReelSize = new Size2D(1.04f, 2.04f);
             machine.ReelSpace = 1.46f;
             machine.ReelGap = 0.42f;
-
-            machine.AddSccaterInfo(S0, 3, new int[] { 0, 2, 4 });
 
             //spin
             machine.MarginSymbolCount = 1;
@@ -91,83 +94,88 @@ namespace Game.HighDiamonds
                 FreeSpinTriggerDuration = 1f
             };
 
+            //paytable
+            PaylineTable paylineTable = new PaylineTable
+            (
+                new int[][]
+                {
+                    new int[] {1, 1, 1, 1, 1},
+                    new int[] {0, 0, 0, 0, 0},
+                    new int[] {2, 2, 2, 2, 2},
+                    new int[] {0, 1, 2, 1, 0},
+                    new int[] {2, 1, 0, 1, 2},
+
+                    new int[] {1, 0, 0, 0, 1},
+                    new int[] {1, 2, 2, 2, 1},
+                    new int[] {0, 0, 1, 2, 2},
+                    new int[] {2, 2, 1, 0, 0},
+                    new int[] {1, 2, 1, 0, 1},
+
+                    new int[] {1, 0, 1, 2, 1},
+                    new int[] {0, 1, 1, 1, 0},
+                    new int[] {2, 1, 1, 1, 2},
+                    new int[] {0, 1, 0, 1, 0},
+                    new int[] {2, 1, 2, 1, 2},
+
+                    new int[] {1, 1, 0, 1, 1},
+                    new int[] {1, 1, 2, 1, 1},
+                    new int[] {0, 0, 2, 0, 0},
+                    new int[] {2, 2, 0, 2, 2},
+                    new int[] {0, 2, 2, 2, 0},
+
+                    new int[] {2, 0, 0, 0, 2},
+                    new int[] {1, 2, 0, 2, 1},
+                    new int[] {1, 0, 2, 0, 1},
+                    new int[] {0, 2, 0, 2, 0},
+                    new int[] {2, 0, 2, 0, 2},
+                }
+            );
+            machine.paylineTable = paylineTable;
+
+
             //symbolNameMap
             SymbolNameMap nameMap = new SymbolNameMap();
-            nameMap.AddSymbolToMap("S0", S0);
-            nameMap.AddSymbolToMap("W0", W0);
+            nameMap.Add("S0", S0);
+            nameMap.Add("W0", W0);
 
-            nameMap.AddSymbolToMap("B0", J0);
-            nameMap.AddSymbolToMap("B1", J1);
-            nameMap.AddSymbolToMap("B2", J2);
+            nameMap.Add("B0", J0);
+            nameMap.Add("B1", J1);
+            nameMap.Add("B2", J2);
 
-            nameMap.AddSymbolToMap("H0", H0);
-            nameMap.AddSymbolToMap("H1", H1);
+            nameMap.Add("H0", H0);
+            nameMap.Add("H1", H1);
 
-            nameMap.AddSymbolToMap("M0", M0);
-            nameMap.AddSymbolToMap("M1", M1);
-            nameMap.AddSymbolToMap("M2", M2);
+            nameMap.Add("M0", M0);
+            nameMap.Add("M1", M1);
+            nameMap.Add("M2", M2);
 
-            nameMap.AddSymbolToMap("L0", L0);
-            nameMap.AddSymbolToMap("L1", L1);
-            nameMap.AddSymbolToMap("L2", L2);
-            machine.NameMap = nameMap;
+            nameMap.Add("L0", L0);
+            nameMap.Add("L1", L1);
+            nameMap.Add("L2", L2);
+            machine.nameMap = nameMap;
 
             //startSymbol
-            machine.SetStartSymbols(new string[,]
+            machine.SetStartSymbols(new string[][]
             {
-                { L0, J0, H0, S0, L0 },
-                { M0, M2, J1, M2, M0 },
-                { M1, S0, L2, J2, M1 },
-                { M0, M2, J1, M2, M0 },
-                { L0, J0, H0, S0, L0 }
+                new string[]{ L0, J0, H0, S0, L0 },
+                new string[]{ M0, M2, J1, M2, M0 },
+                new string[]{ M1, S0, L2, J2, M1 },
+                new string[]{ M0, M2, J1, M2, M0 },
+                new string[]{ L0, J0, H0, S0, L0 }
             });
 
-            //paylineTable
-            int[][] paylineTable =
-            {
-                new int[] {1, 1, 1, 1, 1},
-                new int[] {0, 0, 0, 0, 0},
-                new int[] {2, 2, 2, 2, 2},
-                new int[] {0, 1, 2, 1, 0},
-                new int[] {2, 1, 0, 1, 2},
-
-                new int[] {1, 0, 0, 0, 1},
-                new int[] {1, 2, 2, 2, 1},
-                new int[] {0, 0, 1, 2, 2},
-                new int[] {2, 2, 1, 0, 0},
-                new int[] {1, 2, 1, 0, 1},
-
-                new int[] {1, 0, 1, 2, 1},
-                new int[] {0, 1, 1, 1, 0},
-                new int[] {2, 1, 1, 1, 2},
-                new int[] {0, 1, 0, 1, 0},
-                new int[] {2, 1, 2, 1, 2},
-
-                new int[] {1, 1, 0, 1, 1},
-                new int[] {1, 1, 2, 1, 1},
-                new int[] {0, 0, 2, 0, 0},
-                new int[] {2, 2, 0, 2, 2},
-                new int[] {0, 2, 2, 2, 0},
-
-                new int[] {2, 0, 0, 0, 2},
-                new int[] {1, 2, 0, 2, 1},
-                new int[] {1, 0, 2, 0, 1},
-                new int[] {0, 2, 0, 2, 0},
-                new int[] {2, 0, 2, 0, 2},
-            };
-            machine.paylineTable = paylineTable;
-            //strips
-            //todo
-            //릴스트립도 가변배열로 고쳐야함
-            machine.NormalStrip = new ReelStrip(new string[][]
+            //rellStrip
+            machine.reelStripBundle = new ReelStripList(new string[][]
             {
                 new string[] {J0,H0,L1,M1,W0,M0,S0,L2,M1,L0,J0,H1,L0,W0,M2,L1,L2,M0,L1,L2},
                 new string[] {H0,L1,M1,M0,W0,L2,M1,J1,L0,H1,L0,M2,L1,L2,M0,J1,L1,L2},
                 new string[] {H0,L1,M1,W0,W0,W0,M0,S0,L2,M1,L0,H1,L0,S0,M2,L1,J2,L2,M0,L1,L2},
                 new string[] {H0,L1,M1,M0,W0,L2,M1,J1,L0,H1,L0,M2,L1,L2,M0,J1,L1,L2},
                 new string[] {J0,H0,L1,M1,W0,M0,S0,L2,M1,L0,J0,H1,L0,W0,M2,L1,L2,M0,L1,L2}
-            }, ReelStrip.ReelStripType.USE_NULL);
+            }, ReelStrips.Type.NORMAL);
 
+            //register machineconfig
+            _slotConfig.ClearMachines();
             _slotConfig.AddMachine(machine);
         }
     }

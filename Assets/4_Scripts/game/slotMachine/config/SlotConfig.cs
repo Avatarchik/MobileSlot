@@ -56,11 +56,15 @@ namespace Game
         //Slot 공통 설정
         //------------------------------------------------------------------
 
+        public string name;
         public int ID;
         public string Host;
         public int Port;
         public string Version;
         public SlotBetting Betting;
+
+        public bool UseJacpot;
+
         public bool DebugSymbolArea;//심볼 영역을 표시할지 여부
         public bool DebugTestSpin;//심볼 영역을 표시할지 여부
 
@@ -73,6 +77,11 @@ namespace Game
                 if (_machienList.Count == 0) return null;
                 else return _machienList[0];
             }
+        }
+
+        public void ClearMachines()
+        {
+            _machienList.Clear();
         }
 
         public void AddMachine(MachineConfig machine)
@@ -94,22 +103,19 @@ namespace Game
             public Size2D SymbolSize;
             public Size2D NullSymbolSize;
 
+            [Header("Scatter")]
+            public List<ScatterInfo> scatters;
+
             [Header("FreeSpin")]
             public bool UseFreeSpin;
             public FreeSpinTriggerType TriggerType;
             public FreeSpinRetriggerType RetriggerType;
-
-            public int[][] paylineTable;
-
-            [Header("Scatter")]
-            public List<ScatterInfo> scatters;
 
             [Header("Reel")]
             public Reel ReelPrefab;
             public Size2D ReelSize;
             public float ReelSpace;
             public float ReelGap;
-
 
             [Header("Spin")]
             public int MarginSymbolCount;//릴 위아래 여유 심볼 수
@@ -124,37 +130,17 @@ namespace Game
             [Header("Transition")]
             public Transition transition;
 
+            [Header("Paytable")]
+            public PaylineTable paylineTable;
 
             [Header("NameMap")]
-            public SymbolNameMap NameMap;
+            public SymbolNameMap nameMap;
 
-            //reelStrip
-            ReelStrip _normalStrip;
-            ReelStrip _freeStrip;
+            [Header("StartSymbols")]
+            public ReelSymbolSet[] startSymbolNames;
 
-            public ReelStrip NormalStrip
-            {
-                set { _normalStrip = value; }
-                get { return _normalStrip; }
-            }
-
-            public ReelStrip FreeStrip
-            {
-                set { _freeStrip = value; }
-                get { return _freeStrip ?? _normalStrip; }
-            }
-
-            //startSymbols
-            string[,] _startSymbolNames;
-            public void SetStartSymbols(string[,] startSymbolNames)
-            {
-                _startSymbolNames = startSymbolNames;
-            }
-
-            public string GetStartSymbolAt(int col, int row)
-            {
-                return _startSymbolNames[col, row];
-            }
+            [Header("ReelStripBundle")]
+            public ReelStripList reelStripBundle;
 
             public void AddSccaterInfo(string symbolname, int limit, int[] ableReel)
             {
@@ -163,8 +149,90 @@ namespace Game
                 var info = new ScatterInfo(symbolname, limit, ableReel);
                 scatters.Add(info);
             }
+
+            public void SetStartSymbols(string[][] startSymbolNames)
+            {
+                var len = startSymbolNames.Length;
+                this.startSymbolNames = new ReelSymbolSet[len];
+
+                for (var i = 0; i < startSymbolNames.Length; ++i)
+                {
+                    string[] symbolNames = startSymbolNames[i];
+                    ReelSymbolSet symbolSet = new ReelSymbolSet(symbolNames);
+                    this.startSymbolNames[i] = symbolSet;
+                }
+            }
+
+            public string GetStartSymbolAt(int col, int row)
+            {
+                return startSymbolNames[col].GetNameAt(row);
+            }
         }
     }
+
+    [Serializable]
+    public class ReelSymbolSet
+    {
+        public string[] symbolNames;
+        public ReelSymbolSet(string[] symbolNames)
+        {
+            this.symbolNames = symbolNames;
+        }
+
+        public string GetNameAt(int row)
+        {
+            return symbolNames[row];
+        }
+    }
+
+    [Serializable]
+    public class PaylineTable
+    {
+        [SerializeField]
+        Payline[] _table;
+
+        public int Length { get { return _table.Length; } }
+
+        public PaylineTable(int length)
+        {
+            _table = new Payline[length];
+        }
+
+        public PaylineTable(int[][] tableArr)
+        {
+            var length = tableArr.Length;
+            _table = new Payline[length];
+
+            for (var i = 0; i < length; ++i)
+            {
+                int[] rows = tableArr[i];
+                _table[i] = new Payline(rows);
+            }
+        }
+
+        public Payline GetPayline(int line)
+        {
+            return _table[line];
+        }
+
+        public void AddPayline(int[] payline)
+        {
+
+        }
+
+        [Serializable]
+        public class Payline
+        {
+            public int[] rows;
+
+            public Payline(int[] rows)
+            {
+                this.rows = rows;
+            }
+        }
+    }
+
+
 
     //todo
     //symbol 정의를 내릴때 포함시키자
@@ -211,55 +279,120 @@ namespace Game
         }
     }
 
-    public class SymbolNameMap
+    #region SymbolNameMap
+    [Serializable]
+    public class SymbolNameMap : SerializableDictionaryBase<string, string> { }
+
+    #endregion
+
+    #region ReelStirp
+    [Serializable]
+    public class ReelStripList
     {
-        Dictionary<string, string> _symbolmap;
-        public SymbolNameMap()
-        {
+        public const string DEFAULT = "default";
+        public const string FREE = "free";
 
+        [SerializeField]
+        List<ReelStrips> _list;
+
+        public ReelStripList(string[][] defaultyStrips, ReelStrips.Type type = ReelStrips.Type.NORMAL)
+        {
+            _list = new List<ReelStrips>();
+
+            AddStrip(DEFAULT, defaultyStrips, type);
         }
 
-        public void AddSymbolToMap(string serverName, string clientName)
+        public void AddStrip(string name, string[][] symbols, ReelStrips.Type type = ReelStrips.Type.NORMAL)
         {
-            if (_symbolmap == null) _symbolmap = new Dictionary<string, string>();
+            Debug.Log("AddStrip: " + name);
 
-            _symbolmap[serverName] = clientName;
+            ReelStrips reelStrips = new ReelStrips(name, symbols, type);
+            _list.Add(reelStrips);
         }
 
-        public string GetSymbolName(string serverName)
+        public ReelStrips GetStrips(string key = DEFAULT)
         {
-            if (_symbolmap.ContainsKey(serverName)) return _symbolmap[serverName];
-            else return string.Empty;
+            var count = _list.Count;
+            for (var i = 0; i < count; ++i)
+            {
+                var reelStrip = _list[i];
+                if (reelStrip.name == key) return reelStrip;
+            }
+
+            return null;
         }
     }
 
-    public class ReelStrip
+    [Serializable]
+    public class ReelStrips
     {
-        public enum ReelStripType
+        public enum Type
         {
             NORMAL,
             USE_NULL,
             STACK
         }
 
-        public ReelStripType type;
+        public ReelStrips.Type type;
+        public string name;
 
-        string[][] _strip;
+        [SerializeField]
+        Strip[] _strips;
 
-        public ReelStrip(string[][] strip, ReelStripType type = ReelStripType.NORMAL)
+        public ReelStrips(string name, string[][] symbols, ReelStrips.Type type = ReelStrips.Type.NORMAL)
         {
-            _strip = strip;
+            this.name = name;
             this.type = type;
+
+            var count = symbols.Length;
+            _strips = new Strip[count];
+            for (var i = 0; i < count; ++i)
+            {
+                var strip = new Strip(symbols[i]);
+                _strips[i] = strip;
+            }
         }
 
         public string GetRandom(int column)
         {
-            var reel = _strip[column];
-            int leng = reel.Length;
-            int randomIndex = UnityEngine.Random.Range(0, leng);
-            return reel[randomIndex];
+            var strip = _strips[column];
+
+            switch (type)
+            {
+                case Type.NORMAL:
+                    //customize
+                    break;
+
+                case Type.USE_NULL:
+                    //customize
+                    break;
+
+                case Type.STACK:
+                    //customize
+                    break;
+            }
+
+            return strip.GetRandom();
         }
     }
+
+    [Serializable]
+    public class Strip
+    {
+        [SerializeField]
+        string[] _strip;
+        public Strip(string[] strip)
+        {
+            _strip = strip;
+        }
+
+        public string GetRandom()
+        {
+            int randomIndex = UnityEngine.Random.Range(0, _strip.Length);
+            return _strip[randomIndex];
+        }
+    }
+    #endregion
 
     [Serializable]
     public class Transition

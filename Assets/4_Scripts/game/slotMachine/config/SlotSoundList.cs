@@ -44,32 +44,23 @@ namespace Game
         const string FREE_REEL_STOP = "FREE_REEL_STOP";
         const string PROGRESSIVE_WIN = "PROGRESSIVE_WIN";
 
-        public static SlotSoundList Instance;
-        SoundPlayer _player;
-        public SoundPlayer Player { get { return _player; } }
-
-        void Awake()
-        {
-            Instance = this;
-        }
-
-        public void Initialize()
-        {
-            _player = FindObjectOfType<SoundPlayer>();
-            if (_player == null) throw new NullReferenceException("SoundPlayer cannot be null");
-
-            _player.SetSoundList(this);
-        }
-
         override public void CreateDefaultList()
         {
             base.CreateDefaultList();
 
-            //todo
-            //현재 씬의 슬롯 config 을 얻어와서 설정에 따라 스마트하게 되어야 한다.
-            int columnCount = 5;
-            bool useFreespin = false;
+            var config = FindObjectOfType<SlotConfig>();
+            var main = config.Main;
 
+            if (main == null)
+            {
+                Debug.LogError("Main MachineConfig is can not be null!");
+                return;
+            }
+
+            var columnCount = main.Column;
+
+            //todo
+            //scatterinfo 와 Symbol 정의와 연관된다. 자동으로 판단되게 하자
             bool useProgressive = false;
             int progressiveCount = 5;
 
@@ -83,10 +74,12 @@ namespace Game
             groups.Add(new SoundGroup(SPIN, SoundGroup.PlayType.Order, columnCount));
             groups.Add(new SoundGroup(REEL_STOP, SoundGroup.PlayType.Order, columnCount));
             groups.Add(new SoundGroup(BTN, SoundGroup.PlayType.CHOOSE, new string[] { BTN_SPIN, BTN_FAST, BTN_DECREASE, BTN_INCREASE, BTN_COMMON }));
-            groups.Add(new SoundGroup(SPECIAL_WIN, SoundGroup.PlayType.CHOOSE, new string[] { SPECIAL_WIN_JACKPOT, SPECIAL_WIN_MEGAWIN, SPECIAL_WIN_BIGWIN }));
+
+            if (config.UseJacpot) groups.Add(new SoundGroup(SPECIAL_WIN, SoundGroup.PlayType.CHOOSE, new string[] { SPECIAL_WIN_JACKPOT, SPECIAL_WIN_MEGAWIN, SPECIAL_WIN_BIGWIN }));
+            else groups.Add(new SoundGroup(SPECIAL_WIN, SoundGroup.PlayType.CHOOSE, new string[] { SPECIAL_WIN_MEGAWIN, SPECIAL_WIN_BIGWIN }));
 
             //optional
-            if (useFreespin)
+            if (main.UseFreeSpin)
             {
                 basic.Add(new SoundSchema(BGM_FREE));
                 basic.Add(new SoundSchema(FREESPIN_TRIGGER));
@@ -105,34 +98,53 @@ namespace Game
             }
         }
 
-        public void PlayBGM()
+        static private SoundPlayer _player;
+        static private AudioSource _spinChannel;
+        static private SlotSoundList _instance;
+        void Awake()
+        {
+            _instance = this;
+        }
+
+        void OnDestroy()
+        {
+            _instance = null;
+        }
+
+        static public void Initialize()
+        {
+            _player = FindObjectOfType<SoundPlayer>();
+            if (_player == null) throw new NullReferenceException("SoundPlayer cannot be null");
+
+            _player.SetSoundList(_instance);
+        }
+
+        static public void PlayBGM()
         {
             _player.PlayBGM(BGM);
         }
 
-        public void PlaySFX()
+        static public void PlaySFX(AudioClip clip, float volume = 1f, float pitch = 1f)
         {
-
+            _player.PlaySFX(clip);
         }
 
-        AudioSource _spinChannel;
-
-        public void Spin()
+        static public void Spin()
         {
             _spinChannel = _player.PlaySFX(SPIN);
         }
 
-        public void StopSpin()
+        static public void StopSpin()
         {
             if (_spinChannel != null) _spinChannel.Stop();
         }
 
-        public void Expect()
+        static public void Expect()
         {
             StopSpin();
         }
 
-        public void ReelStop()
+        static public void ReelStop()
         {
             _player.PlaySFX(REEL_STOP);
 
@@ -156,27 +168,27 @@ namespace Game
             */
         }
 
-        public void FreeSpin()
+        static public void FreeSpin()
         {
             // _player.PlaySFX(spins[0]);
         }
 
-        public void PlayFreeSpinTrigger()
+        static public void PlayFreeSpinTrigger()
         {
 
         }
 
-        public void StopFreeSpinTrigger()
+        static public void StopFreeSpinTrigger()
         {
 
         }
 
-        public void PlayFreeSpinReady()
+        static public void PlayFreeSpinReady()
         {
 
         }
 
-        public void StopFreeSpinReady()
+        static public void StopFreeSpinReady()
         {
 
         }

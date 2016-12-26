@@ -5,16 +5,16 @@ using System.Linq;
 
 namespace Game
 {
-    public class PaylineModule : MonoBehaviour
+    public class PaylineDisplayer : MonoBehaviour
     {
         [SerializeField]
-        Payline[] _paylines;
-        List<Payline> _drawnLines;
+        PaylineRenderer[] _paylines;
+        List<PaylineRenderer> _renderers;
 
         void Awake()
         {
-            _paylines = GetComponentsInChildren<Payline>().OrderBy(p => p.Index).ToArray();
-            _drawnLines = new List<Payline>();
+            _paylines = GetComponentsInChildren<PaylineRenderer>().OrderBy(p => p.Index).ToArray();
+            _renderers = new List<PaylineRenderer>();
         }
 
         public void DrawAll(WinItemList winInfo)
@@ -35,10 +35,10 @@ namespace Game
             var payline = GetLine(item.PaylineIndex.Value);
             payline.Show();
 
-            _drawnLines.Add(payline);
+            _renderers.Add(payline);
         }
 
-        Payline GetLine(int idx)
+        PaylineRenderer GetLine(int idx)
         {
             if (idx < 0 || idx >= _paylines.Length) return null;
             else return _paylines[idx];
@@ -46,9 +46,9 @@ namespace Game
 
         public void Clear()
         {
-            var count = _drawnLines.Count;
-            while (count-- > 0) _drawnLines[count].Hide();
-            _drawnLines.Clear();
+            var count = _renderers.Count;
+            while (count-- > 0) _renderers[count].Hide();
+            _renderers.Clear();
         }
     }
 }
