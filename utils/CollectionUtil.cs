@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-
+﻿using System.Collections;
 using System;
 
 namespace lpesign
@@ -28,6 +26,28 @@ namespace lpesign
             Array.Copy(arr, indexFrom, result, 0, length);
 
             return result;
+        }
+
+        public static int IndexOf(this System.Array lst, object obj)
+        {
+            return System.Array.IndexOf(lst, obj);
+        }
+
+        public static int IndexOf<T>(this T[] lst, T obj)
+        {
+            return System.Array.IndexOf(lst, obj);
+        }
+
+        public static bool IsEmpty(this IEnumerable lst)
+        {
+            if (lst is IList)
+            {
+                return (lst as IList).Count == 0;
+            }
+            else
+            {
+                return !lst.GetEnumerator().MoveNext();
+            }
         }
     }
 }
