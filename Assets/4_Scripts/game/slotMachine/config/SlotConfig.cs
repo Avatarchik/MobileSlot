@@ -56,15 +56,13 @@ namespace Game
         //Slot 공통 설정
         //------------------------------------------------------------------
 
-        public string name;
+        new public string name;
         public int ID;
         public string Host;
         public int Port;
         public string Version;
         public SlotBetting Betting;
-
         public bool UseJacpot;
-
         public bool DebugSymbolArea;//심볼 영역을 표시할지 여부
         public bool DebugTestSpin;//심볼 영역을 표시할지 여부
 
@@ -81,6 +79,8 @@ namespace Game
 
         public void ClearMachines()
         {
+            if (_machienList == null) _machienList = new List<MachineConfig>();
+
             _machienList.Clear();
         }
 
@@ -412,21 +412,17 @@ namespace Game
     {
         public event Action OnUpdateLineBetIndex;
 
-
-        [SerializeField]
-        double[] _betTable;
-
-        [SerializeField]
-        double _minLineBet;
-
-        [SerializeField]
-        double _maxLineBet;
+        double _min;
+        double _max;
+        int _currentIndex;
 
         [SerializeField]
         double _lastLineBet;
-
         [SerializeField]
-        int _currentLinBetIndex;
+        double _currentLineBet;
+        [SerializeField]
+        double[] _betTable;
+
 
         #region Property
 
@@ -436,13 +432,15 @@ namespace Game
 
         public int LineBetIndex
         {
-            get { return _currentLinBetIndex; }
+            get { return _currentIndex; }
             set
             {
-                _currentLinBetIndex = value;
+                _currentIndex = value;
 
-                if (_currentLinBetIndex < 0) _currentLinBetIndex = 0;
-                else if (_currentLinBetIndex >= _betTable.Length) _currentLinBetIndex = _betTable.Length - 1;
+                if (_currentIndex < 0) _currentIndex = 0;
+                else if (_currentIndex >= _betTable.Length) _currentIndex = _betTable.Length - 1;
+
+                _currentLineBet = _betTable[_currentIndex];
 
                 if (OnUpdateLineBetIndex != null) OnUpdateLineBetIndex();
             }
@@ -450,7 +448,7 @@ namespace Game
 
         public double LineBet
         {
-            get { return _betTable[_currentLinBetIndex]; }
+            get { return _currentLineBet; }
         }
 
         public double TotalBet
@@ -460,12 +458,12 @@ namespace Game
 
         public bool IsFirstBet
         {
-            get { return _currentLinBetIndex <= 0; }
+            get { return _currentIndex <= 0; }
         }
 
         public bool IsLastBet
         {
-            get { return _currentLinBetIndex >= _betTable.Length - 1; }
+            get { return _currentIndex >= _betTable.Length - 1; }
         }
 
         #endregion
@@ -476,14 +474,14 @@ namespace Game
         {
             if (IsFirstBet) return;
 
-            LineBetIndex = _currentLinBetIndex - 1;
+            LineBetIndex = _currentIndex - 1;
         }
 
         public void Increase()
         {
             if (IsLastBet) return;
 
-            LineBetIndex = _currentLinBetIndex + 1;
+            LineBetIndex = _currentIndex + 1;
         }
 
         public void Init(double min, double max, double last)
@@ -491,9 +489,12 @@ namespace Game
             if (_betTable == null || _betTable.Length == 0) Debug.LogError("Invalid BetTable");
             if (min >= max) Debug.LogError("min is bigger than max");
 
-            _minLineBet = min;
-            _maxLineBet = max;
+            _min = min;
+            _max = max;
+
             _lastLineBet = last;
+
+            Debug.Log("Init:" + _lastLineBet);
 
             // 배팅 테이블 오른차순 정렬
             _betTable = _betTable.OrderBy(b => b).ToArray();
@@ -506,6 +507,11 @@ namespace Game
             //최초 벳 결정
             CheckFirstBet();
         }
+
+        public void Save()
+        {
+            _lastLineBet = _currentLineBet;
+        }
         #endregion
 
 
@@ -514,7 +520,7 @@ namespace Game
             var deleteCount = 0;
             for (var i = 0; i < _betTable.Length; ++i)
             {
-                if (_minLineBet <= _betTable[i]) break;
+                if (_min <= _betTable[i]) break;
 
                 ++deleteCount;
             }
@@ -523,12 +529,12 @@ namespace Game
 
         void CheckMaxBet()
         {
-            if (_maxLineBet <= _minLineBet) return;
+            if (_max <= _min) return;
 
             var endIndex = 0;
             for (var i = 0; i < _betTable.Length; ++i)
             {
-                if (_maxLineBet < _betTable[i]) break;
+                if (_max < _betTable[i]) break;
 
                 ++endIndex;
             }

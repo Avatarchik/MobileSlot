@@ -2,9 +2,9 @@
 using UnityEditor;
 using System.Linq;
 
-namespace lpesign
+namespace lpesign.UnityEditor
 {
-    public static class EditorHelper
+    public static class UsableEditorHelper
     {
         public static System.Type GetTargetType(this SerializedObject obj)
         {
@@ -114,7 +114,7 @@ namespace lpesign
             }
         }
 
-        public static void SetPropertyValue(SerializedProperty prop, object value)
+        public static void SetPropertyValue(this SerializedProperty prop, object value)
         {
             if (prop == null) throw new System.ArgumentNullException("prop");
 
@@ -173,7 +173,7 @@ namespace lpesign
                     throw new System.InvalidOperationException("Can not handle Gradient types.");
             }
         }
-        public static object GetPropertyValue(SerializedProperty prop)
+        public static object GetPropertyValue(this SerializedProperty prop)
         {
             if (prop == null) throw new System.ArgumentNullException("prop");
 
@@ -217,59 +217,5 @@ namespace lpesign
 
             return null;
         }
-
-        public static SerializedPropertyType GetPropertyType(System.Type tp)
-        {
-            if (tp == null) throw new System.ArgumentNullException("tp");
-
-            if (tp.IsEnum) return SerializedPropertyType.Enum;
-
-            var code = System.Type.GetTypeCode(tp);
-            switch (code)
-            {
-                case System.TypeCode.SByte:
-                case System.TypeCode.Byte:
-                case System.TypeCode.Int16:
-                case System.TypeCode.UInt16:
-                case System.TypeCode.Int32:
-                    return SerializedPropertyType.Integer;
-                case System.TypeCode.Boolean:
-                    return SerializedPropertyType.Boolean;
-                case System.TypeCode.Single:
-                    return SerializedPropertyType.Float;
-                case System.TypeCode.String:
-                    return SerializedPropertyType.String;
-                case System.TypeCode.Char:
-                    return SerializedPropertyType.Character;
-                default:
-                    {
-                        if (TypeUtil.IsType(tp, typeof(Color)))
-                            return SerializedPropertyType.Color;
-                        else if (TypeUtil.IsType(tp, typeof(UnityEngine.Object)))
-                            return SerializedPropertyType.ObjectReference;
-                        else if (TypeUtil.IsType(tp, typeof(LayerMask)))
-                            return SerializedPropertyType.LayerMask;
-                        else if (TypeUtil.IsType(tp, typeof(Vector2)))
-                            return SerializedPropertyType.Vector2;
-                        else if (TypeUtil.IsType(tp, typeof(Vector3)))
-                            return SerializedPropertyType.Vector3;
-                        else if (TypeUtil.IsType(tp, typeof(Vector4)))
-                            return SerializedPropertyType.Vector4;
-                        else if (TypeUtil.IsType(tp, typeof(Quaternion)))
-                            return SerializedPropertyType.Quaternion;
-                        else if (TypeUtil.IsType(tp, typeof(Rect)))
-                            return SerializedPropertyType.Rect;
-                        else if (TypeUtil.IsType(tp, typeof(AnimationCurve)))
-                            return SerializedPropertyType.AnimationCurve;
-                        else if (TypeUtil.IsType(tp, typeof(Bounds)))
-                            return SerializedPropertyType.Bounds;
-                        else if (TypeUtil.IsType(tp, typeof(Gradient)))
-                            return SerializedPropertyType.Gradient;
-                    }
-                    return SerializedPropertyType.Generic;
-
-            }
-        }
     }
-
 }

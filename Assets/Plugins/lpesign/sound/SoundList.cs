@@ -157,12 +157,14 @@ namespace lpesign
 
         virtual public void CreateDefaultList()
         {
+            Debug.Log("CreateDefaultList");
             basic = new List<SoundSchema>();
             groups = new List<SoundGroup>();
         }
 
         public void Clear()
         {
+            Debug.Log("Clear");
             basic.Clear();
             groups.Clear();
         }

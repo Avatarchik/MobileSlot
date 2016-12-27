@@ -276,7 +276,8 @@ namespace Game
             _bookedSpin = false;
 
             if (_paylineDisplayer != null) _paylineDisplayer.Clear();
-
+            
+            _betting.Save();
             _ui.Spin();
             _reelContainer.Spin();
             _topboard.Spin();

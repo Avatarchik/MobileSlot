@@ -29,8 +29,6 @@ namespace hamsterbyte.PoolMaster
     [System.Serializable]
     public class ObjectPool : MonoBehaviour
     {
-
-
         #region VARIABLES
         public List<Pool> pools;
         public string[] PreloadModes = new string[] { "None", "Selective", "All" };
