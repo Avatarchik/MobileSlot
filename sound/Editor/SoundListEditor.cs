@@ -7,7 +7,7 @@ using lpesign;
 using lpesign.UnityEditor;
 
 [CustomEditor(typeof(SoundList))]
-public class SoundListInspector : UsableEditor<SoundList>
+public class SoundListEditor : UsableEditor<SoundList>
 {
     ReorderableList _basicList;
     ReorderableList[] _groupList;
@@ -22,7 +22,7 @@ public class SoundListInspector : UsableEditor<SoundList>
     {
         //createBasicList
         var basicProperty = serializedObject.FindProperty("basic");
-        _basicList = CreateSoundSchemaList(basicProperty, "Basic");
+        _basicList = CreateSoundSchemaList(basicProperty);
 
         //createGroupList
         var groups = serializedObject.FindProperty("groups");
@@ -43,7 +43,13 @@ public class SoundListInspector : UsableEditor<SoundList>
         list.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
         {
             SerializedProperty element = list.serializedProperty.GetArrayElementAtIndex(index);
-            OnSchemaGUI(rect, element, null);
+            rect.y += 3;
+
+            Rect posA = new Rect(rect.x, rect.y, 180, _singleHeight);
+            Rect posB = new Rect(posA.xMax, rect.y, rect.width - posA.width, _singleHeight);
+
+            EditorGUI.PropertyField(posA, element.FindPropertyRelative("_name"), GUIContent.none);
+            EditorGUI.PropertyField(posB, element.FindPropertyRelative("_clip"), GUIContent.none);
         };
 
         list.onAddCallback = (ReorderableList l) =>
@@ -53,21 +59,10 @@ public class SoundListInspector : UsableEditor<SoundList>
             l.index = index;
 
             SerializedProperty element = l.serializedProperty.GetArrayElementAtIndex(index);
-            element.FindPropertyRelative("name").stringValue = "NEW " + index;
-            element.FindPropertyRelative("clip").objectReferenceValue = null;
+            element.FindPropertyRelative("_name").stringValue = "NEW " + index;
+            element.FindPropertyRelative("_clip").objectReferenceValue = null;
         };
         return list;
-    }
-
-    void OnSchemaGUI(Rect rect, SerializedProperty property, GUIContent label)
-    {
-        rect.y += 2;
-
-        Rect posA = new Rect(rect.x, rect.y, 180, _singleHeight);
-        Rect posB = new Rect(posA.xMax, rect.y, rect.width - posA.width, _singleHeight);
-
-        EditorGUI.PropertyField(posA, property.FindPropertyRelative("_name"), GUIContent.none);
-        EditorGUI.PropertyField(posB, property.FindPropertyRelative("_clip"), GUIContent.none);
     }
 
     public override void OnInspectorGUI()
@@ -81,7 +76,7 @@ public class SoundListInspector : UsableEditor<SoundList>
         DrawGroup();
         DrawClearAllButton();
 
-        serializedObject.ApplyModifiedProperties();
+        Apply();
     }
 
     void DrawDefaultButton()
@@ -102,6 +97,7 @@ public class SoundListInspector : UsableEditor<SoundList>
 
     void DrawBasic()
     {
+        EditorGUILayout.LabelField("Basic", EditorStyles.boldLabel);
         _basicList.DoLayoutList();
     }
 
@@ -109,8 +105,8 @@ public class SoundListInspector : UsableEditor<SoundList>
     {
         SerializedProperty property = serializedObject.FindProperty("groups");
 
-        EditorGUILayout.BeginVertical("button");
-        EditorGUILayout.LabelField("Groups", EditorStyles.boldLabel, GUILayout.MaxWidth(130));
+        EditorGUILayout.LabelField("Groups", EditorStyles.boldLabel);
+        EditorGUILayout.BeginVertical(GUI.skin.button);
         GUI.backgroundColor = Color.green;
         if (GUILayout.Button("AddGroup"))
         {
@@ -120,7 +116,7 @@ public class SoundListInspector : UsableEditor<SoundList>
 
         for (var i = 0; i < property.arraySize; ++i)
         {
-            EditorGUILayout.BeginVertical("button");
+            EditorGUILayout.BeginVertical(GUI.skin.box);
             GUILayout.Space(3);
 
             var element = property.GetArrayElementAtIndex(i);

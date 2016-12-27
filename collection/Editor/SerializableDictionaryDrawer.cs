@@ -1,11 +1,7 @@
 ﻿using UnityEngine;
-using System;
-using System.Collections.Generic;
 using UnityEditor;
-using UnityEditorInternal;
-using UnityObject = UnityEngine.Object;
 
-namespace lpesign
+namespace lpesign.UnityEditor
 {
     [CustomPropertyDrawer(typeof(DrawableDictionary), true)]
     public class DictionaryPropertyDrawer : PropertyDrawer
@@ -61,7 +57,8 @@ namespace lpesign
                 if (GUI.Button(pRect, "+"))
                 {
                     keysProp.arraySize++;
-                    EditorHelper.SetPropertyValue(keysProp.GetArrayElementAtIndex(keysProp.arraySize - 1), null);
+                    var element = keysProp.GetArrayElementAtIndex(keysProp.arraySize - 1);
+                    element.SetPropertyValue(null);
                     valuesProp.arraySize = keysProp.arraySize;
                 }
                 if (GUI.Button(mRect, "-"))
