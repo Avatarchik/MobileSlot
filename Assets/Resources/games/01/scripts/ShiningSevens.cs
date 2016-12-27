@@ -24,7 +24,7 @@ namespace Game.ShiningSevens
             _slotConfig.Host = "182.252.135.251";
             _slotConfig.Port = 13100;
             _slotConfig.Version = "0.0.1";
-            _slotConfig.UseJacpot = false;
+            _slotConfig.Jackpot = false;
             _slotConfig.Betting = new SlotBetting()
             {
                 BetTable = new double[]

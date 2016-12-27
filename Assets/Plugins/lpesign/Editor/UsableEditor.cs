@@ -132,6 +132,7 @@ namespace lpesign.UnityEditor
                     break;
 
                 case SerializedPropertyType.Boolean:
+                    prop.SetPropertyValue(EditorGUILayout.Toggle((bool)propertyValue));
                     break;
 
                 case SerializedPropertyType.ObjectReference:

@@ -29,12 +29,9 @@ namespace Game
             DrawScriptSetting();
             DrawBase();
             DrawBetting();
+            DrawMachines();
 
             Apply();
-
-            //-- return
-            DrawRowLine("BASE");
-            DrawDefaultInspector();
         }
 
         void DrawScriptSetting()
@@ -60,6 +57,12 @@ namespace Game
             DrawHorizontalProperties("name", "ID");
             DrawHorizontalProperties("Host", "Port");
             DrawHorizontalProperties("Version");
+            DrawHorizontalProperties("Jackpot");
+
+            GUILayout.BeginVertical(GUI.skin.button);
+            EditorGUILayout.LabelField("Debug", EditorStyles.boldLabel);
+            DrawHorizontalProperties(130f, "DebugSymbolArea", "DebugTestSpin");
+            GUILayout.EndVertical();
 
             GUILayout.EndVertical();
         }
@@ -83,7 +86,7 @@ namespace Game
             if (_bettingList == null)
             {
                 var table = betting.FindPropertyRelative("_betTable");
-                _bettingList = CreateReorderableList(table);
+                _bettingList = CreateReorderableList(table, "", false);
                 _bettingList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
                 {
                     rect.y += 2;
@@ -99,20 +102,11 @@ namespace Game
             }
 
             _bettingList.DoLayoutList();
-
-            // list.onAddCallback = (ReorderableList l) =>
-            // {
-            //     var index = l.serializedProperty.arraySize;
-            //     l.serializedProperty.arraySize++;
-            //     l.index = index;
-
-            //     SerializedProperty element = l.serializedProperty.GetArrayElementAtIndex(index);
-            //     element.FindPropertyRelative("name").stringValue = "NEW " + index;
-            //     element.FindPropertyRelative("clip").objectReferenceValue = null;
-            // };
-            // return list;
-
-            // GUILayout.EndVertical();
+        }
+        void DrawMachines()
+        {
+            var machines = serializedObject.FindProperty("_machienList");
+            EditorGUILayout.PropertyField(machines, true);
         }
     }
 }

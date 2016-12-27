@@ -29,7 +29,7 @@ namespace Game.HighDiamonds
             _slotConfig.Host = "182.252.135.251";
             _slotConfig.Port = 13500;
             _slotConfig.Version = "0.0.1";
-            _slotConfig.UseJacpot = true;
+            _slotConfig.Jackpot = true;
             _slotConfig.Betting = new SlotBetting()
             {
                 BetTable = new double[]

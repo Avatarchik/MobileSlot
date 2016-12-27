@@ -7,7 +7,6 @@ using lpesign;
 
 namespace Game
 {
-
     /// <summary>
     /// 슬롯 게임에 대한 설정
     /// 한 슬롯 게임 내부에 다수의 머신이 존재할 수 있다.
@@ -18,54 +17,19 @@ namespace Game
     public class SlotConfig : MonoBehaviour
     {
         //------------------------------------------------------------------
-        //custom enum
-        //------------------------------------------------------------------
-        #region customn enum
-        public enum FreeSpinTriggerType
-        {
-            Auto,
-            Select
-        }
-
-        public enum FreeSpinRetriggerType
-        {
-            None,
-            Add,
-            Refill
-        }
-
-        public enum ExpectReelType
-        {
-            Null,
-            BonusSpin,
-            FreeSpin,
-            Progressive
-        }
-
-        public enum WinType
-        {
-            LOSE,
-            NORMAL,
-            BIGWIN,
-            MEGAWIN,
-            JACPOT
-        }
-        #endregion
-
-        //------------------------------------------------------------------
         //Slot 공통 설정
         //------------------------------------------------------------------
-
         new public string name;
         public int ID;
         public string Host;
         public int Port;
         public string Version;
-        public SlotBetting Betting;
-        public bool UseJacpot;
-        public bool DebugSymbolArea;//심볼 영역을 표시할지 여부
-        public bool DebugTestSpin;//심볼 영역을 표시할지 여부
 
+        public bool Jackpot;
+        public bool DebugSymbolArea;//심볼 영역을 표시할지 여부
+        public bool DebugTestSpin;//테스트 스핀 핫 키 여부
+
+        public SlotBetting Betting;
         [SerializeField]
         List<MachineConfig> _machienList;
         public MachineConfig Main
@@ -168,7 +132,43 @@ namespace Game
                 return startSymbolNames[col].GetNameAt(row);
             }
         }
+
+        //------------------------------------------------------------------
+        //custom enum
+        //------------------------------------------------------------------
+        #region customn enum
+        public enum FreeSpinTriggerType
+        {
+            Auto,
+            Select
+        }
+
+        public enum FreeSpinRetriggerType
+        {
+            None,
+            Add,
+            Refill
+        }
+
+        public enum ExpectReelType
+        {
+            Null,
+            BonusSpin,
+            FreeSpin,
+            Progressive
+        }
+
+        public enum WinType
+        {
+            LOSE,
+            NORMAL,
+            BIGWIN,
+            MEGAWIN,
+            JACPOT
+        }
+        #endregion
     }
+
 
     [Serializable]
     public class ReelSymbolSet

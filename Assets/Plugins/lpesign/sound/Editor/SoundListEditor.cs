@@ -39,7 +39,7 @@ public class SoundListEditor : UsableEditor<SoundList>
 
     ReorderableList CreateSoundSchemaList(SerializedProperty property, string headerName = "")
     {
-        var list = CreateReorderableList(property, headerName);
+        var list = CreateReorderableList(property, headerName, false);
         list.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
         {
             SerializedProperty element = list.serializedProperty.GetArrayElementAtIndex(index);

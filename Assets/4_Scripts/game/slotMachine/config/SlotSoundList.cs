@@ -75,7 +75,7 @@ namespace Game
             groups.Add(new SoundGroup(REEL_STOP, SoundGroup.PlayType.Order, columnCount));
             groups.Add(new SoundGroup(BTN, SoundGroup.PlayType.CHOOSE, new string[] { BTN_SPIN, BTN_FAST, BTN_DECREASE, BTN_INCREASE, BTN_COMMON }));
 
-            if (config.UseJacpot) groups.Add(new SoundGroup(SPECIAL_WIN, SoundGroup.PlayType.CHOOSE, new string[] { SPECIAL_WIN_JACKPOT, SPECIAL_WIN_MEGAWIN, SPECIAL_WIN_BIGWIN }));
+            if (config.Jackpot) groups.Add(new SoundGroup(SPECIAL_WIN, SoundGroup.PlayType.CHOOSE, new string[] { SPECIAL_WIN_JACKPOT, SPECIAL_WIN_MEGAWIN, SPECIAL_WIN_BIGWIN }));
             else groups.Add(new SoundGroup(SPECIAL_WIN, SoundGroup.PlayType.CHOOSE, new string[] { SPECIAL_WIN_MEGAWIN, SPECIAL_WIN_BIGWIN }));
 
             //optional
