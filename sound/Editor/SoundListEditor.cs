@@ -67,6 +67,8 @@ public class SoundListEditor : UsableEditor<SoundList>
 
     public override void OnInspectorGUI()
     {
+        Update();
+
         DrawScript();
 
         serializedObject.Update();

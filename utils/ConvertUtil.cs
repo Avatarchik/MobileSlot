@@ -1,19 +1,32 @@
 ﻿using UnityEngine;
-using System.Text.RegularExpressions;
 
 namespace lpesign
 {
     public static class ConvertUtil
     {
 
-        #region RegEx Constants
-
+        #region Constants
         private const string RX_ISHEX = @"(?<sign>[-+]?)(?<flag>0x|#|&H)(?<num>[\dA-F]+)(?<fractional>(\.[\dA-F]+)?)$";
+        private static string[] ORDINAL_SUFFIXES = new string[] { "th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th" };
+        #endregion
 
+        #region ToString
+        public static string IntoToOrdinal(int i)
+        {
+            switch (i % 100)
+            {
+                case 11:
+                case 12:
+                case 13:
+                    return i + "th";
+                default:
+                    return i + ORDINAL_SUFFIXES[i % 10];
+
+            }
+        }
         #endregion
 
         #region Color
-
         public static int ToInt(Color color)
         {
             return (Mathf.RoundToInt(color.a * 255) << 24) +
