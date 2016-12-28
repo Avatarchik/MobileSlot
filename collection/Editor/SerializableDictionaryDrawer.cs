@@ -4,15 +4,16 @@ using UnityEditor;
 namespace lpesign.UnityEditor
 {
     [CustomPropertyDrawer(typeof(DrawableDictionary), true)]
-    public class DictionaryPropertyDrawer : PropertyDrawer
+    public class DictionaryPropertyDrawer : UsableDrawer
     {
-
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             if (property.isExpanded)
             {
                 var keysProp = property.FindPropertyRelative("_keys");
-                return (keysProp.arraySize + 4) * EditorGUIUtility.singleLineHeight;
+                var valueHeight = (keysProp.arraySize + 2) * EditorGUIUtility.singleLineHeight;
+                var buttonHeight = 20;
+                return valueHeight + buttonHeight;
             }
             else
             {
@@ -22,61 +23,70 @@ namespace lpesign.UnityEditor
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            bool expanded = property.isExpanded;
-            var r = GetNextRect(ref position);
-            property.isExpanded = EditorGUI.Foldout(r, property.isExpanded, label);
+            Initialize();
 
+            label = EditorGUI.BeginProperty(position, label, property);
+
+            bool expanded = property.isExpanded;
+            var rect = GetNextRect(ref position);
+            property.isExpanded = EditorGUI.Foldout(rect, property.isExpanded, label);
             if (expanded)
             {
-                EditorGUI.indentLevel++;
+                var keyList = property.FindPropertyRelative("_keys");
+                var valueList = property.FindPropertyRelative("_values");
 
-                var keysProp = property.FindPropertyRelative("_keys");
-                var valuesProp = property.FindPropertyRelative("_values");
+                int keyCount = keyList.arraySize;
+                if (valueList.arraySize != keyCount) valueList.arraySize = keyCount;
 
-                int cnt = keysProp.arraySize;
-                if (valuesProp.arraySize != cnt) valuesProp.arraySize = cnt;
 
-                for (int i = 0; i < cnt; i++)
+                //display key & value
+                for (int i = 0; i < keyCount; i++)
                 {
-                    r = GetNextRect(ref position);
-                    r = EditorGUI.IndentedRect(r);
-                    var w = r.width / 2f;
-                    var r0 = new Rect(r.xMin, r.yMin, w, r.height);
-                    var r1 = new Rect(r0.xMax, r.yMin, w, r.height);
+                    rect = GetNextRect(ref position);
+                    rect = EditorGUI.IndentedRect(rect);
 
-                    var keyProp = keysProp.GetArrayElementAtIndex(i);
-                    var valueProp = valuesProp.GetArrayElementAtIndex(i);
-                    EditorGUI.PropertyField(r0, keyProp, GUIContent.none, false);
-                    EditorGUI.PropertyField(r1, valueProp, GUIContent.none, false);
+                    var w = rect.width / 2f;
+                    var keyRect = new Rect(rect.xMin, rect.yMin, w, rect.height);
+                    var valueRect = new Rect(keyRect.xMax, rect.yMin, w, rect.height);
+
+                    var keyProp = keyList.GetArrayElementAtIndex(i);
+                    var valueProp = valueList.GetArrayElementAtIndex(i);
+                    // GUIContent.none
+                    EditorGUIUtility.labelWidth = 60;
+                    var keyLabel = new GUIContent("key");
+                    var valueLabel = new GUIContent("value");
+
+                    EditorGUI.PropertyField(keyRect, keyProp, keyLabel);
+                    EditorGUI.PropertyField(valueRect, valueProp, valueLabel);
                 }
 
-                r = GetNextRect(ref position);
-                var pRect = new Rect(r.xMax - 60f, r.yMin, 30f, EditorGUIUtility.singleLineHeight);
-                var mRect = new Rect(r.xMax - 30f, r.yMin, 30f, EditorGUIUtility.singleLineHeight);
+                //+ - button
+                rect = GetNextRect(ref position);
+                rect.y += 3;
 
+                var pRect = new Rect(rect.xMax - 60f, rect.yMin, 30f, EditorGUIUtility.singleLineHeight);
+                var mRect = new Rect(rect.xMax - 30f, rect.yMin, 30f, EditorGUIUtility.singleLineHeight);
+
+                GUI.backgroundColor = Color.green;
                 if (GUI.Button(pRect, "+"))
                 {
-                    keysProp.arraySize++;
-                    var element = keysProp.GetArrayElementAtIndex(keysProp.arraySize - 1);
+                    keyList.arraySize++;
+                    var element = keyList.GetArrayElementAtIndex(keyList.arraySize - 1);
                     element.SetPropertyValue(null);
-                    valuesProp.arraySize = keysProp.arraySize;
+                    valueList.arraySize = keyList.arraySize;
                 }
+                GUI.backgroundColor = _defaultBGColor;
+
+                GUI.backgroundColor = Color.red;
                 if (GUI.Button(mRect, "-"))
                 {
-                    keysProp.arraySize = Mathf.Max(keysProp.arraySize - 1, 0);
-                    valuesProp.arraySize = keysProp.arraySize;
+                    keyList.arraySize = Mathf.Max(keyList.arraySize - 1, 0);
+                    valueList.arraySize = keyList.arraySize;
                 }
+                GUI.backgroundColor = _defaultBGColor;
             }
+
+            EditorGUI.EndProperty();
         }
-
-
-        private Rect GetNextRect(ref Rect position)
-        {
-            var r = new Rect(position.xMin, position.yMin, position.width, EditorGUIUtility.singleLineHeight);
-            var h = EditorGUIUtility.singleLineHeight + 1f;
-            position = new Rect(position.xMin, position.yMin + h, position.width, position.height = h);
-            return r;
-        }
-
     }
 }
