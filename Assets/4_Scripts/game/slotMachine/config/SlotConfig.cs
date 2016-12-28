@@ -31,26 +31,26 @@ namespace Game
 
         public SlotBetting Betting;
         [SerializeField]
-        List<MachineConfig> _machienList;
+        List<MachineConfig> _machineList;
         public MachineConfig Main
         {
             get
             {
-                if (_machienList.Count == 0) return null;
-                else return _machienList[0];
+                if (_machineList.Count == 0) return null;
+                else return _machineList[0];
             }
         }
 
         public void ClearMachines()
         {
-            if (_machienList == null) _machienList = new List<MachineConfig>();
+            if (_machineList == null) _machineList = new List<MachineConfig>();
 
-            _machienList.Clear();
+            _machineList.Clear();
         }
 
         public void AddMachine(MachineConfig machine)
         {
-            _machienList.Add(machine);
+            _machineList.Add(machine);
         }
 
         //------------------------------------------------------------------
@@ -59,29 +59,33 @@ namespace Game
         [Serializable]
         public class MachineConfig
         {
-            [Header("Base")]
+            //base
             public int Row;
             public int Column;
 
-            [Header("Symbol")]
+            //symbol
             public Size2D SymbolSize;
             public Size2D NullSymbolSize;
 
+            //scatter
             [Header("Scatter")]
             public List<ScatterInfo> scatters;
 
-            [Header("FreeSpin")]
+            //NameMap
+            public SymbolNameMap nameMap;
+
+            //freespin
             public bool UseFreeSpin;
             public FreeSpinTriggerType TriggerType;
             public FreeSpinRetriggerType RetriggerType;
 
-            [Header("Reel")]
+            //reel
             public Reel ReelPrefab;
             public Size2D ReelSize;
             public float ReelSpace;
             public float ReelGap;
 
-            [Header("Spin")]
+            //spin
             public int MarginSymbolCount;//릴 위아래 여유 심볼 수
             public int IncreaseCount;//다음 릴로 갈 수록 더 생겨야할 심볼 수
             public int SpiningSymbolCount;//스핀 한 세트 당 심볼 수
@@ -91,19 +95,16 @@ namespace Game
             public MoveTweenInfo tweenFirstBackInfo;//첫번재 스핀에 정보
             public MoveTweenInfo tweenLastBackInfo;//마지막 스핀이 정보
 
-            [Header("Transition")]
+            //transition
             public Transition transition;
 
-            [Header("Paytable")]
+            //paytable
             public PaylineTable paylineTable;
 
-            [Header("NameMap")]
-            public SymbolNameMap nameMap;
-
-            [Header("StartSymbols")]
+            //startsymbols
             public ReelSymbolSet[] startSymbolNames;
 
-            [Header("ReelStripBundle")]
+            //reelstrip
             public ReelStripList reelStripBundle;
 
             public void AddSccaterInfo(string symbolname, int limit, int[] ableReel)

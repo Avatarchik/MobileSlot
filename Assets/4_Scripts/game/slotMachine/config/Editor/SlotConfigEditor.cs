@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
-using System.Collections;
 
+using lpesign;
 using lpesign.UnityEditor;
 
 namespace Game
@@ -25,11 +25,14 @@ namespace Game
 
         public override void OnInspectorGUI()
         {
+            Update();
+
             DrawScript();
             DrawScriptSetting();
             DrawBase();
             DrawBetting();
             DrawMachines();
+            DrawMachinesBasic();
 
             Apply();
         }
@@ -52,6 +55,7 @@ namespace Game
         void DrawBase()
         {
             EditorGUILayout.LabelField("Base", EditorStyles.boldLabel);
+
             GUILayout.BeginVertical(GUI.skin.button, GUILayout.ExpandWidth(true));
 
             DrawHorizontalProperties("name", "ID");
@@ -105,7 +109,55 @@ namespace Game
         }
         void DrawMachines()
         {
-            var machines = serializedObject.FindProperty("_machienList");
+            var list = serializedObject.FindProperty("_machineList");
+            EditorGUILayout.LabelField("Machines", EditorStyles.boldLabel);
+            GUILayout.BeginVertical(GUI.skin.button);
+
+            for (var i = 0; i < list.arraySize; ++i)
+            {
+                var element = list.GetArrayElementAtIndex(i);
+
+                //nick
+                if (i == 0) EditorGUILayout.LabelField(" Main", EditorStyles.boldLabel);
+                else EditorGUILayout.LabelField(ConvertUtil.IntoToOrdinal(i + 1), EditorStyles.boldLabel);
+
+                EditorGUILayout.BeginVertical(GUI.skin.button);
+
+                //BASE
+                var baseInfo = BeginFoldout(element, "Row", "Base");
+                if (baseInfo.isExpanded)
+                {
+                    DrawHorizontalProperties(element, "Row", "Column");
+                }
+                EndFoldOut();
+
+                //symbols
+                var symbolInfo = BeginFoldout(element, "SymbolSize", "Symol");
+                if (symbolInfo.isExpanded)
+                {
+                    DrawPropertyField(element, 70, "SymbolSize");
+                    DrawPropertyField(element, 70, "NullSymbolSize");
+                    EditorGUILayout.LabelField("Symbol's define & name mapping is here\nscatters and name maps etc..", GUILayout.Height(32));
+                }
+                EndFoldOut();
+
+                //namemap
+                // EditorGUILayout.LabelField("▼ NameMap", EditorStyles.miniLabel);
+                EditorGUILayout.BeginVertical(GUI.skin.box);
+                EditorGUI.indentLevel++;
+                DrawPropertyField(element, "nameMap");
+                EditorGUI.indentLevel--;
+                EditorGUILayout.EndVertical();
+
+                EditorGUILayout.EndVertical();
+            }
+
+            GUILayout.EndVertical();
+        }
+
+        void DrawMachinesBasic()
+        {
+            var machines = serializedObject.FindProperty("_machineList");
             EditorGUILayout.PropertyField(machines, true);
         }
     }
