@@ -6,8 +6,7 @@ using lpesign;
 
 namespace lpesign.UnityEditor
 {
-
-    public class UsableEditor<T> : Editor where T : MonoBehaviour
+    public abstract class UsableEditor<T> : Editor where T : MonoBehaviour
     {
         protected T _script;
 
@@ -19,7 +18,7 @@ namespace lpesign.UnityEditor
         /// <summary>
         /// Initialize is must called when OnEnable
         /// </summary>
-        virtual protected void Initialize()
+        protected void Initialize()
         {
             // EditorGUI.indentLevel++;
             // EditorGUIUtility.labelWidth = 250;
@@ -31,6 +30,11 @@ namespace lpesign.UnityEditor
             _defaultBGColor = GUI.backgroundColor;
 
             _singleHeight = EditorGUIUtility.singleLineHeight;
+        }
+
+        protected void Update()
+        {
+            serializedObject.Update();
         }
 
         protected void Apply()
@@ -79,14 +83,14 @@ namespace lpesign.UnityEditor
             DrawHorizontalProperties(null, 50f, properties);
         }
 
-        protected void DrawHorizontalProperties(SerializedProperty targetProperty, params string[] properties)
-        {
-            DrawHorizontalProperties(targetProperty, 50f, properties);
-        }
-
         protected void DrawHorizontalProperties(float labelWidth, params string[] properties)
         {
             DrawHorizontalProperties(null, labelWidth, properties);
+        }
+
+        protected void DrawHorizontalProperties(SerializedProperty targetProperty, params string[] properties)
+        {
+            DrawHorizontalProperties(targetProperty, 50f, properties);
         }
 
         protected void DrawHorizontalProperties(SerializedProperty targetProperty, float labelWidth, params string[] properties)
@@ -95,7 +99,7 @@ namespace lpesign.UnityEditor
             for (var i = 0; i < properties.Length; ++i)
             {
                 if (targetProperty == null) DrawPropertyField(properties[i], labelWidth);
-                else DrawPropertyField(targetProperty, properties[i], labelWidth);
+                else DrawPropertyField(targetProperty, labelWidth, properties[i]);
             }
             GUILayout.EndHorizontal();
         }
@@ -106,7 +110,13 @@ namespace lpesign.UnityEditor
             DrawPropertyField(prop, labelWidth);
         }
 
-        protected void DrawPropertyField(SerializedProperty targetProperty, string propertyName, float labelWidth = 50f)
+        protected void DrawPropertyField(SerializedProperty targetProperty, string propertyName)
+        {
+            var prop = targetProperty.FindPropertyRelative(propertyName);
+            DrawPropertyField(prop, 50f);
+        }
+
+        protected void DrawPropertyField(SerializedProperty targetProperty, float labelWidth, string propertyName)
         {
             var prop = targetProperty.FindPropertyRelative(propertyName);
             DrawPropertyField(prop, labelWidth);
@@ -116,8 +126,17 @@ namespace lpesign.UnityEditor
         {
             var propertyValue = prop.GetPropertyValue();
 
-            GUILayout.Label(prop.displayName, GUILayout.Width(labelWidth));
-            switch (prop.propertyType)
+            var propertyType = prop.propertyType;
+
+            //custom property
+            if (propertyType == SerializedPropertyType.Generic)
+            {
+                EditorGUILayout.PropertyField(prop);
+                return;
+            }
+
+            EditorGUILayout.LabelField(prop.displayName, GUILayout.Width(labelWidth));
+            switch (propertyType)
             {
                 case SerializedPropertyType.Integer:
                     EditorGUILayout.IntField((int)propertyValue);
@@ -136,42 +155,99 @@ namespace lpesign.UnityEditor
                     break;
 
                 case SerializedPropertyType.ObjectReference:
+                    Debug.LogWarning("ObjectReference Type not yet supported");
                     break;
 
                 case SerializedPropertyType.LayerMask:
+                    Debug.LogWarning("LayerMask Type not yet supported");
                     break;
 
                 case SerializedPropertyType.Enum:
+                    Debug.LogWarning("Enum Type not yet supported");
                     break;
 
                 case SerializedPropertyType.Vector2:
+                    Debug.LogWarning("Vector2 Type not yet supported");
                     break;
 
                 case SerializedPropertyType.Vector3:
+                    Debug.LogWarning("Vector3 Type not yet supported");
                     break;
 
                 case SerializedPropertyType.Vector4:
+                    Debug.LogWarning("Vector4 Type not yet supported");
                     break;
 
                 case SerializedPropertyType.Rect:
+                    Debug.LogWarning("Rect Type not yet supported");
                     break;
 
                 case SerializedPropertyType.ArraySize:
+                    Debug.LogWarning("ArraySize Type not yet supported");
                     break;
 
                 case SerializedPropertyType.Character:
+                    Debug.LogWarning("Character Type not yet supported");
                     break;
 
                 case SerializedPropertyType.AnimationCurve:
+                    Debug.LogWarning("AnimationCurve Type not yet supported");
                     break;
 
                 case SerializedPropertyType.Bounds:
+                    Debug.LogWarning("Bounds Type not yet supported");
                     break;
 
                 case SerializedPropertyType.Gradient:
                     throw new System.InvalidOperationException("Can not handle Gradient types.");
+
+                default:
+                    Debug.LogWarning(prop.propertyType + " Type is not defined");
+                    break;
             }
         }
+        #endregion
+
+        #region foldout
+        protected SerializedProperty BeginFoldout(SerializedProperty targetProperty, string propertyName, string label = "")
+        {
+            GUIStyle foldStyle = EditorStyles.foldout;
+            FontStyle previousStyle = foldStyle.fontStyle;
+            foldStyle.fontStyle = FontStyle.Bold;
+
+            var property = targetProperty.FindPropertyRelative(propertyName);
+            EditorGUI.indentLevel++;
+            EditorGUILayout.BeginVertical(GUI.skin.box);
+            label = StringUtil.IsNullOrEmpty(label) ? propertyName : label;
+            property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, label, foldStyle);
+
+            foldStyle.fontStyle = previousStyle;
+            return property;
+        }
+
+        protected SerializedProperty BeginFoldout(string propertyName, string label = "")
+        {
+            GUIStyle foldStyle = EditorStyles.foldout;
+            FontStyle previousStyle = foldStyle.fontStyle;
+            foldStyle.fontStyle = FontStyle.Bold;
+
+            var property = serializedObject.FindProperty(propertyName);
+            EditorGUI.indentLevel++;
+            EditorGUILayout.BeginVertical(GUI.skin.box);
+            label = StringUtil.IsNullOrEmpty(label) ? propertyName : label;
+            property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, label, foldStyle);
+
+            foldStyle.fontStyle = previousStyle;
+            return property;
+        }
+
+        protected void EndFoldOut()
+        {
+            EditorGUI.indentLevel--;
+            EditorGUILayout.EndVertical();
+        }
+
+
         #endregion
 
         #region ReorderableList
