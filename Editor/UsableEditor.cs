@@ -78,68 +78,79 @@ namespace lpesign.UnityEditor
         }
 
         #region DrawProperty
-        protected void DrawHorizontalProperties(params string[] properties)
+        protected SerializedProperty DrawHorizontalProperties(params string[] properties)
         {
-            DrawHorizontalProperties(null, 50f, properties);
+            return DrawHorizontalProperties(null, 60f, properties);
         }
 
-        protected void DrawHorizontalProperties(float labelWidth, params string[] properties)
+        protected SerializedProperty DrawHorizontalProperties(float labelWidth, params string[] properties)
         {
-            DrawHorizontalProperties(null, labelWidth, properties);
+            return DrawHorizontalProperties(null, labelWidth, properties);
         }
 
-        protected void DrawHorizontalProperties(SerializedProperty targetProperty, params string[] properties)
+        protected SerializedProperty DrawHorizontalProperties(SerializedProperty targetProperty, params string[] properties)
         {
-            DrawHorizontalProperties(targetProperty, 50f, properties);
+            return DrawHorizontalProperties(targetProperty, 60f, properties);
         }
 
-        protected void DrawHorizontalProperties(SerializedProperty targetProperty, float labelWidth, params string[] properties)
+        protected SerializedProperty DrawHorizontalProperties(SerializedProperty targetProperty, float labelWidth, params string[] properties)
         {
-            GUILayout.BeginHorizontal();
+            SerializedProperty resProp = null;
+            EditorGUILayout.BeginHorizontal();
             for (var i = 0; i < properties.Length; ++i)
             {
-                if (targetProperty == null) DrawPropertyField(properties[i], labelWidth);
-                else DrawPropertyField(targetProperty, labelWidth, properties[i]);
+                if (targetProperty == null)
+                {
+                    resProp = DrawPropertyField(properties[i], labelWidth);
+                }
+                else
+                {
+                    resProp = DrawPropertyField(targetProperty, labelWidth, properties[i]);
+                }
+                if (i < properties.Length - 1) GUILayout.FlexibleSpace();
             }
-            GUILayout.EndHorizontal();
+            EditorGUILayout.EndHorizontal();
+
+            return resProp;
         }
 
-        protected void DrawPropertyField(string propertyName, float labelWidth = 50f)
+        protected SerializedProperty DrawPropertyField(string propertyName, float labelWidth = 50f)
         {
             var prop = serializedObject.FindProperty(propertyName);
-            DrawPropertyField(prop, labelWidth);
+            return DrawPropertyField(prop, labelWidth);
         }
 
-        protected void DrawPropertyField(SerializedProperty targetProperty, string propertyName)
+        protected SerializedProperty DrawPropertyField(SerializedProperty targetProperty, string propertyName)
         {
             var prop = targetProperty.FindPropertyRelative(propertyName);
-            DrawPropertyField(prop, 50f);
+            return DrawPropertyField(prop, 50f);
         }
 
-        protected void DrawPropertyField(SerializedProperty targetProperty, float labelWidth, string propertyName)
+        protected SerializedProperty DrawPropertyField(SerializedProperty targetProperty, float labelWidth, string propertyName)
         {
             var prop = targetProperty.FindPropertyRelative(propertyName);
-            DrawPropertyField(prop, labelWidth);
+            return DrawPropertyField(prop, labelWidth);
         }
 
-        protected void DrawPropertyField(SerializedProperty prop, float labelWidth = 50f)
+        protected SerializedProperty DrawPropertyField(SerializedProperty prop, float labelWidth = 50f)
         {
             var propertyValue = prop.GetPropertyValue();
-
             var propertyType = prop.propertyType;
 
             //custom property
             if (propertyType == SerializedPropertyType.Generic)
             {
-                EditorGUILayout.PropertyField(prop);
-                return;
+                EditorGUILayout.PropertyField(prop, prop.hasChildren);
+                return prop;
             }
 
+            EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField(prop.displayName, GUILayout.Width(labelWidth));
             switch (propertyType)
             {
                 case SerializedPropertyType.Integer:
                     EditorGUILayout.IntField((int)propertyValue);
+                    // prop.SetPropertyValue( EditorGUILayout.Slider((int)prop.GetPropertyValue(), 2, 10));
                     break;
 
                 case SerializedPropertyType.Float:
@@ -154,16 +165,17 @@ namespace lpesign.UnityEditor
                     prop.SetPropertyValue(EditorGUILayout.Toggle((bool)propertyValue));
                     break;
 
+                case SerializedPropertyType.Enum:
+                    EditorGUILayout.PropertyField(prop, GUIContent.none);
+                    break;
+
                 case SerializedPropertyType.ObjectReference:
-                    Debug.LogWarning("ObjectReference Type not yet supported");
+                    EditorGUILayout.PropertyField(prop, GUIContent.none);
+                    // Debug.LogWarning("ObjectReference Type not yet supported");
                     break;
 
                 case SerializedPropertyType.LayerMask:
                     Debug.LogWarning("LayerMask Type not yet supported");
-                    break;
-
-                case SerializedPropertyType.Enum:
-                    Debug.LogWarning("Enum Type not yet supported");
                     break;
 
                 case SerializedPropertyType.Vector2:
@@ -205,6 +217,9 @@ namespace lpesign.UnityEditor
                     Debug.LogWarning(prop.propertyType + " Type is not defined");
                     break;
             }
+
+            EditorGUILayout.EndHorizontal();
+            return prop;
         }
         #endregion
 
