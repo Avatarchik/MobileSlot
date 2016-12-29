@@ -76,25 +76,25 @@ public class SoundListEditor : UsableEditor<SoundList>
         DrawDefaultButton();
         DrawBasic();
         DrawGroup();
-        DrawClearAllButton();
+        //DrawClearAllButton();
 
         Apply();
     }
 
     void DrawDefaultButton()
     {
-        // GUI.enabled = false;
+        EditorGUILayout.BeginHorizontal();
         GUI.backgroundColor = Color.cyan;
-        if (GUILayout.Button("SetBySlotConfig", GUILayout.Height(40)))
+        if (GUILayout.Button("Set By SlotConfig", GUILayout.Width(150), GUILayout.Height(30)))
         {
-            if (EditorUtility.DisplayDialog("SetBySlotConfig?", "Are you sure you want to set all list? This action cannot be undone.", "OK", "Cancel"))
+            if (EditorUtility.DisplayDialog("Set By SlotConfig?", "Are you sure you want to set all list? This action cannot be undone.", "OK", "Cancel"))
             {
                 _script.CreateDefaultList();
             }
         }
+        GUILayout.FlexibleSpace();
         GUI.backgroundColor = _defaultBGColor;
-        // GUI.enabled = true;
-        GUILayout.Space(8);
+        EditorGUILayout.EndHorizontal();
     }
 
     void DrawBasic()
@@ -105,66 +105,62 @@ public class SoundListEditor : UsableEditor<SoundList>
 
     void DrawGroup()
     {
-        SerializedProperty property = serializedObject.FindProperty("groups");
 
-        EditorGUILayout.LabelField("Groups", EditorStyles.boldLabel);
-        EditorGUILayout.BeginVertical(GUI.skin.button);
-        GUI.backgroundColor = Color.green;
-        if (GUILayout.Button("AddGroup"))
+        // EditorGUILayout.LabelField("Groups", EditorStyles.boldLabel);
+        var groups = BeginFoldout("groups", "Groups");
+        if (groups.isExpanded)
         {
-            _script.groups.Add(new SoundGroup("new Group" + _script.groups.Count));
-        }
-        GUI.backgroundColor = _defaultBGColor;
-
-        for (var i = 0; i < property.arraySize; ++i)
-        {
-            EditorGUILayout.BeginVertical(GUI.skin.box);
-            GUILayout.Space(3);
-
-            var element = property.GetArrayElementAtIndex(i);
-
-            var groupName = element.FindPropertyRelative("_name");
-            var type = element.FindPropertyRelative("type");
-
-            EditorGUILayout.BeginHorizontal();
-            EditorGUIUtility.labelWidth = 40f;
-            EditorGUILayout.PropertyField(groupName, GUILayout.MinWidth(200));
-            EditorGUILayout.PropertyField(type, GUILayout.MinWidth(110));
-            GUILayout.FlexibleSpace();
-
-            GUI.backgroundColor = Color.red;
-            if (GUILayout.Button("X"))
+            // EditorGUILayout.BeginVertical(GUI.skin.button);
+            SerializedProperty property = serializedObject.FindProperty("groups");
+            for (var i = 0; i < property.arraySize; ++i)
             {
-                if (EditorUtility.DisplayDialog("Delete " + groupName + "?", "Are you sure you want to delete " + groupName + "? This action cannot be undone.", "Delete", "Cancel"))
+                EditorGUILayout.BeginVertical(GUI.skin.box);
+                GUILayout.Space(3);
+
+                var element = property.GetArrayElementAtIndex(i);
+
+                var groupName = element.FindPropertyRelative("_name");
+                var type = element.FindPropertyRelative("type");
+
+                EditorGUILayout.BeginHorizontal();
+                EditorGUIUtility.labelWidth = 60f;
+                EditorGUILayout.PropertyField(groupName, GUILayout.MinWidth(200));
+                EditorGUILayout.PropertyField(type, GUILayout.MinWidth(110));
+                GUILayout.FlexibleSpace();
+
+                GUI.backgroundColor = Color.red;
+                if (GUILayout.Button("X"))
                 {
-                    _script.groups.RemoveAt(i);
+                    if (EditorUtility.DisplayDialog("Delete " + groupName + "?", "Are you sure you want to delete " + groupName + "? This action cannot be undone.", "Delete", "Cancel"))
+                    {
+                        _script.groups.RemoveAt(i);
+                    }
                 }
-            }
-            GUI.backgroundColor = _defaultBGColor;
-            EditorGUILayout.EndHorizontal();
+                GUI.backgroundColor = _defaultBGColor;
+                EditorGUILayout.EndHorizontal();
 
-            try
-            {
                 var list = _groupList[i];
                 list.DoLayoutList();
+
+                EditorGUILayout.EndVertical();
             }
-            catch (System.Exception e)
+            GUI.backgroundColor = Color.green;
+            if (GUILayout.Button("Add Group", GUILayout.Height(30)))
             {
-                // Debug.Log(e.ToString());
-                // Debug.Log("i: " + i + ", len: " + _groupList.Length + ", arraySize:" + property.arraySize);
+                _script.groups.Add(new SoundGroup("new Group" + _script.groups.Count));
             }
+            GUI.backgroundColor = _defaultBGColor;
 
-            EditorGUILayout.EndVertical();
+            // EditorGUILayout.EndVertical();
         }
-
-        EditorGUILayout.EndVertical();
+        EndFoldOut();
     }
 
     void DrawClearAllButton()
     {
         GUILayout.Space(10);
         GUI.backgroundColor = Color.red;
-        if (GUILayout.Button("AllClear"))
+        if (GUILayout.Button("AllClear", GUILayout.Height(30)))
         {
             if (EditorUtility.DisplayDialog("Clear All Sounds?", "Are you sure you want to clear all sounds? This action cannot be undone.", "Clear All", "Cancel"))
             {

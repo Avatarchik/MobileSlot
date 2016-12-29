@@ -50,7 +50,24 @@ namespace Game
 
         public void AddMachine(MachineConfig machine)
         {
+            if (_machineList == null) _machineList = new List<MachineConfig>();
+
             _machineList.Add(machine);
+        }
+
+        public void AddMachine()
+        {
+            if (_machineList == null) _machineList = new List<MachineConfig>();
+
+            var machine = new MachineConfig();
+            _machineList.Add(machine);
+        }
+
+        public void RemoveMachineAt(int index)
+        {
+            if (_machineList == null) return;
+
+            _machineList.RemoveAt(index);
         }
 
         //------------------------------------------------------------------
@@ -59,11 +76,16 @@ namespace Game
         [Serializable]
         public class MachineConfig
         {
+            //------------------------------------------------------------
             //base
+            //------------------------------------------------------------
+            [RangeAttribute(2, 10)]
             public int Row;
             public int Column;
 
+            //------------------------------------------------------------
             //symbol
+            //------------------------------------------------------------
             public Size2D SymbolSize;
             public Size2D NullSymbolSize;
 
@@ -74,37 +96,49 @@ namespace Game
             //NameMap
             public SymbolNameMap nameMap;
 
+            //startsymbols
+            public ReelSymbolSet[] startSymbolNames;
+
+            //------------------------------------------------------------
             //freespin
+            //------------------------------------------------------------
             public bool UseFreeSpin;
             public FreeSpinTriggerType TriggerType;
             public FreeSpinRetriggerType RetriggerType;
 
+            //------------------------------------------------------------
             //reel
-            public Reel ReelPrefab;
+            //------------------------------------------------------------
             public Size2D ReelSize;
             public float ReelSpace;
             public float ReelGap;
+            public Reel ReelPrefab;
 
+            //------------------------------------------------------------
             //spin
+            //------------------------------------------------------------
+            public float SpinSpeedPerSec;//스핀 초당 속도
             public int MarginSymbolCount;//릴 위아래 여유 심볼 수
             public int IncreaseCount;//다음 릴로 갈 수록 더 생겨야할 심볼 수
             public int SpiningSymbolCount;//스핀 한 세트 당 심볼 수
             public int SpinCountThreshold;//서버가 응답이 빠르더라도 최소한 돌아야할 스핀 세트 수 
-            public float SpinSpeedPerSec;//스핀 초당 속도
             public float DelayEachReel;//각 릴 사이의 스핀 시작 딜레이
             public MoveTweenInfo tweenFirstBackInfo;//첫번재 스핀에 정보
             public MoveTweenInfo tweenLastBackInfo;//마지막 스핀이 정보
 
+            //------------------------------------------------------------
             //transition
+            //------------------------------------------------------------
             public Transition transition;
 
+            //------------------------------------------------------------
             //paytable
+            //------------------------------------------------------------
             public PaylineTable paylineTable;
 
-            //startsymbols
-            public ReelSymbolSet[] startSymbolNames;
-
+            //------------------------------------------------------------
             //reelstrip
+            //------------------------------------------------------------
             public ReelStripList reelStripBundle;
 
             public void AddSccaterInfo(string symbolname, int limit, int[] ableReel)

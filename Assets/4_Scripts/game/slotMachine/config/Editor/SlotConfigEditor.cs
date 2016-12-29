@@ -29,10 +29,12 @@ namespace Game
 
             DrawScript();
             DrawScriptSetting();
-            DrawBase();
+            DrawBasic();
             DrawBetting();
             DrawMachines();
-            DrawMachinesBasic();
+
+            // var machines = serializedObject.FindProperty("_machineList");
+            // EditorGUILayout.PropertyField(machines, true);
 
             Apply();
         }
@@ -41,20 +43,23 @@ namespace Game
         {
             if (_creator == null) return;
 
+            EditorGUILayout.BeginHorizontal();
             GUI.backgroundColor = Color.cyan;
-            if (GUILayout.Button("SetByCreator", GUILayout.Height(40)))
+            if (GUILayout.Button("Set By Creator", GUILayout.Width(150), GUILayout.Height(30)))
             {
-                if (EditorUtility.DisplayDialog("SetByCreator?", "Are you sure you want to set all list? This action cannot be undone.", "OK", "Cancel"))
+                if (EditorUtility.DisplayDialog("Set By Creator?", "Are you sure you want to set all list? This action cannot be undone.", "OK", "Cancel"))
                 {
                     _creator.SettingByScript();
                 }
             }
+            GUILayout.FlexibleSpace();
             GUI.backgroundColor = _defaultBGColor;
+            EditorGUILayout.EndHorizontal();
         }
 
-        void DrawBase()
+        void DrawBasic()
         {
-            EditorGUILayout.LabelField("Base", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Basic", EditorStyles.boldLabel);
 
             GUILayout.BeginVertical(GUI.skin.button, GUILayout.ExpandWidth(true));
 
@@ -76,89 +81,173 @@ namespace Game
 
         void DrawBetting()
         {
-            var betting = serializedObject.FindProperty("Betting");
 
-            EditorGUILayout.LabelField("Betting", EditorStyles.boldLabel);
-
-            if (Application.isPlaying)
+            var bet = BeginFoldout("Betting");
+            if (bet.isExpanded)
             {
-                EditorGUILayout.BeginVertical(GUI.skin.box);
-                DrawHorizontalProperties(betting, 100f, "_currentLineBet", "_lastLineBet");
-                EditorGUILayout.EndVertical();
-            }
-
-            if (_bettingList == null)
-            {
-                var table = betting.FindPropertyRelative("_betTable");
-                _bettingList = CreateReorderableList(table, "", false);
-                _bettingList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+                if (Application.isPlaying)
                 {
-                    rect.y += 2;
-                    rect.height -= 5F;
-                    var element = _bettingList.serializedProperty.GetArrayElementAtIndex(index);
-                    var GUIContent = new GUIContent("Bet " + (index + 1));
-                    EditorGUI.PropertyField(rect, element, GUIContent);
-                };
-                _bettingList.onCanRemoveCallback = (ReorderableList l) =>
-                {
-                    return l.count > 1;
-                };
-            }
+                    EditorGUILayout.BeginVertical(GUI.skin.box);
+                    DrawHorizontalProperties(bet, 100f, "_currentLineBet", "_lastLineBet");
+                    EditorGUILayout.EndVertical();
+                }
 
-            _bettingList.DoLayoutList();
+                if (_bettingList == null)
+                {
+                    var table = bet.FindPropertyRelative("_betTable");
+                    _bettingList = CreateReorderableList(table, "", false);
+                    _bettingList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+                    {
+                        rect.y += 2;
+                        rect.height -= 5F;
+                        var element = _bettingList.serializedProperty.GetArrayElementAtIndex(index);
+                        var GUIContent = new GUIContent("Bet " + (index + 1));
+                        EditorGUI.PropertyField(rect, element, GUIContent);
+                    };
+                    _bettingList.onCanRemoveCallback = (ReorderableList l) =>
+                    {
+                        return l.count > 1;
+                    };
+                }
+
+                _bettingList.DoLayoutList();
+            }
+            EndFoldOut();
         }
+
         void DrawMachines()
         {
-            var list = serializedObject.FindProperty("_machineList");
-            EditorGUILayout.LabelField("Machines", EditorStyles.boldLabel);
-            GUILayout.BeginVertical(GUI.skin.button);
-
-            for (var i = 0; i < list.arraySize; ++i)
+            var bet = BeginFoldout("_machineList", "Machines");
+            if (bet.isExpanded)
             {
-                var element = list.GetArrayElementAtIndex(i);
-
-                //nick
-                if (i == 0) EditorGUILayout.LabelField(" Main", EditorStyles.boldLabel);
-                else EditorGUILayout.LabelField(ConvertUtil.IntoToOrdinal(i + 1), EditorStyles.boldLabel);
-
-                EditorGUILayout.BeginVertical(GUI.skin.button);
-
-                //BASE
-                var baseInfo = BeginFoldout(element, "Row", "Base");
-                if (baseInfo.isExpanded)
+                var list = serializedObject.FindProperty("_machineList");
+                for (var i = 0; i < list.arraySize; ++i)
                 {
-                    DrawHorizontalProperties(element, "Row", "Column");
+                    var machine = list.GetArrayElementAtIndex(i);
+                    DrawMachine(machine, i);
                 }
-                EndFoldOut();
 
-                //symbols
-                var symbolInfo = BeginFoldout(element, "SymbolSize", "Symol");
-                if (symbolInfo.isExpanded)
+                GUI.backgroundColor = Color.green;
+                if (GUILayout.Button("Add Machine", GUILayout.Height(30)))
                 {
-                    DrawPropertyField(element, 70, "SymbolSize");
-                    DrawPropertyField(element, 70, "NullSymbolSize");
-                    EditorGUILayout.LabelField("Symbol's define & name mapping is here\nscatters and name maps etc..", GUILayout.Height(32));
+                    _script.AddMachine();
                 }
-                EndFoldOut();
 
-                //namemap
-                // EditorGUILayout.LabelField("▼ NameMap", EditorStyles.miniLabel);
-                EditorGUILayout.BeginVertical(GUI.skin.box);
-                EditorGUI.indentLevel++;
-                DrawPropertyField(element, "nameMap");
-                EditorGUI.indentLevel--;
-                EditorGUILayout.EndVertical();
-
-                EditorGUILayout.EndVertical();
+                GUI.backgroundColor = _defaultBGColor;
             }
-
-            GUILayout.EndVertical();
+            EndFoldOut();
         }
 
-        void DrawMachinesBasic()
+        void DrawMachine(SerializedProperty machine, int index)
         {
-            var machines = serializedObject.FindProperty("_machineList");
-            EditorGUILayout.PropertyField(machines, true);
+            EditorGUI.indentLevel--;
+            EditorGUILayout.BeginVertical(GUI.skin.button);
+
+            EditorGUILayout.BeginHorizontal();
+
+            //nick
+            string nick = "";
+            if (index == 0) nick = "Main";
+            else nick = ConvertUtil.IntoToOrdinal(index + 1);
+            EditorGUILayout.LabelField(nick, EditorStyles.boldLabel);
+
+            //delete button
+            GUILayout.FlexibleSpace();
+            GUI.backgroundColor = Color.red;
+            if (GUILayout.Button("X"))
+            {
+                if (EditorUtility.DisplayDialog("Delete Machine(" + nick + ")?", "Are you sure you want to delete " + nick + "? This action cannot be undone.", "Delete", "Cancel"))
+                {
+                    _script.RemoveMachineAt(index);
+                }
+            }
+            GUI.backgroundColor = _defaultBGColor;
+
+            EditorGUILayout.EndHorizontal();
+
+            //BASE
+            var baseInfo = BeginFoldout(machine, "Row", "Base");
+            if (baseInfo.isExpanded)
+            {
+                DrawHorizontalProperties(machine, "Row", "Column");
+            }
+            EndFoldOut();
+
+            //symbols
+            var symbolInfo = BeginFoldout(machine, "SymbolSize", "Symbol");
+            if (symbolInfo.isExpanded)
+            {
+                DrawPropertyField(machine, 70, "SymbolSize");
+                DrawPropertyField(machine, 70, "NullSymbolSize");
+
+                EditorGUILayout.LabelField("Scatters info...");
+                //namemap
+                DrawPropertyField(machine, "nameMap");
+
+                //startSymbolNames
+                DrawPropertyField(machine, "startSymbolNames");
+            }
+            EndFoldOut();
+
+            //freespin
+            EditorGUILayout.BeginVertical(GUI.skin.box);
+            var freespin = DrawHorizontalProperties(machine, 75, "UseFreeSpin");
+            if (freespin.boolValue)
+            {
+                DrawHorizontalProperties(machine, 90, "TriggerType", "RetriggerType");
+                // DrawHorizontalProperties(element, 20, "TriggerType");
+                // DrawHorizontalProperties(element, "RetriggerType");
+            }
+            EditorGUILayout.EndVertical();
+
+            //reel
+            var reelInfo = BeginFoldout(machine, "ReelSize", "Reel");
+            if (reelInfo.isExpanded)
+            {
+                DrawPropertyField(machine, "ReelSize");
+                DrawHorizontalProperties(machine, 80, "ReelSpace", "ReelGap");
+                DrawPropertyField(machine, 80, "ReelPrefab");
+            }
+            EndFoldOut();
+
+            //spin
+            var spinInfo = BeginFoldout(machine, "SpinSpeedPerSec", "Spin");
+            if (spinInfo.isExpanded)
+            {
+                DrawPropertyField(machine, "ReelSize");
+                DrawPropertyField(machine, 140, "MarginSymbolCount");
+                DrawPropertyField(machine, 140, "IncreaseCount");
+                DrawPropertyField(machine, 140, "SpiningSymbolCount");
+                DrawPropertyField(machine, 140, "SpinCountThreshold");
+                DrawPropertyField(machine, 140, "DelayEachReel");
+                DrawPropertyField(machine, "tweenFirstBackInfo");
+                DrawPropertyField(machine, "tweenLastBackInfo");
+            }
+            EndFoldOut();
+
+            //transitoin
+            EditorGUILayout.BeginVertical(GUI.skin.box);
+            EditorGUI.indentLevel++;
+            DrawPropertyField(machine, "transition");
+            EditorGUI.indentLevel--;
+            EditorGUILayout.EndVertical();
+
+            //transitoin
+            EditorGUILayout.BeginVertical(GUI.skin.box);
+            EditorGUI.indentLevel++;
+            DrawPropertyField(machine, "paylineTable");
+            EditorGUI.indentLevel--;
+            EditorGUILayout.EndVertical();
+
+            //reelStripBundle
+            EditorGUILayout.BeginVertical(GUI.skin.box);
+            EditorGUI.indentLevel++;
+            DrawPropertyField(machine, "reelStripBundle");
+            EditorGUI.indentLevel--;
+            EditorGUILayout.EndVertical();
+
+            EditorGUILayout.EndVertical();
+            EditorGUI.indentLevel++;
         }
     }
 }
