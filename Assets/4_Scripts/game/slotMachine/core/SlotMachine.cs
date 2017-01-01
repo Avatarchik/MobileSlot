@@ -67,6 +67,8 @@ namespace Game
             GameServerCommunicator.Instance.OnConnect += OnConnectListener;
             GameServerCommunicator.Instance.OnLogin += OnLoginListener;
             GameServerCommunicator.Instance.OnSpin += OnSpinListener;
+
+            GamePool.SetParent(transform.parent);
         }
 
         void CacheStateBehaviour()
@@ -116,14 +118,17 @@ namespace Game
             }
         }
 #endif
+
         void Start()
         {
             _config = FindObjectOfType<SlotConfig>();
             if (_config == null) throw new NullReferenceException("SlotConfig can not be null!");
 
+            _betting = _config.Betting;
             if (_config.DebugTestSpin) gameObject.AddComponent<DebugHelper>();
 
-            _betting = _config.Betting;
+            GamePool.Initialize(_config);
+
             SetState(MachineState.Connecting);
         }
 
@@ -174,10 +179,13 @@ namespace Game
         IEnumerator Initialize(ResDTO.Login dto)
         {
             //필요한 리소스 Pool 들의 preload 가 완료 되길 기다린다.
-            while (GamePool.Instance.IsReady == false)
+            Debug.Log("Wait Pool");
+            while (GamePool.IsReady == false)
             {
                 yield return null;
             }
+
+            Debug.Log("Pool readied");
 
             _model.Initialize(this, dto);
 
@@ -276,7 +284,7 @@ namespace Game
             _bookedSpin = false;
 
             if (_paylineDisplayer != null) _paylineDisplayer.Clear();
-            
+
             _betting.Save();
             _ui.Spin();
             _reelContainer.Spin();

@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using lpesign;
 
 using DG.Tweening;
@@ -41,7 +40,7 @@ public class GameManager : Singleton<GameManager>
             Screen.SetResolution(Screen.width, Screen.width * GlobalConfig.ReferenceHeight / GlobalConfig.ReferenceWidth, false);
         }
 
-        SceneLoader.CheckScene( new string[] { SC_LOBBY, SC_GAME01, SC_GAME02 } );
+        SceneLoader.CheckScene(new string[] { SC_LOBBY, SC_GAME01, SC_GAME02 });
     }
 
     void Start()
@@ -51,9 +50,11 @@ public class GameManager : Singleton<GameManager>
 
     public void GameLoad(GameItemDTO data)
     {
-        if( _isLobby == false ) return;
+        if (_isLobby == false) return;
 
-        loader.Load("Game" + data.ID.ToString("00"));
+        string sceneName = "Game" + ConvertUtil.ToDigit(data.ID);
+        loader.Load(sceneName);
+        // loader.Load("Game" + data.ID.ToString("00"));
 
         _isLobby = false;
     }
@@ -65,9 +66,9 @@ public class GameManager : Singleton<GameManager>
 
     public void GoToLobby()
     {
-        if( _isLobby ) return;
+        if (_isLobby) return;
 
-        loader.Load(SC_LOBBY, ()=> _isLobby = true );
+        loader.Load(SC_LOBBY, () => _isLobby = true);
     }
 
     void OnApplicationQuit()

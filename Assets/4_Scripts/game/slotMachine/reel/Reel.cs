@@ -66,9 +66,9 @@ namespace Game
         public void Initialize(SlotConfig config)
         {
             _config = config;
-            _symbolNecessaryCount = _config.Main.Row + _config.Main.MarginSymbolCount * 2;
-            _lastSymbolNames = new string[_config.Main.Row];
-            _receivedSymbolNames = new string[_config.Main.Row];
+            _symbolNecessaryCount = _config.Main.row + _config.Main.MarginSymbolCount * 2;
+            _lastSymbolNames = new string[_config.Main.row];
+            _receivedSymbolNames = new string[_config.Main.row];
 
             CreateStartSymbols();
         }
@@ -86,7 +86,7 @@ namespace Game
 
             AlignSymbols();
 
-            for (var i = 0; i < _config.Main.Row; ++i)
+            for (var i = 0; i < _config.Main.row; ++i)
             {
                 _lastSymbolNames[i] = _config.Main.GetStartSymbolAt(_column, _config.Main.MarginSymbolCount + i);
             }
@@ -143,7 +143,7 @@ namespace Game
 
             if (spinInfo != null) ReceivedSymbol(spinInfo);
 
-            UpdateSymbolState(Symbol.SymbolState.Spin);
+            UpdateSymbolState(SymbolState.Spin);
 
             SpinReel();
         }
@@ -154,12 +154,16 @@ namespace Game
 
             _isReceived = true;
 
+            _receivedSymbolNames = spinInfo.GetReelData(_column, _config.Main.row);
+
+            /*
             string[] reelData = spinInfo.GetReelData(_column, _config.Main.Row);
 
             for (var i = 0; i < reelData.Length; ++i)
             {
                 _receivedSymbolNames[i] = _config.Main.nameMap[reelData[i]];
             }
+            */
 
             //Debug.Log(string.Join(",", _receivedSymbolNames));
         }
@@ -386,7 +390,7 @@ namespace Game
                 var idx = _symbols.Count - 1;
                 var symbol = _symbols[idx];
                 _symbols.RemoveAt(idx);
-                GamePool.Instance.DespawnSymbol(symbol);
+                GamePool.DespawnSymbol(symbol);
             }
         }
 
@@ -444,12 +448,12 @@ namespace Game
             //effect freeSpinTrigger
             // reel.updateSymbolAorB( SymbolType.FREESPIN, SymbolState.TRIGGER,SymbolState.IDLE);
 
-            UpdateSymbolState(Symbol.SymbolType.FreeSpinScatter, Symbol.SymbolState.Trigger);
+            UpdateSymbolState(SymbolType.FreeSpinScatter, SymbolState.Trigger);
         }
 
         protected Symbol CreateSymbol(string symbolName)
         {
-            Symbol symbol = GamePool.Instance.SpawnSymbol(symbolName);
+            Symbol symbol = GamePool.SpawnSymbol(symbolName);
 
             if (symbol == null) throw new System.NullReferenceException("Symbol '" + symbolName + "' is null");
 
@@ -458,7 +462,7 @@ namespace Game
             return symbol;
         }
 
-        void UpdateSymbolState(Symbol.SymbolState state)
+        void UpdateSymbolState(SymbolState state)
         {
             var count = _symbols.Count;
             for (var i = 0; i < count; ++i)
@@ -467,10 +471,10 @@ namespace Game
             }
         }
 
-        void UpdateSymbolState(Symbol.SymbolType type, Symbol.SymbolState state,
-                                Symbol.SymbolState restState = Symbol.SymbolState.Null,
-                                bool includeMarginSymbol = false,
-                                string[] ignoreNames = null)
+        void UpdateSymbolState(SymbolType type, SymbolState state,
+                               SymbolState restState = SymbolState.Null,
+                               bool includeMarginSymbol = false,
+                               string[] ignoreNames = null)
         {
             var startIndex = _config.Main.MarginSymbolCount;
             var length = _symbols.Count - _config.Main.MarginSymbolCount;
@@ -488,7 +492,7 @@ namespace Game
                 if ((symbol.Type != type) ||
                     (ignoreNames != null && Array.IndexOf(ignoreNames, symbol.SymbolName) != -1))
                 {
-                    if (restState != Symbol.SymbolState.Null) symbol.SetState(restState);
+                    if (restState != SymbolState.Null) symbol.SetState(restState);
 
                     continue;
                 }

@@ -5,7 +5,7 @@ namespace Game
 {
     public class EmptySymbol : Symbol
     {
-        public const string EMPTY = "EM";
+        public static string EMPTY = "EM";
 
         override public void Initialize(string symbolName, SlotConfig config)
         {

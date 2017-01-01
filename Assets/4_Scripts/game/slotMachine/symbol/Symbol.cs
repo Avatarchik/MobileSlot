@@ -6,38 +6,31 @@ using lpesign;
 
 namespace Game
 {
+    public enum SymbolState
+    {
+        Null,
+        Idle,
+        Spin,
+        Stop,
+        Scatter,
+        Trigger,
+        Win,
+        Lock
+    }
+
     public abstract class Symbol : MonoBehaviour
     {
-        public enum SymbolType
-        {
-            Low,
-            Middle,
-            High,
-            Wild,
-            FreeSpinScatter,
-            ProgressiveScatter,
-            Empty
-        }
-
-        public enum SymbolState
-        {
-            Null,
-            Idle,
-            Spin,
-            Stop,
-            Scatter,
-            Trigger,
-            Win,
-            Lock
-        }
-
+        //todo
+        //area 는 초기 pool넣을때 세팅되면 될듯
+        //symbolname 은 없어도 되지 않을까?
         public Size2D Area { get; private set; }
         public string SymbolName { get; private set; }
+
         public bool IsInitialized { get; private set; }
 
         [SerializeField]
-        SymbolType _symbolType;
-        public SymbolType Type { get { return _symbolType; } }
+        SymbolDefine _symbolDefine;
+        public SymbolType Type { get { return _symbolDefine.symbolType; } }
 
         protected SymbolState _currentState;
 
@@ -254,7 +247,7 @@ namespace Game
         public void Clear()
         {
             SetState(SymbolState.Null);
-            GamePool.Instance.DespawnSymbol(this);
+            GamePool.DespawnSymbol(this);
         }
 
         public float Width

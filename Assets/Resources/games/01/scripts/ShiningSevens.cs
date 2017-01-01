@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using lpesign;
 
 namespace Game.ShiningSevens
 {
@@ -12,8 +13,8 @@ namespace Game.ShiningSevens
         public const string BB = "M0";
         public const string BG = "M1";
         public const string BR = "M2";
-
-        public const string L0 = EmptySymbol.EMPTY;
+        public const string L0 = "L0";
+        
         override public void SettingByScript()
         {
             base.SettingByScript();
@@ -42,19 +43,15 @@ namespace Game.ShiningSevens
             //------------------------------------------------------------------------------------
             // define machienConfig
             //------------------------------------------------------------------------------------
-            var machine = new SlotConfig.MachineConfig();
-            machine.Row = 3;
-            machine.Column = 3;
-
-            //symbol
-            machine.SymbolSize = new Size2D(2.1f, 1.1f);
-            machine.NullSymbolSize = new Size2D(2.1f, 0.3f);
+            var machine = new SlotConfig.MachineConfig(_slotConfig);
+            machine.row = 3;
+            machine.column = 3;
 
             //freespin
             machine.UseFreeSpin = false;
 
             //reel
-            machine.ReelPrefab = Resources.Load<Reel>("games/" + _slotConfig.ID.ToString("00") + "/prefabs/Reel");
+            machine.ReelPrefab = Resources.Load<Reel>("games/" + ConvertUtil.ToDigit(_slotConfig.ID) + "/prefabs/Reel");
             machine.ReelSize = new Size2D(2.1f, 2.5f);
             machine.ReelSpace = 2.56f;
             machine.ReelGap = 0.3f;
@@ -81,20 +78,23 @@ namespace Game.ShiningSevens
                 FreeSpinTriggerDuration = 1f
             };
 
-            //symbolNameMap
-            SymbolNameMap nameMap = new SymbolNameMap();
-            nameMap.Add("W0", W0);
+            //symbol define
+            machine.useEmpty = true;
+            machine.SymbolSize = new Size2D(2.1f, 1.1f);
+            machine.NullSymbolSize = new Size2D(2.1f, 0.3f);
 
-            nameMap.Add("H0", SR);
-            nameMap.Add("H1", SG);
-            nameMap.Add("H2", SB);
+            machine.ClearSymbolDefine();
+            machine.AddSymbolDefine("W0", SymbolType.Wild);
 
-            nameMap.Add("M0", BB);
-            nameMap.Add("M1", BG);
-            nameMap.Add("M2", BR);
+            machine.AddSymbolDefine("H0", SymbolType.High);
+            machine.AddSymbolDefine("H1", SymbolType.High);
+            machine.AddSymbolDefine("H2", SymbolType.High);
 
-            nameMap.Add("L0", L0);
-            machine.nameMap = nameMap;
+            machine.AddSymbolDefine("M0", SymbolType.Middle);
+            machine.AddSymbolDefine("M1", SymbolType.Middle);
+            machine.AddSymbolDefine("M2", SymbolType.Middle);
+
+            machine.AddSymbolDefine("L0", SymbolType.Empty);
 
             //startSymbol
             machine.SetStartSymbols(new string[][]
@@ -128,7 +128,7 @@ namespace Game.ShiningSevens
                 new string[] {SG,BG,SB,BR,SB,W0,SG,BR,SB,BR,SG,BR,BG,SB,W0},
                 new string[] {SG,BR,SB,BR,SB,W0,SG,BG,SB,BG,SG,BG,BR,SB,BG},
                 new string[] {SG,BG,W0,BR,SB,SR,SB,BR,SB,SG,BR,BG,W0,BR,BR}
-            }, ReelStrips.Type.USE_NULL);
+            });
 
             //register machineconfig
             _slotConfig.ClearMachines();

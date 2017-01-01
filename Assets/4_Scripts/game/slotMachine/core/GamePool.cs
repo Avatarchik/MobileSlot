@@ -9,26 +9,27 @@ namespace Game
     [RequireComponent(typeof(ObjectPool))]
     public class GamePool : SingletonSimple<GamePool>
     {
+        [HideInInspector]
+        static private ObjectPool _pool;
 
-        public bool IsReady { get; private set; }
+        private const string POOL_SYMBOL = "SymbolPool";
+        static public bool IsReady { get; private set; }
 
-        ObjectPool _pool;
         override protected void Awake()
         {
             base.Awake();
 
+            Show();
 
-            _pool = PoolMaster.instance;
+            _pool = Object.FindObjectOfType<ObjectPool>();
+            if (_pool == null) _pool = gameObject.AddComponent<ObjectPool>();
 
-            //doc
-            //doc http://www.hamsterbyte.com/category/support/poolmaster/
-            PoolMasterEvents.onPreloadPool += OnPreloadPool;
-            PoolMasterEvents.onSpawn += OnSpawn;
-            PoolMasterEvents.onDespawnObject += OnDespawnObject;
-            PoolMasterEvents.onDespawnPool += OnDespawnPool;
-            PoolMasterEvents.onDestroyObject += OnDestroyObject;
-            PoolMasterEvents.onDestroyPool += OnDestroyPool;
-            PoolMasterEvents.onPlayAudio += OnPlayAudio;
+            _pool.hideMode = 0;//off,selective,all
+            _pool.eventMode = 1;//off,on
+            _pool.preloadMode = 0;//non,selective,all
+            _pool.persistenceMode = 0;//off,selective,all
+            _pool.smartBufferMode = 1;//off,on
+            _pool.smartBufferMax = 255;
         }
 
         override protected void OnDestroy()
@@ -36,67 +37,61 @@ namespace Game
             base.OnDestroy();
 
             PoolMasterEvents.onPreloadPool -= OnPreloadPool;
-            PoolMasterEvents.onSpawn -= OnSpawn;
-            PoolMasterEvents.onDespawnObject -= OnDespawnObject;
-            PoolMasterEvents.onDespawnPool -= OnDespawnPool;
-            PoolMasterEvents.onDestroyObject -= OnDestroyObject;
-            PoolMasterEvents.onDestroyPool -= OnDestroyPool;
-            PoolMasterEvents.onPlayAudio -= OnPlayAudio;
         }
 
-        void Start()
+
+        static public void Initialize(SlotConfig config)
         {
-            _pool.Preload("Symbols");
+            CreatePools(config);
+            Load();
         }
 
-        void OnPreloadPool(string poolName)
+        static private void CreatePools(SlotConfig config)
         {
-            if (poolName == "Symbols") IsReady = true;
+            var symbolPool = new Pool(POOL_SYMBOL);
+            var machineList = config.MachineList;
+            for (var i = 0; i < machineList.Count; ++i)
+            {
+                var machine = machineList[i];
+                var list = machine.SymbolList;
+                for (var j = 0; j < list.Count; ++j)
+                {
+                    var symbolDefine = list[j];
+                    symbolPool.uniquePool.Add(symbolDefine.prefab.gameObject);
+                    symbolPool.bufferAmount.Add(symbolDefine.buffer);
+                }
+            }
+            _pool.pools.Add(symbolPool);
         }
 
-        public Symbol SpawnSymbol(string objName)
+        static private void Load()
         {
-            GameObject go = _pool.SpawnReference("Symbols", objName);
+            PoolMasterEvents.onPreloadPool += OnPreloadPool;
+
+            _pool.Preload(POOL_SYMBOL);
+        }
+
+        static private void OnPreloadPool(string poolName)
+        {
+            if (poolName == POOL_SYMBOL)
+            {
+                IsReady = true;
+                PoolMasterEvents.onPreloadPool -= OnPreloadPool;
+            }
+        }
+
+        static public Symbol SpawnSymbol(string objName)
+        {
+            GameObject go = _pool.SpawnReference(POOL_SYMBOL, objName);
 
             if (go == null) return null;
             else return go.GetComponent<Symbol>();
         }
 
-        public void DespawnSymbol(Symbol symbol)
+        static public void DespawnSymbol(Symbol symbol)
         {
             if (symbol == null) return;
             _pool.Despawn(symbol.gameObject);
-        }
-
-
-        void OnSpawn(GameObject g)
-        {
-            //Debug.Log("OnSpawn : " + g);
-        }
-
-        void OnDespawnObject(GameObject g)
-        {
-            //Debug.Log("OnDespawnObject: " + g);
-        }
-
-        void OnDespawnPool(string poolName)
-        {
-            Debug.Log("OnDespawnPool : " + poolName);
-        }
-
-        void OnDestroyObject(GameObject g)
-        {
-            Debug.Log("OnDestroyObject : " + g);
-        }
-
-        void OnDestroyPool(string poolName)
-        {
-            Debug.Log("OnDestroyPool : " + poolName);
-        }
-
-        void OnPlayAudio(string clipName, GameObject objReference)
-        {
-            Debug.Log("OnPlayAudio : " + clipName + " : " + objReference);
         }
     }
 }

@@ -20,7 +20,6 @@ namespace lpesign
                     if (_instance == null)
                     {
                         GameObject obj = new GameObject(typeof(T).Name);
-                        obj.hideFlags = HideFlags.HideAndDontSave;
                         _instance = obj.AddComponent<T>();
                     }
                 }
@@ -47,6 +46,17 @@ namespace lpesign
         virtual protected void Awake()
         {
             _instance = this as T;
+            Hide();
+        }
+
+        public void Hide()
+        {
+            gameObject.hideFlags = HideFlags.HideAndDontSave;
+        }
+
+        public void Show()
+        {
+            gameObject.hideFlags = HideFlags.None;
         }
 
         virtual protected void OnDestroy()

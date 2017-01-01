@@ -62,8 +62,8 @@ namespace Game
 
         void CreateDefaultSpinOrder()
         {
-            _defaltOrder = new int[_config.Main.Column];
-            for (var i = 0; i < _config.Main.Column; ++i)
+            _defaltOrder = new int[_config.Main.column];
+            for (var i = 0; i < _config.Main.column; ++i)
             {
                 _defaltOrder[i] = i;
             }
@@ -73,7 +73,7 @@ namespace Game
         {
             _spinStartOrder = startOrder ?? _defaltOrder;
 
-            for (var i = 0; i < _config.Main.Column; ++i)
+            for (var i = 0; i < _config.Main.column; ++i)
             {
                 var lockCount = 0;
                 var reelIndex = _spinStartOrder[i];
@@ -104,7 +104,7 @@ namespace Game
         {
             if (_reels != null) return;
 
-            int count = _config.Main.Column;
+            int count = _config.Main.column;
 
             _reels = new List<Reel>(count);
 
@@ -158,7 +158,7 @@ namespace Game
         {
             UpdateSpinInfo(spinInfo);
 
-            for (var i = 0; i < _config.Main.Column; ++i)
+            for (var i = 0; i < _config.Main.column; ++i)
             {
                 _reels[i].ReceivedSymbol(spinInfo);
             }
@@ -182,7 +182,7 @@ namespace Game
 
         public void StopSpin()
         {
-            for (var i = 0; i < _config.Main.Column; ++i)
+            for (var i = 0; i < _config.Main.column; ++i)
             {
                 var reelIndex = _spinStartOrder[i];
                 var reel = _reels[reelIndex];
@@ -214,7 +214,7 @@ namespace Game
             //게임 별 구체화
             if (_slot.CurrentState == SlotMachine.MachineState.BonusSpin)
             {
-                for (var i = 0; i < _config.Main.Column; ++i) if (_reels[i].IsLocked == false) _reels[i].ExpectType = SlotConfig.ExpectReelType.BonusSpin;
+                for (var i = 0; i < _config.Main.column; ++i) if (_reels[i].IsLocked == false) _reels[i].ExpectType = SlotConfig.ExpectReelType.BonusSpin;
             }
         }
 
@@ -281,7 +281,7 @@ namespace Game
 
         void CheckNextReel()
         {
-            if (_nextStopIndex >= _config.Main.Column)
+            if (_nextStopIndex >= _config.Main.column)
             {
                 ReelStopCompleted();
                 return;
@@ -301,7 +301,7 @@ namespace Game
             {
                 IsExpecting = true;
 
-                for (var i = _nextStopIndex; i < _config.Main.Column; ++i)
+                for (var i = _nextStopIndex; i < _config.Main.column; ++i)
                 {
                     var reel = _reels[_spinStartOrder[i]];
                     if (i == _nextStopIndex) reel.Loop = false;
@@ -317,7 +317,7 @@ namespace Game
             {
                 IsExpecting = false;
 
-                for (var i = _nextStopIndex; i < _config.Main.Column; ++i)
+                for (var i = _nextStopIndex; i < _config.Main.column; ++i)
                 {
                     var reel = _reels[_spinStartOrder[i]];
                     reel.Loop = false;
@@ -332,7 +332,7 @@ namespace Game
 
         public void FreeSpinTrigger()
         {
-            var count = _config.Main.Column;
+            var count = _config.Main.column;
             while (count-- > 0) _reels[count].FreeSpinTrigger();
         }
 
@@ -365,7 +365,7 @@ namespace Game
                 else
                 {
                     winItem.Type = WinItemList.Item.ItemType.Payline;
-                    winItem.PaylineRows = _config.Main.paylineTable.GetPayline( lineData.line ).rows;
+                    winItem.PaylineRows = _config.Main.paylineTable.GetPayline(lineData.line).rows;
                     winItem.PaylineIndex = lineData.line;
 
                     for (var col = 0; col < lineData.matches; ++col)
@@ -442,7 +442,7 @@ namespace Game
             var count = symbols.Count;
             for (var i = 0; i < count; ++i)
             {
-                symbols[i].SetState(Symbol.SymbolState.Win);
+                symbols[i].SetState(SymbolState.Win);
             }
         }
     }

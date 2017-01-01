@@ -28,7 +28,8 @@ namespace Game
             Update();
 
             DrawScript();
-            DrawScriptSetting();
+
+            DrawSetByCreatorButton();
             DrawBasic();
             DrawBetting();
             DrawMachines();
@@ -39,7 +40,7 @@ namespace Game
             Apply();
         }
 
-        void DrawScriptSetting()
+        void DrawSetByCreatorButton()
         {
             if (_creator == null) return;
 
@@ -63,10 +64,10 @@ namespace Game
 
             GUILayout.BeginVertical(GUI.skin.button, GUILayout.ExpandWidth(true));
 
-            DrawHorizontalProperties("name", "ID");
-            DrawHorizontalProperties("Host", "Port");
-            DrawHorizontalProperties("Version");
-            DrawHorizontalProperties("Jackpot");
+            DrawMultiPropertyFields("name", "ID");
+            DrawMultiPropertyFields("Host", "Port");
+            DrawPropertyField("Version");
+            DrawPropertyField("Jackpot");
 
             GUILayout.BeginVertical(GUI.skin.button);
             EditorGUILayout.LabelField("Debug", EditorStyles.boldLabel);
@@ -81,7 +82,6 @@ namespace Game
 
         void DrawBetting()
         {
-
             var bet = BeginFoldout("Betting");
             if (bet.isExpanded)
             {
@@ -148,7 +148,7 @@ namespace Game
             //nick
             string nick = "";
             if (index == 0) nick = "Main";
-            else nick = ConvertUtil.IntoToOrdinal(index + 1);
+            else nick = ConvertUtil.IntToOrdinal(index + 1);
             EditorGUILayout.LabelField(nick, EditorStyles.boldLabel);
 
             //delete button
@@ -166,10 +166,10 @@ namespace Game
             EditorGUILayout.EndHorizontal();
 
             //BASE
-            var baseInfo = BeginFoldout(machine, "Row", "Base");
+            var baseInfo = BeginFoldout(machine, "row", "Base");
             if (baseInfo.isExpanded)
             {
-                DrawHorizontalProperties(machine, "Row", "Column");
+                DrawHorizontalProperties(machine, "row", "column");
             }
             EndFoldOut();
 
@@ -178,11 +178,18 @@ namespace Game
             if (symbolInfo.isExpanded)
             {
                 DrawPropertyField(machine, 70, "SymbolSize");
-                DrawPropertyField(machine, 70, "NullSymbolSize");
 
-                EditorGUILayout.LabelField("Scatters info...");
-                //namemap
-                DrawPropertyField(machine, "nameMap");
+                var useEmpty = DrawPropertyField(machine, 80, "useEmpty").boolValue;
+                if (useEmpty)
+                {
+                    DrawPropertyField(machine, 70, "NullSymbolSize");
+                }
+
+                //define
+                DrawPropertyField(machine, "_symbolList");
+
+                //scatter
+                DrawPropertyField(machine, "scatters");
 
                 //startSymbolNames
                 DrawPropertyField(machine, "startSymbolNames");

@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
+
+using lpesign;
 
 namespace Game.HighDiamonds
 {
@@ -7,9 +9,9 @@ namespace Game.HighDiamonds
     {
         public const string S0 = "S0";
         public const string W0 = "W0";
-        public const string J0 = "J0";
-        public const string J1 = "J1";
-        public const string J2 = "J2";
+        public const string J0 = "B0";
+        public const string J1 = "B1";
+        public const string J2 = "B2";
         public const string H0 = "H0";
         public const string H1 = "H1";
         public const string M0 = "M0";
@@ -46,18 +48,11 @@ namespace Game.HighDiamonds
             //------------------------------------------------------------------------------------
             // define machienConfig
             //------------------------------------------------------------------------------------
-            var machine = new SlotConfig.MachineConfig();
+            var machine = new SlotConfig.MachineConfig(_slotConfig);
 
             //base
-            machine.Row = 3;
-            machine.Column = 5;
-
-            //symbol
-            machine.SymbolSize = new Size2D(1.04f, 0.68f);
-            machine.NullSymbolSize = default(Size2D);
-
-            //scatters
-            machine.AddSccaterInfo(S0, 3, new int[] { 0, 2, 4 });
+            machine.row = 3;
+            machine.column = 5;
 
             //freespin
             machine.UseFreeSpin = true;
@@ -130,27 +125,31 @@ namespace Game.HighDiamonds
             );
             machine.paylineTable = paylineTable;
 
+            //symbol define
+            machine.useEmpty = false;
+            machine.SymbolSize = new Size2D(1.04f, 0.68f);
+            machine.ClearSymbolDefine();
+            machine.AddSymbolDefine("S0", SymbolType.FreeSpinScatter,3);
+            machine.AddSymbolDefine("W0", SymbolType.Wild);
 
-            //symbolNameMap
-            SymbolNameMap nameMap = new SymbolNameMap();
-            nameMap.Add("S0", S0);
-            nameMap.Add("W0", W0);
+            machine.AddSymbolDefine("B0", SymbolType.ProgressiveScatter);
+            machine.AddSymbolDefine("B1", SymbolType.ProgressiveScatter);
+            machine.AddSymbolDefine("B2", SymbolType.ProgressiveScatter);
 
-            nameMap.Add("B0", J0);
-            nameMap.Add("B1", J1);
-            nameMap.Add("B2", J2);
+            machine.AddSymbolDefine("H0", SymbolType.High);
+            machine.AddSymbolDefine("H1", SymbolType.High);
 
-            nameMap.Add("H0", H0);
-            nameMap.Add("H1", H1);
+            machine.AddSymbolDefine("M0", SymbolType.Middle);
+            machine.AddSymbolDefine("M1", SymbolType.Middle);
+            machine.AddSymbolDefine("M2", SymbolType.Middle);
 
-            nameMap.Add("M0", M0);
-            nameMap.Add("M1", M1);
-            nameMap.Add("M2", M2);
+            machine.AddSymbolDefine("L0", SymbolType.Low);
+            machine.AddSymbolDefine("L1", SymbolType.Low);
+            machine.AddSymbolDefine("L2", SymbolType.Low);
 
-            nameMap.Add("L0", L0);
-            nameMap.Add("L1", L1);
-            nameMap.Add("L2", L2);
-            machine.nameMap = nameMap;
+            //scatters
+            machine.AddSccaterInfo(S0, 3, new int[] { 0, 2, 4 });
+
 
             //startSymbol
             machine.SetStartSymbols(new string[][]

@@ -30,8 +30,11 @@ namespace Game
         public bool DebugTestSpin;//테스트 스핀 핫 키 여부
 
         public SlotBetting Betting;
+
         [SerializeField]
         List<MachineConfig> _machineList;
+
+        public List<MachineConfig> MachineList { get { return _machineList; } }
         public MachineConfig Main
         {
             get
@@ -59,7 +62,7 @@ namespace Game
         {
             if (_machineList == null) _machineList = new List<MachineConfig>();
 
-            var machine = new MachineConfig();
+            var machine = new MachineConfig(this);
             _machineList.Add(machine);
         }
 
@@ -79,25 +82,83 @@ namespace Game
             //------------------------------------------------------------
             //base
             //------------------------------------------------------------
-            [RangeAttribute(2, 10)]
-            public int Row;
-            public int Column;
+            public int row;
+            public int column;
 
             //------------------------------------------------------------
             //symbol
             //------------------------------------------------------------
             public Size2D SymbolSize;
+            public bool useEmpty;
             public Size2D NullSymbolSize;
+
+            [SerializeField]
+            List<SymbolDefine> _symbolList;
+            public List<SymbolDefine> SymbolList { get { return _symbolList; } }
+            public void ClearSymbolDefine()
+            {
+                if (_symbolList != null) _symbolList.Clear();
+            }
+            public void AddSymbolDefine(string serverName, SymbolType type)
+            {
+                var buffer = row * column;
+
+                AddSymbolDefine(serverName, type, buffer);
+            }
+
+            public void AddSymbolDefine(string serveName, SymbolType type, int buffer)
+            {
+                if (_symbolList == null) _symbolList = new List<SymbolDefine>();
+
+                var define = new SymbolDefine();
+                define.serverName = serveName;
+                define.symbolType = type;
+                define.prefab = type == SymbolType.Empty ? GetEmptySymbolPrefab() : GetSymbolPrefab(RelativeSlotConfig.ID, serveName);
+                define.buffer = buffer;
+                _symbolList.Add(define);
+            }
+
+            protected Symbol GetSymbolPrefab(int gameID, string prefabName)
+            {
+                return Resources.Load<Symbol>("games/" + ConvertUtil.ToDigit(gameID) + "/prefabs/symbols/" + prefabName);
+            }
+
+            protected Symbol GetEmptySymbolPrefab()
+            {
+                return Resources.Load<Symbol>("games/common/prefabs/EM");
+            }
+
+            //startsymbols
+            public ReelSymbolSet[] startSymbolNames;
+            public void SetStartSymbols(string[][] startSymbolNames)
+            {
+                var len = startSymbolNames.Length;
+                this.startSymbolNames = new ReelSymbolSet[len];
+
+                for (var i = 0; i < startSymbolNames.Length; ++i)
+                {
+                    string[] symbolNames = startSymbolNames[i];
+                    ReelSymbolSet symbolSet = new ReelSymbolSet(symbolNames);
+                    this.startSymbolNames[i] = symbolSet;
+                }
+            }
+
+            public string GetStartSymbolAt(int col, int row)
+            {
+                return startSymbolNames[col].GetNameAt(row);
+            }
 
             //scatter
             [Header("Scatter")]
             public List<ScatterInfo> scatters;
 
-            //NameMap
-            public SymbolNameMap nameMap;
+            public void AddSccaterInfo(string symbolname, int limit, int[] ableReel)
+            {
+                if (scatters == null) scatters = new List<ScatterInfo>();
 
-            //startsymbols
-            public ReelSymbolSet[] startSymbolNames;
+                var info = new ScatterInfo(symbolname, limit, ableReel);
+                scatters.Add(info);
+            }
 
             //------------------------------------------------------------
             //freespin
@@ -141,30 +202,11 @@ namespace Game
             //------------------------------------------------------------
             public ReelStripList reelStripBundle;
 
-            public void AddSccaterInfo(string symbolname, int limit, int[] ableReel)
+            public SlotConfig RelativeSlotConfig { get; set; }
+
+            public MachineConfig(SlotConfig relativeSlotConfig)
             {
-                if (scatters == null) scatters = new List<ScatterInfo>();
-
-                var info = new ScatterInfo(symbolname, limit, ableReel);
-                scatters.Add(info);
-            }
-
-            public void SetStartSymbols(string[][] startSymbolNames)
-            {
-                var len = startSymbolNames.Length;
-                this.startSymbolNames = new ReelSymbolSet[len];
-
-                for (var i = 0; i < startSymbolNames.Length; ++i)
-                {
-                    string[] symbolNames = startSymbolNames[i];
-                    ReelSymbolSet symbolSet = new ReelSymbolSet(symbolNames);
-                    this.startSymbolNames[i] = symbolSet;
-                }
-            }
-
-            public string GetStartSymbolAt(int col, int row)
-            {
-                return startSymbolNames[col].GetNameAt(row);
+                RelativeSlotConfig = relativeSlotConfig;
             }
         }
 
@@ -314,12 +356,6 @@ namespace Game
         }
     }
 
-    #region SymbolNameMap
-    [Serializable]
-    public class SymbolNameMap : SerializableDictionaryBase<string, string> { }
-
-    #endregion
-
     #region ReelStirp
     [Serializable]
     public class ReelStripList
@@ -339,8 +375,6 @@ namespace Game
 
         public void AddStrip(string name, string[][] symbols, ReelStrips.Type type = ReelStrips.Type.NORMAL)
         {
-            Debug.Log("AddStrip: " + name);
-
             ReelStrips reelStrips = new ReelStrips(name, symbols, type);
             _list.Add(reelStrips);
         }
@@ -364,7 +398,6 @@ namespace Game
         public enum Type
         {
             NORMAL,
-            USE_NULL,
             STACK
         }
 
@@ -395,10 +428,6 @@ namespace Game
             switch (type)
             {
                 case Type.NORMAL:
-                    //customize
-                    break;
-
-                case Type.USE_NULL:
                     //customize
                     break;
 
@@ -528,8 +557,6 @@ namespace Game
             _max = max;
 
             _lastLineBet = last;
-
-            Debug.Log("Init:" + _lastLineBet);
 
             // 배팅 테이블 오른차순 정렬
             _betTable = _betTable.OrderBy(b => b).ToArray();

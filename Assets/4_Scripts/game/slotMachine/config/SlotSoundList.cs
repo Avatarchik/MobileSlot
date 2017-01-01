@@ -57,7 +57,7 @@ namespace Game
                 return;
             }
 
-            var columnCount = main.Column;
+            var columnCount = main.column;
 
             //todo
             //scatterinfo 와 Symbol 정의와 연관된다. 자동으로 판단되게 하자
