@@ -46,9 +46,15 @@ public class SceneLoader : MonoBehaviour
     // instance
     //--------------------------------------------------------------------------
 
-    public Canvas canvas;
-    public Camera cam;
-    public CanvasGroup loadingScreen;
+    [SerializeField]
+    Canvas _canvas;
+
+    [SerializeField]
+    Camera _cam;
+
+    [SerializeField]
+    CanvasGroup _loadingScreen;
+
 
     [Header("Progress")]
     public Slider progressBar;
@@ -67,12 +73,12 @@ public class SceneLoader : MonoBehaviour
 
     void Awake()
     {
-        canvas.SetReferenceSize(GlobalConfig.ReferenceWidth, GlobalConfig.ReferenceHeight, GlobalConfig.PixelPerUnit);
+        _canvas.SetReferenceSize(GlobalConfig.ReferenceWidth, GlobalConfig.ReferenceHeight, GlobalConfig.PixelPerUnit);
     }
 
     void Start()
     {
-        _loadingScreenRtf = loadingScreen.GetComponent<RectTransform>();
+        _loadingScreenRtf = _loadingScreen.GetComponent<RectTransform>();
         visible = false;
     }
 
@@ -95,7 +101,7 @@ public class SceneLoader : MonoBehaviour
         IsSceneReady = false;
         SetProgress(0f);
 
-        StartCoroutine(loadingScreen.FadeTo(0f, 1f, 0.2f));
+        StartCoroutine(_loadingScreen.FadeTo(0f, 1f, 0.2f));
         StartCoroutine(_loadingScreenRtf.LocalScaleTo(0f, 1f));
         StartCoroutine(LoadAsync());
         StartCoroutine(AnimatingProgressBar());
@@ -138,7 +144,7 @@ public class SceneLoader : MonoBehaviour
         _loadingProgress = 0.9f;
 
         //로딩 팝업 애니메이션이 완료되기 전에 씬이 로드되었다면 애니메이션 대기
-        while (loadingScreen.alpha != 1)
+        while (_loadingScreen.alpha != 1)
         {
             yield return null;
         }
@@ -171,7 +177,7 @@ public class SceneLoader : MonoBehaviour
             _loadCallback = null;
         }
 
-        yield return StartCoroutine(loadingScreen.FadeTo(1f, 0f, 0.2f));
+        yield return StartCoroutine(_loadingScreen.FadeTo(1f, 0f, 0.2f));
         visible = false;
     }
 
@@ -179,8 +185,8 @@ public class SceneLoader : MonoBehaviour
     {
         set
         {
-            canvas.gameObject.SetActive(value);
-            cam.gameObject.SetActive(value);
+            _canvas.gameObject.SetActive(value);
+            _cam.gameObject.SetActive(value);
         }
     }
 }
