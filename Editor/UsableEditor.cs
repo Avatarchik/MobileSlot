@@ -78,7 +78,7 @@ namespace lpesign.UnityEditor
         }
 
         #region DrawProperty
-        protected SerializedProperty DrawHorizontalProperties(params string[] properties)
+        protected SerializedProperty DrawMultiPropertyFields(params string[] properties)
         {
             return DrawHorizontalProperties(null, 60f, properties);
         }
@@ -114,7 +114,7 @@ namespace lpesign.UnityEditor
             return resProp;
         }
 
-        protected SerializedProperty DrawPropertyField(string propertyName, float labelWidth = 50f)
+        protected SerializedProperty DrawPropertyField(string propertyName, float labelWidth = 60f)
         {
             var prop = serializedObject.FindProperty(propertyName);
             return DrawPropertyField(prop, labelWidth);
@@ -123,7 +123,7 @@ namespace lpesign.UnityEditor
         protected SerializedProperty DrawPropertyField(SerializedProperty targetProperty, string propertyName)
         {
             var prop = targetProperty.FindPropertyRelative(propertyName);
-            return DrawPropertyField(prop, 50f);
+            return DrawPropertyField(prop, 60f);
         }
 
         protected SerializedProperty DrawPropertyField(SerializedProperty targetProperty, float labelWidth, string propertyName)
@@ -132,7 +132,7 @@ namespace lpesign.UnityEditor
             return DrawPropertyField(prop, labelWidth);
         }
 
-        protected SerializedProperty DrawPropertyField(SerializedProperty prop, float labelWidth = 50f)
+        protected SerializedProperty DrawPropertyField(SerializedProperty prop, float labelWidth = 60f)
         {
             var propertyValue = prop.GetPropertyValue();
             var propertyType = prop.propertyType;

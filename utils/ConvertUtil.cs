@@ -10,22 +10,6 @@ namespace lpesign
         private static string[] ORDINAL_SUFFIXES = new string[] { "th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th" };
         #endregion
 
-        #region ToString
-        public static string IntoToOrdinal(int i)
-        {
-            switch (i % 100)
-            {
-                case 11:
-                case 12:
-                case 13:
-                    return i + "th";
-                default:
-                    return i + ORDINAL_SUFFIXES[i % 10];
-
-            }
-        }
-        #endregion
-
         #region Color
         public static int ToInt(Color color)
         {
@@ -261,21 +245,6 @@ namespace lpesign
         {
             return System.Convert.ToUInt32(value & 0xffffffffu);
         }
-
-        ////public static uint ToUInt(float value)
-        ////{
-        ////    return System.Convert.ToUInt32(value & 0xffffffffu);
-        ////}
-
-        ////public static uint ToUInt(double value)
-        ////{
-        ////    return System.Convert.ToUInt32(value & 0xffffffffu);
-        ////}
-
-        ////public static uint ToUInt(decimal value)
-        ////{
-        ////    return System.Convert.ToUInt32(value & 0xffffffffu);
-        ////}
 
         public static uint ToUInt(bool value)
         {
@@ -1511,6 +1480,26 @@ namespace lpesign
         #endregion
 
         #region "ToString"
+
+        public static string IntToOrdinal(int i)
+        {
+            switch (i % 100)
+            {
+                case 11:
+                case 12:
+                case 13:
+                    return i + "th";
+                default:
+                    return i + ORDINAL_SUFFIXES[i % 10];
+
+            }
+        }
+
+        public static string ToDigit(int i, int count = 2)
+        {
+            return i.ToString("D" + count);
+        }
+
         public static string ToString(sbyte value)
         {
             return System.Convert.ToString(value);
