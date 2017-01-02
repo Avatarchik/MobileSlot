@@ -9,9 +9,9 @@ namespace Game.HighDiamonds
     {
         public const string S0 = "S0";
         public const string W0 = "W0";
-        public const string J0 = "B0";
-        public const string J1 = "B1";
-        public const string J2 = "B2";
+        public const string B0 = "B0";
+        public const string B1 = "B1";
+        public const string B2 = "B2";
         public const string H0 = "H0";
         public const string H1 = "H1";
         public const string M0 = "M0";
@@ -129,12 +129,12 @@ namespace Game.HighDiamonds
             machine.useEmpty = false;
             machine.SymbolSize = new Size2D(1.04f, 0.68f);
             machine.ClearSymbolDefine();
-            machine.AddSymbolDefine("S0", SymbolType.FreeSpinScatter,3);
+            machine.AddSymbolDefine("S0", SymbolType.FSScatter, 3);
             machine.AddSymbolDefine("W0", SymbolType.Wild);
 
-            machine.AddSymbolDefine("B0", SymbolType.ProgressiveScatter);
-            machine.AddSymbolDefine("B1", SymbolType.ProgressiveScatter);
-            machine.AddSymbolDefine("B2", SymbolType.ProgressiveScatter);
+            machine.AddSymbolDefine("B0", SymbolType.PGSVScatter);
+            machine.AddSymbolDefine("B1", SymbolType.PGSVScatter);
+            machine.AddSymbolDefine("B2", SymbolType.PGSVScatter);
 
             machine.AddSymbolDefine("H0", SymbolType.High);
             machine.AddSymbolDefine("H1", SymbolType.High);
@@ -148,27 +148,29 @@ namespace Game.HighDiamonds
             machine.AddSymbolDefine("L2", SymbolType.Low);
 
             //scatters
-            machine.AddSccaterInfo(S0, 3, new int[] { 0, 2, 4 });
+            machine.ClearScatterInfo();
+            machine.AddSccaterInfo(SymbolType.FSScatter, 3, new int[] { 0, 2, 4 });
+            machine.AddSccaterInfo(SymbolType.PGSVScatter, 9, new int[] { 0, 1, 2, 3, 4 });
 
 
             //startSymbol
             machine.SetStartSymbols(new string[][]
             {
-                new string[]{ L0, J0, H0, S0, L0 },
-                new string[]{ M0, M2, J1, M2, M0 },
-                new string[]{ M1, S0, L2, J2, M1 },
-                new string[]{ M0, M2, J1, M2, M0 },
-                new string[]{ L0, J0, H0, S0, L0 }
+                new string[]{ L0, B0, H0, S0, L0 },
+                new string[]{ M0, M2, B1, M2, M0 },
+                new string[]{ M1, S0, L2, B2, M1 },
+                new string[]{ M0, M2, B1, M2, M0 },
+                new string[]{ L0, B0, H0, S0, L0 }
             });
 
             //rellStrip
             machine.reelStripBundle = new ReelStripList(new string[][]
             {
-                new string[] {J0,H0,L1,M1,W0,M0,S0,L2,M1,L0,J0,H1,L0,W0,M2,L1,L2,M0,L1,L2},
-                new string[] {H0,L1,M1,M0,W0,L2,M1,J1,L0,H1,L0,M2,L1,L2,M0,J1,L1,L2},
-                new string[] {H0,L1,M1,W0,W0,W0,M0,S0,L2,M1,L0,H1,L0,S0,M2,L1,J2,L2,M0,L1,L2},
-                new string[] {H0,L1,M1,M0,W0,L2,M1,J1,L0,H1,L0,M2,L1,L2,M0,J1,L1,L2},
-                new string[] {J0,H0,L1,M1,W0,M0,S0,L2,M1,L0,J0,H1,L0,W0,M2,L1,L2,M0,L1,L2}
+                new string[] {B0,H0,L1,M1,W0,M0,S0,L2,M1,L0,B0,H1,L0,W0,M2,L1,L2,M0,L1,L2},
+                new string[] {H0,L1,M1,M0,W0,L2,M1,B1,L0,H1,L0,M2,L1,L2,M0,B1,L1,L2},
+                new string[] {H0,L1,M1,W0,W0,W0,M0,S0,L2,M1,L0,H1,L0,S0,M2,L1,B2,L2,M0,L1,L2},
+                new string[] {H0,L1,M1,M0,W0,L2,M1,B1,L0,H1,L0,M2,L1,L2,M0,B1,L1,L2},
+                new string[] {B0,H0,L1,M1,W0,M0,S0,L2,M1,L0,B0,H1,L0,W0,M2,L1,L2,M0,L1,L2}
             }, ReelStrips.Type.NORMAL);
 
             //register machineconfig

@@ -37,11 +37,7 @@ namespace Game
         public List<MachineConfig> MachineList { get { return _machineList; } }
         public MachineConfig Main
         {
-            get
-            {
-                if (_machineList.Count == 0) return null;
-                else return _machineList[0];
-            }
+            get { return GetMachineAt(0); }
         }
 
         public void ClearMachines()
@@ -64,6 +60,12 @@ namespace Game
 
             var machine = new MachineConfig(this);
             _machineList.Add(machine);
+        }
+
+        public MachineConfig GetMachineAt(int index)
+        {
+            if (_machineList == null || _machineList.Count == 0) return null;
+            else return _machineList[index];
         }
 
         public void RemoveMachineAt(int index)
@@ -93,29 +95,29 @@ namespace Game
             public Size2D NullSymbolSize;
 
             [SerializeField]
-            List<SymbolDefine> _symbolList;
-            public List<SymbolDefine> SymbolList { get { return _symbolList; } }
+            List<SymbolDefine> _symbolDefineList;
+            public List<SymbolDefine> SymbolDefineList { get { return _symbolDefineList; } }
             public void ClearSymbolDefine()
             {
-                if (_symbolList != null) _symbolList.Clear();
+                if (_symbolDefineList != null) _symbolDefineList.Clear();
             }
-            public void AddSymbolDefine(string serverName, SymbolType type)
+            public void AddSymbolDefine(string symbolName, SymbolType type)
             {
                 var buffer = row * column;
 
-                AddSymbolDefine(serverName, type, buffer);
+                AddSymbolDefine(symbolName, type, buffer);
             }
 
-            public void AddSymbolDefine(string serveName, SymbolType type, int buffer)
+            public void AddSymbolDefine(string symbolName, SymbolType type, int buffer)
             {
-                if (_symbolList == null) _symbolList = new List<SymbolDefine>();
+                if (_symbolDefineList == null) _symbolDefineList = new List<SymbolDefine>();
 
                 var define = new SymbolDefine();
-                define.serverName = serveName;
-                define.symbolType = type;
-                define.prefab = type == SymbolType.Empty ? GetEmptySymbolPrefab() : GetSymbolPrefab(RelativeSlotConfig.ID, serveName);
+                define.symbolName = symbolName;
+                define.type = type;
+                define.prefab = type == SymbolType.Empty ? GetEmptySymbolPrefab() : GetSymbolPrefab(RelativeSlotConfig.ID, symbolName);
                 define.buffer = buffer;
-                _symbolList.Add(define);
+                _symbolDefineList.Add(define);
             }
 
             protected Symbol GetSymbolPrefab(int gameID, string prefabName)
@@ -149,15 +151,26 @@ namespace Game
             }
 
             //scatter
-            [Header("Scatter")]
-            public List<ScatterInfo> scatters;
+            [SerializeField]
+            List<ScatterInfo> _scatters;
+            public List<ScatterInfo> ScatterInfos { get { return _scatters; } }
 
-            public void AddSccaterInfo(string symbolname, int limit, int[] ableReel)
+            public void ClearScatterInfo()
             {
-                if (scatters == null) scatters = new List<ScatterInfo>();
+                if (_scatters != null) _scatters.Clear();
+            }
 
-                var info = new ScatterInfo(symbolname, limit, ableReel);
-                scatters.Add(info);
+            public void AddSccaterInfo(SymbolType scatterType, int limit, int[] ableReel)
+            {
+                var info = new ScatterInfo(scatterType, limit, ableReel);
+                AddScatterInfo(info);
+            }
+
+            public void AddScatterInfo(ScatterInfo info)
+            {
+                if (_scatters == null) _scatters = new List<ScatterInfo>();
+
+                _scatters.Add(info);
             }
 
             //------------------------------------------------------------
@@ -314,44 +327,51 @@ namespace Game
     //todo
     //symbol 정의를 내릴때 포함시키자
     [Serializable]
-    public class ScatterInfo
+    public struct ScatterInfo
     {
-        public string symbolName;
+        public SymbolType type;
         public int limit;
         public int[] ableReel;
         public AudioClip[] stopSounds;
 
-        int _index;
+        // int _index;
 
-        public ScatterInfo(string symbolname, int limit, int[] ableReel)
+        public ScatterInfo(SymbolType scatterType, int limit, int[] ableReel)
         {
-            this.symbolName = symbolname;
+            this.type = scatterType;
             this.limit = limit;
             this.ableReel = ableReel;
             this.stopSounds = new AudioClip[ableReel.Length];
-
-            Reset();
         }
 
-        public void Reset()
+        public ScatterInfo(SymbolType scatterType)
         {
-            _index = 0;
+            this.type = scatterType;
+            this.limit = 0;
+            this.ableReel = new int[0];
+            this.stopSounds = new AudioClip[ableReel.Length];
         }
+
+        // public void Reset()
+        // {
+        //     _index = 0;
+        // }
 
         public bool CheckScattered(Reel reel, out AudioClip stopSound)
         {
-            Debug.Log("reel: " + reel.Column + " check ableReel: " + string.Join(",", ableReel.Select(x => x.ToString()).ToArray()));
+            // Debug.Log("reel: " + reel.Column + " check ableReel: " + string.Join(",", ableReel.Select(x => x.ToString()).ToArray()));
 
-            if (Array.IndexOf(ableReel, reel.Column) == -1 ||
-                reel.ContainsByName(symbolName) == false)
-            {
-                stopSound = null;
-                Debug.Log("no scatterd: " + Array.IndexOf(ableReel, reel.Column) + " : " + reel.ContainsByName(symbolName));
-                return false;
-            }
+            // if (Array.IndexOf(ableReel, reel.Column) == -1 ||
+            //     reel.ContainsByName(symbolName) == false)
+            // {
+            //     stopSound = null;
+            //     Debug.Log("no scatterd: " + Array.IndexOf(ableReel, reel.Column) + " : " + reel.ContainsByName(symbolName));
+            //     return false;
+            // }
 
-            Debug.Log(symbolName + " scattered");
-            stopSound = stopSounds[_index++];
+            // Debug.Log(symbolName + " scattered");
+            // stopSound = stopSounds[_index++];
+            stopSound = null;
             return true;
         }
     }

@@ -9,17 +9,27 @@ namespace Game
         Middle,
         High,
         Wild,
-        FreeSpinScatter,
-        ProgressiveScatter,
+        FSScatter,//FreeSpinScatter
+        PGSVScatter,//ProgressiveScatter
         Empty
     }
 
     [System.Serializable]
     public struct SymbolDefine
     {
-        public string serverName;
-        public SymbolType symbolType;
+        public string symbolName;
+        public SymbolType type;
         public Symbol prefab;
         public int buffer;
+
+        public static bool IsScatter(SymbolType type)
+        {
+            return -1 != type.ToString().ToLower().IndexOf("scatter");
+        }
+
+        public static bool IsScatter(SymbolDefine symbolDefine)
+        {
+            return IsScatter(symbolDefine.type);
+        }
     }
 }

@@ -30,7 +30,7 @@ namespace Game
 
         [SerializeField]
         SymbolDefine _symbolDefine;
-        public SymbolType Type { get { return _symbolDefine.symbolType; } }
+        public SymbolType Type { get { return _symbolDefine.type; } }
 
         protected SymbolState _currentState;
 

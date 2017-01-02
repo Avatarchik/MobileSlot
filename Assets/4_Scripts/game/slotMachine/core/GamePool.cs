@@ -53,7 +53,7 @@ namespace Game
             for (var i = 0; i < machineList.Count; ++i)
             {
                 var machine = machineList[i];
-                var list = machine.SymbolList;
+                var list = machine.SymbolDefineList;
                 for (var j = 0; j < list.Count; ++j)
                 {
                     var symbolDefine = list[j];

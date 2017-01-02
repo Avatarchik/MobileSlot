@@ -34,6 +34,8 @@ namespace Game
             DrawBetting();
             DrawMachines();
 
+            // DrawColumn();
+
             // var machines = serializedObject.FindProperty("_machineList");
             // EditorGUILayout.PropertyField(machines, true);
 
@@ -138,9 +140,8 @@ namespace Game
             EndFoldOut();
         }
 
-        void DrawMachine(SerializedProperty machine, int index)
+        void DrawMachine(SerializedProperty machineProp, int index)
         {
-            EditorGUI.indentLevel--;
             EditorGUILayout.BeginVertical(GUI.skin.button);
 
             EditorGUILayout.BeginHorizontal();
@@ -166,96 +167,193 @@ namespace Game
             EditorGUILayout.EndHorizontal();
 
             //BASE
-            var baseInfo = BeginFoldout(machine, "row", "Base");
+            var baseInfo = BeginFoldout(machineProp, "row", "Base");
             if (baseInfo.isExpanded)
             {
-                DrawHorizontalProperties(machine, "row", "column");
+                DrawHorizontalProperties(machineProp, "row", "column");
             }
             EndFoldOut();
 
             //symbols
-            var symbolInfo = BeginFoldout(machine, "SymbolSize", "Symbol");
+            var symbolInfo = BeginFoldout(machineProp, "SymbolSize", "Symbol");
             if (symbolInfo.isExpanded)
             {
-                DrawPropertyField(machine, 70, "SymbolSize");
+                DrawPropertyField(machineProp, 70, "SymbolSize");
+                var useEmpty = DrawPropertyField(machineProp, 80, "useEmpty").boolValue;
+                if (useEmpty) DrawPropertyField(machineProp, 70, "NullSymbolSize");
 
-                var useEmpty = DrawPropertyField(machine, 80, "useEmpty").boolValue;
-                if (useEmpty)
-                {
-                    DrawPropertyField(machine, 70, "NullSymbolSize");
-                }
-
-                //define
-                DrawPropertyField(machine, "_symbolList");
-
-                //scatter
-                DrawPropertyField(machine, "scatters");
+                DrawSymbolDefineList(machineProp, index);
+                DrawScatterInfoList(machineProp, index);
 
                 //startSymbolNames
-                DrawPropertyField(machine, "startSymbolNames");
+                DrawPropertyField(machineProp, "startSymbolNames");
             }
             EndFoldOut();
 
             //freespin
             EditorGUILayout.BeginVertical(GUI.skin.box);
-            var freespin = DrawHorizontalProperties(machine, 75, "UseFreeSpin");
+            var freespin = DrawHorizontalProperties(machineProp, 75, "UseFreeSpin");
             if (freespin.boolValue)
             {
-                DrawHorizontalProperties(machine, 90, "TriggerType", "RetriggerType");
+                DrawHorizontalProperties(machineProp, 90, "TriggerType", "RetriggerType");
                 // DrawHorizontalProperties(element, 20, "TriggerType");
                 // DrawHorizontalProperties(element, "RetriggerType");
             }
             EditorGUILayout.EndVertical();
 
             //reel
-            var reelInfo = BeginFoldout(machine, "ReelSize", "Reel");
+            var reelInfo = BeginFoldout(machineProp, "ReelSize", "Reel");
             if (reelInfo.isExpanded)
             {
-                DrawPropertyField(machine, "ReelSize");
-                DrawHorizontalProperties(machine, 80, "ReelSpace", "ReelGap");
-                DrawPropertyField(machine, 80, "ReelPrefab");
+                DrawPropertyField(machineProp, "ReelSize");
+                DrawHorizontalProperties(machineProp, 80, "ReelSpace", "ReelGap");
+                DrawPropertyField(machineProp, 80, "ReelPrefab");
             }
             EndFoldOut();
 
             //spin
-            var spinInfo = BeginFoldout(machine, "SpinSpeedPerSec", "Spin");
+            var spinInfo = BeginFoldout(machineProp, "SpinSpeedPerSec", "Spin");
             if (spinInfo.isExpanded)
             {
-                DrawPropertyField(machine, "ReelSize");
-                DrawPropertyField(machine, 140, "MarginSymbolCount");
-                DrawPropertyField(machine, 140, "IncreaseCount");
-                DrawPropertyField(machine, 140, "SpiningSymbolCount");
-                DrawPropertyField(machine, 140, "SpinCountThreshold");
-                DrawPropertyField(machine, 140, "DelayEachReel");
-                DrawPropertyField(machine, "tweenFirstBackInfo");
-                DrawPropertyField(machine, "tweenLastBackInfo");
+                DrawPropertyField(machineProp, "ReelSize");
+                DrawPropertyField(machineProp, 140, "MarginSymbolCount");
+                DrawPropertyField(machineProp, 140, "IncreaseCount");
+                DrawPropertyField(machineProp, 140, "SpiningSymbolCount");
+                DrawPropertyField(machineProp, 140, "SpinCountThreshold");
+                DrawPropertyField(machineProp, 140, "DelayEachReel");
+                DrawPropertyField(machineProp, "tweenFirstBackInfo");
+                DrawPropertyField(machineProp, "tweenLastBackInfo");
             }
             EndFoldOut();
 
             //transitoin
             EditorGUILayout.BeginVertical(GUI.skin.box);
-            EditorGUI.indentLevel++;
-            DrawPropertyField(machine, "transition");
-            EditorGUI.indentLevel--;
+            DrawPropertyField(machineProp, "transition");
             EditorGUILayout.EndVertical();
 
             //transitoin
             EditorGUILayout.BeginVertical(GUI.skin.box);
-            EditorGUI.indentLevel++;
-            DrawPropertyField(machine, "paylineTable");
-            EditorGUI.indentLevel--;
+            DrawPropertyField(machineProp, "paylineTable");
             EditorGUILayout.EndVertical();
 
             //reelStripBundle
             EditorGUILayout.BeginVertical(GUI.skin.box);
-            EditorGUI.indentLevel++;
-            DrawPropertyField(machine, "reelStripBundle");
-            EditorGUI.indentLevel--;
+            DrawPropertyField(machineProp, "reelStripBundle");
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.EndVertical();
-            EditorGUI.indentLevel++;
         }
+
+        ReorderableList _symbolDefineList;
+
+        void DrawSymbolDefineList(SerializedProperty machineProp, int index)
+        {
+            GUILayout.Space(5);
+            var machine = _script.GetMachineAt(index);
+            _symbolDefineList = CreateSymbolDefineList(machineProp.FindPropertyRelative("_symbolDefineList"));
+            _symbolDefineList.DoLayoutList();
+        }
+
+        ReorderableList CreateSymbolDefineList(SerializedProperty property)
+        {
+            if (_symbolDefineList != null) return _symbolDefineList;
+
+            var list = CreateReorderableList(property, "SymbolDefine", false);
+            list.drawElementCallback = (Rect position, int index, bool isActive, bool isFocused) =>
+            {
+                //symbolName, type, prefab, buffer
+                var element = list.serializedProperty.GetArrayElementAtIndex(index);
+
+                Rect posName = new Rect(position.x, position.y, 30, _singleHeight);
+                Rect posPrefab = new Rect(posName.xMax, position.y, position.xMax - posName.xMax - 80 - 30 - 5, _singleHeight);
+                Rect posType = new Rect(position.xMax - 80 - 30, position.y, 80, _singleHeight);
+                Rect posBuffer = new Rect(position.xMax - 30, position.y, 30, _singleHeight);
+
+                EditorGUI.PropertyField(posName, element.FindPropertyRelative("symbolName"), GUIContent.none);
+                EditorGUI.PropertyField(posPrefab, element.FindPropertyRelative("prefab"), GUIContent.none);
+                EditorGUI.PropertyField(posType, element.FindPropertyRelative("type"), GUIContent.none);
+                EditorGUI.PropertyField(posBuffer, element.FindPropertyRelative("buffer"), GUIContent.none);
+            };
+
+            return list;
+        }
+
+        void DrawColumn(float w = 30)
+        {
+            EditorGUILayout.BeginHorizontal();
+            string[] speedNames = new string[] { "0", "1", "2" };
+            int[] speedValues = new int[] { 0, 1, 2 };
+            var a = EditorGUILayout.IntPopup(0, speedNames, speedValues, GUILayout.Width(w));
+            var b = EditorGUILayout.IntPopup(1, speedNames, speedValues, GUILayout.Width(w));
+            var c = EditorGUILayout.IntPopup(2, speedNames, speedValues, GUILayout.Width(w));
+            var d = EditorGUILayout.IntPopup(0, speedNames, speedValues, GUILayout.Width(w));
+            var e = EditorGUILayout.IntPopup(1, speedNames, speedValues, GUILayout.Width(w));
+            EditorGUILayout.EndHorizontal();
+        }
+
+        ReorderableList _scatterInfoList;
+        void DrawScatterInfoList(SerializedProperty machineProp, int index)
+        {
+            var spinInfo = BeginFoldout(machineProp, "_scatters", "ScatterInfo");
+            if (spinInfo.isExpanded)
+            {
+                var machine = _script.GetMachineAt(index);
+                DrawColumn();
+
+
+                EndFoldOut();
+                // return;
+
+                // //scatter
+                // if (machine.ScatterInfos == null || machine.ScatterInfos.Count == 0)
+                // {
+                //     var symbolList = machine.SymbolDefineList;
+                //     for (var i = 0; i < symbolList.Count; ++i)
+                //     {
+                //         var symbol = symbolList[i];
+                //         if (SymbolDefine.IsScatter(symbol))
+                //         {
+                //             var info = new ScatterInfo(symbol.type);
+                //             machine.AddScatterInfo(info);
+                //         }
+                //     }
+                // }
+
+                _scatterInfoList = CreateScatterInfoList(machineProp.FindPropertyRelative("_scatters"));
+                _scatterInfoList.DoLayoutList();
+            }
+
+
+            var sct = machineProp.FindPropertyRelative("_scatters");
+            EditorGUILayout.PropertyField(sct, true);
+        }
+
+        ReorderableList CreateScatterInfoList(SerializedProperty property)
+        {
+            if (_scatterInfoList != null) return _scatterInfoList;
+
+            var list = CreateReorderableList(property, "", false);
+            // list.elementHeight = EditorGUIUtility.singleLineHeight * 4f;
+
+            list.drawElementCallback = (Rect position, int index, bool isActive, bool isFocused) =>
+            {
+                //type, limit, ableReel, stopSounds
+                var element = list.serializedProperty.GetArrayElementAtIndex(index);
+
+                Rect posName = new Rect(position.x, position.y, 80, _singleHeight);
+                Rect posLimit = new Rect(posName.xMax, position.y, 20, _singleHeight);
+                // Rect posSound = new Rect(posLimit.xMax + 50, position.y, 80, _singleHeight);
+                // Rect posBuffer = new Rect(position.xMax - 30, position.y, 30, _singleHeight);
+
+                EditorGUI.PropertyField(posName, element.FindPropertyRelative("type"), GUIContent.none);
+                EditorGUI.PropertyField(posLimit, element.FindPropertyRelative("limit"), GUIContent.none);
+                // EditorGUI.PropertyField(posSound, element.FindPropertyRelative("stopSounds"), GUIContent.none,true);
+                // EditorGUI.PropertyField(posBuffer, element.FindPropertyRelative("buffer"), GUIContent.none);
+            };
+
+            return list;
+        }
+
     }
 }
 

@@ -233,15 +233,15 @@ namespace Game
 
         void CheckScatters()
         {
-            if (_config.Main.scatters == null) return;
+            if (_config.Main.ScatterInfos == null) return;
 
-            var count = _config.Main.scatters.Count;
+            var count = _config.Main.ScatterInfos.Count;
 
             Debug.Log("------ CheckScatters: " + count);
 
             for (var i = 0; i < count; ++i)
             {
-                var info = _config.Main.scatters[i];
+                var info = _config.Main.ScatterInfos[i];
                 AudioClip stopSound;
                 if (info.CheckScattered(_lastStoppedReel, out stopSound))
                 {

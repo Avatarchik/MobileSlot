@@ -448,7 +448,7 @@ namespace Game
             //effect freeSpinTrigger
             // reel.updateSymbolAorB( SymbolType.FREESPIN, SymbolState.TRIGGER,SymbolState.IDLE);
 
-            UpdateSymbolState(SymbolType.FreeSpinScatter, SymbolState.Trigger);
+            UpdateSymbolState(SymbolType.FSScatter, SymbolState.Trigger);
         }
 
         protected Symbol CreateSymbol(string symbolName)

@@ -203,18 +203,6 @@ namespace lpesign
 
         #region Morphing
 
-        public static string ToLower(string value)
-        {
-            //return (value != null) ? value.ToLower() : null;
-            return (value + "").ToLower();
-        }
-
-        public static string ToUpper(string value)
-        {
-            //return (value != null) ? value.ToUpper() : null;
-            return (value + "").ToUpper();
-        }
-
         public static string Trim(string value)
         {
             if (value == null) return null;
