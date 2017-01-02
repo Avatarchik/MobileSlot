@@ -23,6 +23,7 @@ namespace lpesign.UnityEditor
             // EditorGUI.indentLevel++;
             // EditorGUIUtility.labelWidth = 250;
             // EditorGUIUtility.fieldWidth = 150;
+            // GUILayout.FlexibleSpace();
 
             _script = (T)target;
 
@@ -231,10 +232,13 @@ namespace lpesign.UnityEditor
             foldStyle.fontStyle = FontStyle.Bold;
 
             var property = targetProperty.FindPropertyRelative(propertyName);
-            EditorGUI.indentLevel++;
             EditorGUILayout.BeginVertical(GUI.skin.box);
             label = StringUtil.IsNullOrEmpty(label) ? propertyName : label;
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Space(15);
             property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, label, foldStyle);
+            EditorGUILayout.EndHorizontal();
 
             foldStyle.fontStyle = previousStyle;
             return property;
@@ -247,10 +251,14 @@ namespace lpesign.UnityEditor
             foldStyle.fontStyle = FontStyle.Bold;
 
             var property = serializedObject.FindProperty(propertyName);
-            EditorGUI.indentLevel++;
             EditorGUILayout.BeginVertical(GUI.skin.box);
+
+
             label = StringUtil.IsNullOrEmpty(label) ? propertyName : label;
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Space(15);
             property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, label, foldStyle);
+            EditorGUILayout.EndHorizontal();
 
             foldStyle.fontStyle = previousStyle;
             return property;
@@ -258,7 +266,6 @@ namespace lpesign.UnityEditor
 
         protected void EndFoldOut()
         {
-            EditorGUI.indentLevel--;
             EditorGUILayout.EndVertical();
         }
 
