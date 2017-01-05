@@ -34,7 +34,7 @@ namespace Game
             _betting = _ui.SlotMachine.Config.Betting;
             _betting.OnUpdateLineBetIndex += OnUpdateLineBetHandler;
 
-            SetLineNum(_ui.SlotMachine.Config.Main.paylineTable.Length);
+            SetLineNum(_ui.SlotMachine.Config.Main.paylineTable.Count);
             
             SetWin(0);
 

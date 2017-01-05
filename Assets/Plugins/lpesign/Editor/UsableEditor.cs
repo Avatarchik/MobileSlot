@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
-
-using lpesign;
+using System.Linq;
 
 namespace lpesign.UnityEditor
 {
@@ -14,6 +13,7 @@ namespace lpesign.UnityEditor
         protected Color _defaultBGColor;
         protected Color _defaultColor;
         protected float _singleHeight;
+        protected GUIStyle _defaultStye;
 
         /// <summary>
         /// Initialize is must called when OnEnable
@@ -24,11 +24,14 @@ namespace lpesign.UnityEditor
             // EditorGUIUtility.labelWidth = 250;
             // EditorGUIUtility.fieldWidth = 150;
             // GUILayout.FlexibleSpace();
+            // "∙"
 
             _script = (T)target;
 
             _defaultColor = GUI.color;
             _defaultBGColor = GUI.backgroundColor;
+
+            _defaultStye = new GUIStyle();
 
             _singleHeight = EditorGUIUtility.singleLineHeight;
         }
@@ -225,14 +228,14 @@ namespace lpesign.UnityEditor
         #endregion
 
         #region foldout
-        protected SerializedProperty BeginFoldout(SerializedProperty targetProperty, string propertyName, string label = "")
+        protected SerializedProperty BeginFoldout(SerializedProperty targetProperty, string propertyName, string label = "", string areaStyle = "box")
         {
             GUIStyle foldStyle = EditorStyles.foldout;
             FontStyle previousStyle = foldStyle.fontStyle;
             foldStyle.fontStyle = FontStyle.Bold;
 
             var property = targetProperty.FindPropertyRelative(propertyName);
-            EditorGUILayout.BeginVertical(GUI.skin.box);
+            EditorGUILayout.BeginVertical(areaStyle == "" ? _defaultStye : areaStyle);
             label = StringUtil.IsNullOrEmpty(label) ? propertyName : label;
 
             EditorGUILayout.BeginHorizontal();
@@ -244,17 +247,16 @@ namespace lpesign.UnityEditor
             return property;
         }
 
-        protected SerializedProperty BeginFoldout(string propertyName, string label = "")
+        protected SerializedProperty BeginFoldout(string propertyName, string label = "", string areaStyle = "box")
         {
             GUIStyle foldStyle = EditorStyles.foldout;
             FontStyle previousStyle = foldStyle.fontStyle;
             foldStyle.fontStyle = FontStyle.Bold;
 
             var property = serializedObject.FindProperty(propertyName);
-            EditorGUILayout.BeginVertical(GUI.skin.box);
-
-
+            EditorGUILayout.BeginVertical(areaStyle == "" ? _defaultStye : areaStyle);
             label = StringUtil.IsNullOrEmpty(label) ? propertyName : label;
+
             EditorGUILayout.BeginHorizontal();
             GUILayout.Space(15);
             property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, label, foldStyle);
@@ -316,5 +318,192 @@ namespace lpesign.UnityEditor
             };
         }
         #endregion
+
+        #region Handle Array
+        protected void DrawIntArray(SerializedProperty prop, int range, float w = 30)
+        {
+            string[] names;
+            int[] values;
+            EditorExtension.GetIntNameAndValue(out names, out values, range);
+
+            for (var i = 0; i < prop.arraySize; ++i)
+            {
+                var element = prop.GetArrayElementAtIndex(i);
+                element.intValue = EditorGUILayout.IntPopup(element.intValue, names, values, GUILayout.Width(w));
+            }
+        }
+
+        protected void DrawAudioClipArray(SerializedProperty prop, float w = 30)
+        {
+            for (var i = 0; i < prop.arraySize; ++i)
+            {
+                var element = prop.GetArrayElementAtIndex(i);
+                EditorGUILayout.PropertyField(element, GUIContent.none);
+            }
+        }
+        #endregion
+    }
+
+
+    public static class EditorExtension
+    {
+        public static void GetIntNameAndValue(out string[] names, out int[] values, int range)
+        {
+            names = new string[range];
+            values = new int[range];
+
+            for (var i = 0; i < range; ++i)
+            {
+                names[i] = i.ToString();
+                values[i] = i;
+            }
+        }
+
+        public static void SetEnumValue(this SerializedProperty prop, object value)
+        {
+            if (prop == null) throw new System.ArgumentNullException("prop");
+            if (prop.propertyType != SerializedPropertyType.Enum) throw new System.ArgumentException("SerializedProperty is not an enum type.", "prop");
+
+            if (value == null)
+            {
+                prop.enumValueIndex = 0;
+                return;
+            }
+
+            var tp = value.GetType();
+            if (tp.IsEnum)
+            {
+                int i = prop.enumNames.IndexOf(System.Enum.GetName(tp, value));
+                if (i < 0) i = 0;
+                prop.enumValueIndex = i;
+            }
+            else
+            {
+                int i = ConvertUtil.ToInt(value);
+                if (i < 0 || i >= prop.enumNames.Length) i = 0;
+                prop.enumValueIndex = i;
+            }
+        }
+
+        public static System.Enum GetEnumValue(this SerializedProperty prop, System.Type tp)
+        {
+            if (prop == null) throw new System.ArgumentNullException("prop");
+            if (tp == null) throw new System.ArgumentNullException("tp");
+            if (!tp.IsEnum) throw new System.ArgumentException("Type must be an enumerated type.");
+
+            try
+            {
+                var name = prop.enumNames[prop.enumValueIndex];
+                return System.Enum.Parse(tp, name) as System.Enum;
+            }
+            catch
+            {
+                return System.Enum.GetValues(tp).Cast<System.Enum>().First();
+            }
+        }
+
+        public static void SetPropertyValue(this SerializedProperty prop, object value)
+        {
+            if (prop == null) throw new System.ArgumentNullException("prop");
+
+            switch (prop.propertyType)
+            {
+                case SerializedPropertyType.Integer:
+                    prop.intValue = ConvertUtil.ToInt(value);
+                    break;
+                case SerializedPropertyType.Boolean:
+                    prop.boolValue = ConvertUtil.ToBool(value);
+                    break;
+                case SerializedPropertyType.Float:
+                    prop.floatValue = ConvertUtil.ToSingle(value);
+                    break;
+                case SerializedPropertyType.String:
+                    prop.stringValue = ConvertUtil.ToString(value);
+                    break;
+                case SerializedPropertyType.Color:
+                    prop.colorValue = (Color)value;
+                    break;
+                case SerializedPropertyType.ObjectReference:
+                    prop.objectReferenceValue = value as Object;
+                    break;
+                case SerializedPropertyType.LayerMask:
+                    prop.intValue = (value is LayerMask) ? ((LayerMask)value).value : ConvertUtil.ToInt(value);
+                    break;
+                case SerializedPropertyType.Enum:
+                    //prop.enumValueIndex = ConvertUtil.ToInt(value);
+                    prop.SetEnumValue(value);
+                    break;
+                case SerializedPropertyType.Vector2:
+                    prop.vector2Value = (Vector2)value;
+                    break;
+                case SerializedPropertyType.Vector3:
+                    prop.vector3Value = (Vector3)value;
+                    break;
+                case SerializedPropertyType.Vector4:
+                    prop.vector4Value = (Vector4)value;
+                    break;
+                case SerializedPropertyType.Rect:
+                    prop.rectValue = (Rect)value;
+                    break;
+                case SerializedPropertyType.ArraySize:
+                    prop.arraySize = ConvertUtil.ToInt(value);
+                    break;
+                case SerializedPropertyType.Character:
+                    prop.intValue = ConvertUtil.ToInt(value);
+                    break;
+                case SerializedPropertyType.AnimationCurve:
+                    prop.animationCurveValue = value as AnimationCurve;
+                    break;
+                case SerializedPropertyType.Bounds:
+                    prop.boundsValue = (Bounds)value;
+                    break;
+                case SerializedPropertyType.Gradient:
+                    throw new System.InvalidOperationException("Can not handle Gradient types.");
+            }
+        }
+        public static object GetPropertyValue(this SerializedProperty prop)
+        {
+            if (prop == null) throw new System.ArgumentNullException("prop");
+
+            switch (prop.propertyType)
+            {
+                case SerializedPropertyType.Integer:
+                    return prop.intValue;
+                case SerializedPropertyType.Boolean:
+                    return prop.boolValue;
+                case SerializedPropertyType.Float:
+                    return prop.floatValue;
+                case SerializedPropertyType.String:
+                    return prop.stringValue;
+                case SerializedPropertyType.Color:
+                    return prop.colorValue;
+                case SerializedPropertyType.ObjectReference:
+                    return prop.objectReferenceValue;
+                case SerializedPropertyType.LayerMask:
+                    return (LayerMask)prop.intValue;
+                case SerializedPropertyType.Enum:
+                    return prop.enumValueIndex;
+                case SerializedPropertyType.Vector2:
+                    return prop.vector2Value;
+                case SerializedPropertyType.Vector3:
+                    return prop.vector3Value;
+                case SerializedPropertyType.Vector4:
+                    return prop.vector4Value;
+                case SerializedPropertyType.Rect:
+                    return prop.rectValue;
+                case SerializedPropertyType.ArraySize:
+                    return prop.arraySize;
+                case SerializedPropertyType.Character:
+                    return (char)prop.intValue;
+                case SerializedPropertyType.AnimationCurve:
+                    return prop.animationCurveValue;
+                case SerializedPropertyType.Bounds:
+                    return prop.boundsValue;
+                case SerializedPropertyType.Gradient:
+                    throw new System.InvalidOperationException("Can not handle Gradient types.");
+            }
+
+            return null;
+        }
     }
 }

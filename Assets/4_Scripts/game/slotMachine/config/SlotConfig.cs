@@ -81,11 +81,24 @@ namespace Game
         [Serializable]
         public class MachineConfig
         {
+            public SlotConfig RelativeSlotConfig { get; set; }
+            public MachineConfig(SlotConfig relativeSlotConfig)
+            {
+                RelativeSlotConfig = relativeSlotConfig;
+            }
+
             //------------------------------------------------------------
             //base
             //------------------------------------------------------------
             public int row;
             public int column;
+
+            //------------------------------------------------------------
+            //freespin
+            //------------------------------------------------------------
+            public bool UseFreeSpin;
+            public FreeSpinTriggerType TriggerType;
+            public FreeSpinRetriggerType RetriggerType;
 
             //------------------------------------------------------------
             //symbol
@@ -115,22 +128,22 @@ namespace Game
                 var define = new SymbolDefine();
                 define.symbolName = symbolName;
                 define.type = type;
-                define.prefab = type == SymbolType.Empty ? GetEmptySymbolPrefab() : GetSymbolPrefab(RelativeSlotConfig.ID, symbolName);
+
+                var path = string.Empty;
+
+                if (type == SymbolType.Empty) path = "games/common/prefabs/EM";
+                else path = "games/" + ConvertUtil.ToDigit(RelativeSlotConfig.ID) + "/prefabs/symbols/" + symbolName;
+
+                define.prefab = Resources.Load<Symbol>(path);
+
                 define.buffer = buffer;
+
                 _symbolDefineList.Add(define);
             }
 
-            protected Symbol GetSymbolPrefab(int gameID, string prefabName)
-            {
-                return Resources.Load<Symbol>("games/" + ConvertUtil.ToDigit(gameID) + "/prefabs/symbols/" + prefabName);
-            }
-
-            protected Symbol GetEmptySymbolPrefab()
-            {
-                return Resources.Load<Symbol>("games/common/prefabs/EM");
-            }
-
+            //------------------------------------------------------------
             //startsymbols
+            //------------------------------------------------------------
             public ReelSymbolSet[] startSymbolNames;
             public void SetStartSymbols(string[][] startSymbolNames)
             {
@@ -150,7 +163,9 @@ namespace Game
                 return startSymbolNames[col].GetNameAt(row);
             }
 
+            //------------------------------------------------------------
             //scatter
+            //------------------------------------------------------------
             [SerializeField]
             List<ScatterInfo> _scatters;
             public List<ScatterInfo> ScatterInfos { get { return _scatters; } }
@@ -172,13 +187,6 @@ namespace Game
 
                 _scatters.Add(info);
             }
-
-            //------------------------------------------------------------
-            //freespin
-            //------------------------------------------------------------
-            public bool UseFreeSpin;
-            public FreeSpinTriggerType TriggerType;
-            public FreeSpinRetriggerType RetriggerType;
 
             //------------------------------------------------------------
             //reel
@@ -215,12 +223,6 @@ namespace Game
             //------------------------------------------------------------
             public ReelStripList reelStripBundle;
 
-            public SlotConfig RelativeSlotConfig { get; set; }
-
-            public MachineConfig(SlotConfig relativeSlotConfig)
-            {
-                RelativeSlotConfig = relativeSlotConfig;
-            }
         }
 
         //------------------------------------------------------------------
@@ -279,24 +281,24 @@ namespace Game
     public class PaylineTable
     {
         [SerializeField]
-        Payline[] _table;
+        List<Payline> _table;
 
-        public int Length { get { return _table.Length; } }
+        public int Count { get { return _table.Count; } }
 
         public PaylineTable(int length)
         {
-            _table = new Payline[length];
+            _table = new List<Payline>();
         }
 
         public PaylineTable(int[][] tableArr)
         {
-            var length = tableArr.Length;
-            _table = new Payline[length];
+            _table = new List<Payline>();
 
+            var length = tableArr.Length;
             for (var i = 0; i < length; ++i)
             {
                 int[] rows = tableArr[i];
-                _table[i] = new Payline(rows);
+                AddPayline(rows);
             }
         }
 
@@ -305,9 +307,14 @@ namespace Game
             return _table[line];
         }
 
-        public void AddPayline(int[] payline)
+        public void AddPayline(int[] rows)
         {
+            AddPayline(new Payline(rows));
+        }
 
+        public void AddPayline(Payline payline)
+        {
+            _table.Add(payline);
         }
 
         [Serializable]
@@ -481,13 +488,22 @@ namespace Game
     [Serializable]
     public class Transition
     {
-        public float ReelStopCompleteAfterDealy = 0.2f;
-        public float PlayAllSymbols_WinBalance = 0f;
+        [RangeAttribute(0f, 1f)]
+        public float ReelStopAfterDelay = 0.2f;
+
+        [RangeAttribute(0f, 1f)]
+        public float PlaySymbolAfterDelay = 0f;
+
+        [RangeAttribute(0.5f, 2f)]
         public float EachWin = 1f;
+        [RangeAttribute(0.5f, 2f)]
         public float EachWinSummary = 1f;
 
+        [RangeAttribute(1f, 2f)]
         public float EachLockReel = 1f;
-        public float LockReel_BonusSpin = 1f;
+        [RangeAttribute(1f, 2f)]
+        public float LockReelAfterDelay = 1f;
+        [RangeAttribute(1f, 2.5f)]
         public float FreeSpinTriggerDuration = 1f;
     }
 

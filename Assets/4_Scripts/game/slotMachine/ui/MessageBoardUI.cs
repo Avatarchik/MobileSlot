@@ -53,7 +53,7 @@ namespace Game
 
         public void Spin()
         {
-            WriteBoard(string.Format(SPIN_START, _config.Main.paylineTable.Length, _config.Betting.TotalBet.ToBalance()));
+            WriteBoard(string.Format(SPIN_START, _config.Main.paylineTable.Count, _config.Betting.TotalBet.ToBalance()));
         }
 
         public void FreeSpin()

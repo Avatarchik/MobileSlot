@@ -171,6 +171,9 @@ namespace Game
             if (baseInfo.isExpanded)
             {
                 DrawHorizontalProperties(machineProp, "row", "column");
+
+                var freespin = DrawHorizontalProperties(machineProp, 75, "UseFreeSpin");
+                if (freespin.boolValue) DrawHorizontalProperties(machineProp, 90, "TriggerType", "RetriggerType");
             }
             EndFoldOut();
 
@@ -184,22 +187,8 @@ namespace Game
 
                 DrawSymbolDefineList(machineProp, index);
                 DrawScatterInfoList(machineProp, index);
-
-                //startSymbolNames
-                DrawPropertyField(machineProp, "startSymbolNames");
             }
             EndFoldOut();
-
-            //freespin
-            EditorGUILayout.BeginVertical(GUI.skin.box);
-            var freespin = DrawHorizontalProperties(machineProp, 75, "UseFreeSpin");
-            if (freespin.boolValue)
-            {
-                DrawHorizontalProperties(machineProp, 90, "TriggerType", "RetriggerType");
-                // DrawHorizontalProperties(element, 20, "TriggerType");
-                // DrawHorizontalProperties(element, "RetriggerType");
-            }
-            EditorGUILayout.EndVertical();
 
             //reel
             var reelInfo = BeginFoldout(machineProp, "ReelSize", "Reel");
@@ -227,14 +216,16 @@ namespace Game
             EndFoldOut();
 
             //transitoin
-            EditorGUILayout.BeginVertical(GUI.skin.box);
+            EditorGUILayout.BeginHorizontal(GUI.skin.box);
+            GUILayout.Space(15);
             DrawPropertyField(machineProp, "transition");
-            EditorGUILayout.EndVertical();
+            EditorGUILayout.EndHorizontal();
 
-            //transitoin
-            EditorGUILayout.BeginVertical(GUI.skin.box);
-            DrawPropertyField(machineProp, "paylineTable");
-            EditorGUILayout.EndVertical();
+            //paylineTable
+            DrawPaylineTable(machineProp, index);
+
+            //startSymbolNames
+            DrawPropertyField(machineProp, "startSymbolNames");
 
             //reelStripBundle
             EditorGUILayout.BeginVertical(GUI.skin.box);
@@ -242,6 +233,52 @@ namespace Game
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.EndVertical();
+        }
+
+        void DrawPaylineTable(SerializedProperty machineProp, int index)
+        {
+            var paylineTable = BeginFoldout(machineProp, "paylineTable", "Payline");
+            if (paylineTable.isExpanded)
+            {
+                EditorGUILayout.BeginHorizontal();
+                GUI.backgroundColor = Color.yellow;
+                if (GUILayout.Button("Write JS Array Format"))
+                {
+                    if (EditorUtility.DisplayDialog("Write JS Array Format?", "not yet implemented", "OK", "Cancel"))
+                    {
+                        //todo
+                    }
+                }
+                if (GUILayout.Button("Load From File"))
+                {
+                    if (EditorUtility.DisplayDialog("Load From File?", "not yet implemented", "OK", "Cancel"))
+                    {
+                        //todo
+                    }
+                }
+                GUI.backgroundColor = _defaultBGColor;
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.LabelField("Total: " + paylineTable.FindPropertyRelative("_table").arraySize, EditorStyles.boldLabel);
+
+                var table = BeginFoldout(paylineTable, "_table", "Edit","");
+                if (table.isExpanded)
+                {
+                    for (var i = 0; i < table.arraySize; ++i)
+                    {
+                        var element = table.GetArrayElementAtIndex(i);
+                        var arr = element.FindPropertyRelative("rows");
+
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("line " + i, GUILayout.Width(50));
+                        DrawIntArray(arr, machineProp.FindPropertyRelative("column").intValue);
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+                EndFoldOut();
+
+            }
+            EndFoldOut();
         }
 
         ReorderableList _symbolDefineList;
@@ -278,82 +315,48 @@ namespace Game
             return list;
         }
 
-        void DrawColumn(float w = 30)
-        {
-            EditorGUILayout.BeginHorizontal();
-            string[] speedNames = new string[] { "0", "1", "2" };
-            int[] speedValues = new int[] { 0, 1, 2 };
-            var a = EditorGUILayout.IntPopup(0, speedNames, speedValues, GUILayout.Width(w));
-            var b = EditorGUILayout.IntPopup(1, speedNames, speedValues, GUILayout.Width(w));
-            var c = EditorGUILayout.IntPopup(2, speedNames, speedValues, GUILayout.Width(w));
-            var d = EditorGUILayout.IntPopup(0, speedNames, speedValues, GUILayout.Width(w));
-            var e = EditorGUILayout.IntPopup(1, speedNames, speedValues, GUILayout.Width(w));
-            EditorGUILayout.EndHorizontal();
-        }
-
-        ReorderableList _scatterInfoList;
         void DrawScatterInfoList(SerializedProperty machineProp, int index)
         {
-            var spinInfo = BeginFoldout(machineProp, "_scatters", "ScatterInfo");
-            if (spinInfo.isExpanded)
+            var scatters = BeginFoldout(machineProp, "_scatters", "ScatterInfo");
+            if (scatters.isExpanded)
             {
                 var machine = _script.GetMachineAt(index);
-                DrawColumn();
+                for (var i = 0; i < scatters.arraySize; ++i)
+                {
+                    var element = scatters.GetArrayElementAtIndex(i);
 
+                    EditorGUILayout.BeginVertical(GUI.skin.box);
 
-                EndFoldOut();
-                // return;
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.PropertyField(element.FindPropertyRelative("type"), GUIContent.none, GUILayout.Width(80));
 
-                // //scatter
-                // if (machine.ScatterInfos == null || machine.ScatterInfos.Count == 0)
-                // {
-                //     var symbolList = machine.SymbolDefineList;
-                //     for (var i = 0; i < symbolList.Count; ++i)
-                //     {
-                //         var symbol = symbolList[i];
-                //         if (SymbolDefine.IsScatter(symbol))
-                //         {
-                //             var info = new ScatterInfo(symbol.type);
-                //             machine.AddScatterInfo(info);
-                //         }
-                //     }
-                // }
+                    EditorGUILayout.LabelField("Reel", EditorStyles.boldLabel, GUILayout.Width(30));
+                    var re = element.FindPropertyRelative("ableReel");
+                    DrawIntArray(re, machineProp.FindPropertyRelative("column").intValue);
 
-                _scatterInfoList = CreateScatterInfoList(machineProp.FindPropertyRelative("_scatters"));
-                _scatterInfoList.DoLayoutList();
+                    GUILayout.FlexibleSpace();
+                    EditorGUILayout.LabelField("limit", EditorStyles.boldLabel, GUILayout.Width(32));
+                    EditorGUILayout.PropertyField(element.FindPropertyRelative("limit"), GUIContent.none, GUILayout.Width(15));
+
+                    EditorGUILayout.EndHorizontal();
+
+                    EditorGUILayout.BeginHorizontal();
+                    var sounds = BeginFoldout(element, "stopSounds", "", "");
+                    if (sounds.isExpanded)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        DrawAudioClipArray(element.FindPropertyRelative("stopSounds"));
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    EndFoldOut();
+
+                    EditorGUILayout.EndHorizontal();
+
+                    EditorGUILayout.EndVertical();
+                }
             }
-
-
-            var sct = machineProp.FindPropertyRelative("_scatters");
-            EditorGUILayout.PropertyField(sct, true);
+            EndFoldOut();
         }
-
-        ReorderableList CreateScatterInfoList(SerializedProperty property)
-        {
-            if (_scatterInfoList != null) return _scatterInfoList;
-
-            var list = CreateReorderableList(property, "", false);
-            // list.elementHeight = EditorGUIUtility.singleLineHeight * 4f;
-
-            list.drawElementCallback = (Rect position, int index, bool isActive, bool isFocused) =>
-            {
-                //type, limit, ableReel, stopSounds
-                var element = list.serializedProperty.GetArrayElementAtIndex(index);
-
-                Rect posName = new Rect(position.x, position.y, 80, _singleHeight);
-                Rect posLimit = new Rect(posName.xMax, position.y, 20, _singleHeight);
-                // Rect posSound = new Rect(posLimit.xMax + 50, position.y, 80, _singleHeight);
-                // Rect posBuffer = new Rect(position.xMax - 30, position.y, 30, _singleHeight);
-
-                EditorGUI.PropertyField(posName, element.FindPropertyRelative("type"), GUIContent.none);
-                EditorGUI.PropertyField(posLimit, element.FindPropertyRelative("limit"), GUIContent.none);
-                // EditorGUI.PropertyField(posSound, element.FindPropertyRelative("stopSounds"), GUIContent.none,true);
-                // EditorGUI.PropertyField(posBuffer, element.FindPropertyRelative("buffer"), GUIContent.none);
-            };
-
-            return list;
-        }
-
     }
 }
 

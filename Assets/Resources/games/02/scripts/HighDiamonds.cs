@@ -78,12 +78,12 @@ namespace Game.HighDiamonds
             //transition
             machine.transition = new Transition()
             {
-                ReelStopCompleteAfterDealy = 0.5f,
-                PlayAllSymbols_WinBalance = 0,
+                ReelStopAfterDelay = 0.5f,
+                PlaySymbolAfterDelay = 0,
                 EachWin = 1f,
                 EachWinSummary = 1f,
                 EachLockReel = 0.2f,
-                LockReel_BonusSpin = 1f,
+                LockReelAfterDelay = 1f,
                 FreeSpinTriggerDuration = 1f
             };
 

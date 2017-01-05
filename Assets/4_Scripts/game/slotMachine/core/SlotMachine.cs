@@ -350,7 +350,7 @@ namespace Game
 
         IEnumerator ReelStopComplete_Enter()
         {
-            yield return new WaitForSeconds(_config.Main.transition.ReelStopCompleteAfterDealy);
+            yield return new WaitForSeconds(_config.Main.transition.ReelStopAfterDelay);
 
             //결과 심볼들을 바탕으로 미리 계산 해야 하는 일들이 있다면 여기서 미리 계산한다.
             _ui.ReelStopComplete();
@@ -533,7 +533,7 @@ namespace Game
 
             _reelContainer.PlayAllWin();
 
-            yield return new WaitForSeconds(_config.Main.transition.PlayAllSymbols_WinBalance);
+            yield return new WaitForSeconds(_config.Main.transition.PlaySymbolAfterDelay);
 
             SetState(MachineState.TakeCoin);
         }
@@ -665,7 +665,7 @@ namespace Game
 
             _topboard.BonusSpin();
 
-            yield return new WaitForSeconds(_config.Main.transition.LockReel_BonusSpin);
+            yield return new WaitForSeconds(_config.Main.transition.LockReelAfterDelay);
 
             _reelContainer.BonusSpin(_lastSpinInfo);
             SlotSoundList.Spin();
