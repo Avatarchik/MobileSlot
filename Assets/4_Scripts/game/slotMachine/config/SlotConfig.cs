@@ -177,11 +177,11 @@ namespace Game
 
             public string GetStartSymbolAt(int col, int row)
             {
-                return _startSymbolSet[col].GetNameAt(row);
+                return _startSymbolSet[col][row];
             }
             public void SetStartSymbolAt(int col, int row, string name)
             {
-                _startSymbolSet[col].SetNameAt(row, name);
+                _startSymbolSet[col][row] = name;
             }
 
             //------------------------------------------------------------
@@ -271,33 +271,6 @@ namespace Game
             JACPOT
         }
         #endregion
-    }
-
-
-    [Serializable]
-    public class ReelSymbolSet
-    {
-        [SerializeField]
-        string[] _symbolNames;
-        public ReelSymbolSet(string[] symbolNames)
-        {
-            Update(symbolNames);
-        }
-
-        public void Update(string[] symbolNames)
-        {
-            this._symbolNames = symbolNames;
-        }
-
-        public string GetNameAt(int row)
-        {
-            return _symbolNames[row];
-        }
-
-        public void SetNameAt(int row, string name)
-        {
-            _symbolNames[row] = name;
-        }
     }
 
     [Serializable]

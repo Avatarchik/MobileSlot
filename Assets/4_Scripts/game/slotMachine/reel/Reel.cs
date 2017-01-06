@@ -9,7 +9,6 @@ using DG.Tweening;
 
 namespace Game
 {
-
     public class Reel : MonoBehaviour
     {
         public event UnityAction<Reel> OnStop;
@@ -554,6 +553,34 @@ namespace Game
             {
                 _column = value;
                 gameObject.name = "Reel" + _column;
+            }
+        }
+    }
+
+    [Serializable]
+    public class ReelSymbolSet
+    {
+        [SerializeField]
+        string[] _symbolNames;
+        public ReelSymbolSet(string[] symbolNames)
+        {
+            Update(symbolNames);
+        }
+
+        public void Update(string[] symbolNames)
+        {
+            this._symbolNames = symbolNames;
+        }
+
+        public string this[int i]
+        {
+            get
+            {
+                return _symbolNames[i];
+            }
+            set
+            {
+                _symbolNames[i] = value;
             }
         }
     }
