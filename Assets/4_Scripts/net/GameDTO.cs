@@ -11,7 +11,7 @@ public class ResDTO : DTO
 {
     public double balance;
     public int level;
-    public int levelPercent;
+    public int? levelPercent;
     public int gameLevel;
     public int gameLevelPercent;
 

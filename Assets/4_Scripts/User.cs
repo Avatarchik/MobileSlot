@@ -14,7 +14,7 @@ public class User
     {
         Balance = dto.balance;
         Level = dto.level;
-        LevelPercent = dto.levelPercent;
+        LevelPercent = dto.levelPercent == null ? 0 : dto.levelPercent.Value;
         GameLevel = dto.gameLevel;
         GameLevelPercent = dto.gameLevelPercent;
     }
