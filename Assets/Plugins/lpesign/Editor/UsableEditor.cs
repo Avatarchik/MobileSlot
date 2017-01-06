@@ -73,12 +73,11 @@ namespace lpesign.UnityEditor
             EditorGUILayout.Space();
         }
 
-        protected void DrawRowLine(string lineName = "")
+        protected void DrawRowLine(float w = 0f, float h = 1f)
         {
-            EditorGUILayout.Space();
             GUI.color = Color.white;
-            GUILayout.Box("", new GUILayoutOption[] { GUILayout.ExpandWidth(true), GUILayout.Height(1) });
-            if (string.IsNullOrEmpty(lineName) == false) GUILayout.Label(lineName, EditorStyles.boldLabel);
+            GUILayout.Box("", w > 0 ? GUILayout.Width(w) : GUILayout.ExpandWidth(true), GUILayout.Height(h));
+            GUI.color = _defaultColor;
         }
 
         #region DrawProperty
@@ -320,7 +319,7 @@ namespace lpesign.UnityEditor
         #endregion
 
         #region Handle Array
-        protected void DrawIntArray(SerializedProperty prop, int range, float w = 30)
+        protected void DrawIntArrayBox(SerializedProperty prop, int range, float w = 30)
         {
             string[] names;
             int[] values;
