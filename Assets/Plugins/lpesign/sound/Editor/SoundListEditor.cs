@@ -83,18 +83,15 @@ public class SoundListEditor : UsableEditor<SoundList>
 
     void DrawDefaultButton()
     {
-        EditorGUILayout.BeginHorizontal();
         GUI.backgroundColor = Color.cyan;
-        if (GUILayout.Button("Set By SlotConfig", GUILayout.Width(150), GUILayout.Height(30)))
+        if (GUILayout.Button("Set By SlotConfig", GUILayout.Height(30)))
         {
             if (EditorUtility.DisplayDialog("Set By SlotConfig?", "Are you sure you want to set all list? This action cannot be undone.", "OK", "Cancel"))
             {
                 _script.CreateDefaultList();
             }
         }
-        GUILayout.FlexibleSpace();
         GUI.backgroundColor = _defaultBGColor;
-        EditorGUILayout.EndHorizontal();
     }
 
     void DrawBasic()
