@@ -35,9 +35,9 @@ namespace Game
         protected float _spinDis;
 
         [SerializeField]
-        protected string[] _lastSymbolNames;
+        protected SymbolNames _lastSymbolNames;
         [SerializeField]
-        protected string[] _receivedSymbolNames;
+        protected SymbolNames _receivedSymbolNames;
 
         protected ReelStrips _currentStrips;
 
@@ -66,29 +66,18 @@ namespace Game
         {
             _config = config;
             _symbolNecessaryCount = _config.Main.row + _config.Main.MarginSymbolCount * 2;
-            _lastSymbolNames = new string[_config.Main.row];
-            _receivedSymbolNames = new string[_config.Main.row];
 
-            CreateStartSymbols();
-        }
+            _lastSymbolNames = _config.Main.GetStartSymbolNames(_column);
+            _receivedSymbolNames = new SymbolNames(_config.Main.row);
 
-        void CreateStartSymbols()
-        {
-            _symbols = new List<Symbol>();
-
+            //CreateStartSymbols
             for (var i = 0; i < _symbolNecessaryCount; ++i)
             {
-                var sname = _config.Main.GetStartSymbolAt(_column, i);
-                var symbol = CreateSymbol(sname);
+                var symbol = CreateSymbol(_lastSymbolNames[i]);
                 AddSymbolToTail(symbol);
             }
 
             AlignSymbols();
-
-            for (var i = 0; i < _config.Main.row; ++i)
-            {
-                _lastSymbolNames[i] = _config.Main.GetStartSymbolAt(_column, _config.Main.MarginSymbolCount + i);
-            }
         }
 
         public void AlignSymbols(float offsetY = 0f)
@@ -116,7 +105,6 @@ namespace Game
 
             return res;
         }
-
 
 
         void KillSpinTween()
@@ -153,7 +141,7 @@ namespace Game
 
             _isReceived = true;
 
-            _receivedSymbolNames = spinInfo.GetReelData(_column, _config.Main.row);
+            _receivedSymbolNames.Value = spinInfo.GetReelData(_column, _config.Main.row);
 
             /*
             string[] reelData = spinInfo.GetReelData(_column, _config.Main.Row);
@@ -327,7 +315,7 @@ namespace Game
             _isExpecting = false;
 
             _spinTween = null;
-            _lastSymbolNames = _receivedSymbolNames;
+            _lastSymbolNames.Value = _receivedSymbolNames.Value;
             ExpectType = SlotConfig.ExpectReelType.Null;
 
             RemoveSymbolsExceptNecessary();
@@ -565,29 +553,26 @@ namespace Game
 
         public SymbolNames(int count)
         {
-            Update(new string[count]);
+            Value = new string[count];
         }
 
         public SymbolNames(string[] symbolNames)
         {
-            Update(symbolNames);
+            Value = symbolNames;
         }
 
-        public void Update(string[] symbolNames)
+        public string[] Value
         {
-            _names = symbolNames;
+            get { return _names; }
+            set { _names = value; }
         }
+
+        public int Length { get { return _names.Length; } }
 
         public string this[int i]
         {
-            get
-            {
-                return _names[i];
-            }
-            set
-            {
-                _names[i] = value;
-            }
+            get { return _names[i]; }
+            set { _names[i] = value; }
         }
     }
 }

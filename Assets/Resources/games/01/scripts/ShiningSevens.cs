@@ -35,7 +35,6 @@ namespace Game.ShiningSevens
                     200000,300000,500000,1000000,2000000,
                     3000000,4000000,5000000,10000000,20000000
                 },
-                PaylineNum = 5
             };
             _slotConfig.DebugSymbolArea = false;
             _slotConfig.DebugTestSpin = true;

@@ -17,6 +17,9 @@ Event 에 추가된 Delegate 는 Listener 접미사를 붙이자
 
 Coroutine 에서 사용되는 IEnumerator 는 Routine 접미사를 붙이자
 
+//todo
+머신 이하 모듈들 통합.
+config.Main 접근 조금 더 보기 좋게
 */
 
 public class Layers

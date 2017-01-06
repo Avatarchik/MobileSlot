@@ -40,14 +40,11 @@ namespace Game
         }
 
 
-        static public void Initialize(SlotConfig config)
+        static public void SymbolLoad(SlotConfig config)
         {
-            CreatePools(config);
-            Load();
-        }
+            PoolMasterEvents.onPreloadPool += OnPreloadPool;
 
-        static private void CreatePools(SlotConfig config)
-        {
+            //CreatePools
             var symbolPool = new Pool(POOL_SYMBOL);
             var machineList = config.MachineList;
             for (var i = 0; i < machineList.Count; ++i)
@@ -62,12 +59,8 @@ namespace Game
                 }
             }
             _pool.pools.Add(symbolPool);
-        }
 
-        static private void Load()
-        {
-            PoolMasterEvents.onPreloadPool += OnPreloadPool;
-
+            //load
             _pool.Preload(POOL_SYMBOL);
         }
 

@@ -125,9 +125,11 @@ namespace Game
             if (_config == null) throw new NullReferenceException("SlotConfig can not be null!");
 
             _betting = _config.Betting;
+            _betting.PaylineNum = _config.Main.paylineTable.Count;
+
             if (_config.DebugTestSpin) gameObject.AddComponent<DebugHelper>();
 
-            GamePool.Initialize(_config);
+            GamePool.SymbolLoad(_config);
 
             SetState(MachineState.Connecting);
         }

@@ -180,15 +180,6 @@ namespace Game
                 return _startSymbols[col];
             }
 
-            public string GetStartSymbolAt(int col, int row)
-            {
-                return _startSymbols[col][row];
-            }
-            public void SetStartSymbolAt(int col, int row, string name)
-            {
-                _startSymbols[col][row] = name;
-            }
-
             //------------------------------------------------------------
             //scatter
             //------------------------------------------------------------
@@ -330,10 +321,6 @@ namespace Game
         }
     }
 
-
-
-    //todo
-    //symbol 정의를 내릴때 포함시키자
     [Serializable]
     public struct ScatterInfo
     {

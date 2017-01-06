@@ -201,8 +201,7 @@ namespace Game
             }
             EndFoldOut();
 
-            DrawScatterInfoList(machineProp, index);
-
+            DrawScatterInfoList(machineProp);
 
             //spin
             var spinInfo = BeginFoldout(machineProp, "SpinSpeedPerSec", "Spin");
@@ -240,7 +239,6 @@ namespace Game
             var margin = machine.MarginSymbolCount;
             row += margin * 2;
 
-            var startSymbolSet = machineProp.FindPropertyRelative("_startSymbolSet");
             var names = machine.GetSymbolNames();
 
             for (var r = 0; r < row; ++r)
@@ -250,10 +248,10 @@ namespace Game
                 EditorGUILayout.BeginHorizontal();
                 for (var c = 0; c < col; ++c)
                 {
-                    var symbolName = machine.GetStartSymbolAt(c, r);
-                    var symbolIndex = names.IndexOf(symbolName);
+                    var symbolNames = machine.GetStartSymbolNames(c);
+                    var symbolIndex = names.IndexOf(symbolNames[r]);
                     var selectedIndex = EditorGUILayout.Popup(symbolIndex, names, GUILayout.Width(30));
-                    machine.SetStartSymbolAt(c, r, names[selectedIndex]);
+                    symbolNames[r] = names[selectedIndex];
 
                 }
                 EditorGUILayout.EndHorizontal();
@@ -315,7 +313,6 @@ namespace Game
         void DrawSymbolDefineList(SerializedProperty machineProp, int index)
         {
             GUILayout.Space(5);
-            var machine = _script.GetMachineAt(index);
             _symbolDefineList = CreateSymbolDefineList(machineProp.FindPropertyRelative("_symbolDefineList"));
             _symbolDefineList.DoLayoutList();
         }
@@ -344,12 +341,11 @@ namespace Game
             return list;
         }
 
-        void DrawScatterInfoList(SerializedProperty machineProp, int index)
+        void DrawScatterInfoList(SerializedProperty machineProp)
         {
             var scatters = BeginFoldout(machineProp, "_scatters", "ScatterInfo");
             if (scatters.isExpanded)
             {
-                var machine = _script.GetMachineAt(index);
                 for (var i = 0; i < scatters.arraySize; ++i)
                 {
                     var element = scatters.GetArrayElementAtIndex(i);

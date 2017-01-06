@@ -39,7 +39,6 @@ namespace Game.HighDiamonds
                     100,200,500,1000,2000,
                     5000,10000,20000,50000,100000
                 },
-                PaylineNum = 25
             };
             _slotConfig.DebugSymbolArea = false;
             _slotConfig.DebugTestSpin = true;
