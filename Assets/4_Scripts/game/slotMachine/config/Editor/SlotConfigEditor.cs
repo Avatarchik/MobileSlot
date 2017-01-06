@@ -46,18 +46,15 @@ namespace Game
         {
             if (_creator == null) return;
 
-            EditorGUILayout.BeginHorizontal();
             GUI.backgroundColor = Color.cyan;
-            if (GUILayout.Button("Set By Creator", GUILayout.Width(150), GUILayout.Height(30)))
+            if (GUILayout.Button("Set By Creator", GUILayout.Height(30)))
             {
                 if (EditorUtility.DisplayDialog("Set By Creator?", "Are you sure you want to set all list? This action cannot be undone.", "OK", "Cancel"))
                 {
                     _creator.SettingByScript();
                 }
             }
-            GUILayout.FlexibleSpace();
             GUI.backgroundColor = _defaultBGColor;
-            EditorGUILayout.EndHorizontal();
         }
 
         void DrawBasic()
@@ -177,6 +174,20 @@ namespace Game
             }
             EndFoldOut();
 
+            //reel
+            var reelInfo = BeginFoldout(machineProp, "ReelSize", "Reel");
+            if (reelInfo.isExpanded)
+            {
+                DrawPropertyField(machineProp, "ReelSize");
+                DrawHorizontalProperties(machineProp, 80, "ReelSpace", "ReelGap");
+
+                var sliderLimit = machineProp.FindPropertyRelative("row").intValue;
+                EditorGUILayout.IntSlider(machineProp.FindPropertyRelative("MarginSymbolCount"), 0, sliderLimit);
+
+                DrawPropertyField(machineProp, 80, "ReelPrefab");
+            }
+            EndFoldOut();
+
             //symbols
             var symbolInfo = BeginFoldout(machineProp, "SymbolSize", "Symbol");
             if (symbolInfo.isExpanded)
@@ -186,19 +197,12 @@ namespace Game
                 if (useEmpty) DrawPropertyField(machineProp, 70, "NullSymbolSize");
 
                 DrawSymbolDefineList(machineProp, index);
-                DrawScatterInfoList(machineProp, index);
+                DrawStartSymbol(machineProp, index);
             }
             EndFoldOut();
 
-            //reel
-            var reelInfo = BeginFoldout(machineProp, "ReelSize", "Reel");
-            if (reelInfo.isExpanded)
-            {
-                DrawPropertyField(machineProp, "ReelSize");
-                DrawHorizontalProperties(machineProp, 80, "ReelSpace", "ReelGap");
-                DrawPropertyField(machineProp, 80, "ReelPrefab");
-            }
-            EndFoldOut();
+            DrawScatterInfoList(machineProp, index);
+
 
             //spin
             var spinInfo = BeginFoldout(machineProp, "SpinSpeedPerSec", "Spin");
@@ -215,24 +219,54 @@ namespace Game
             }
             EndFoldOut();
 
-            //transitoin
-            EditorGUILayout.BeginHorizontal(GUI.skin.box);
-            GUILayout.Space(15);
-            DrawPropertyField(machineProp, "transition");
-            EditorGUILayout.EndHorizontal();
 
-            //paylineTable
+            DrawTransition(machineProp);
             DrawPaylineTable(machineProp, index);
 
-            //startSymbolNames
-            DrawPropertyField(machineProp, "startSymbolNames");
-
-            //reelStripBundle
             EditorGUILayout.BeginVertical(GUI.skin.box);
             DrawPropertyField(machineProp, "reelStripBundle");
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.EndVertical();
+        }
+
+        void DrawStartSymbol(SerializedProperty machineProp, int index)
+        {
+            EditorGUILayout.LabelField("StartSymbols");
+            EditorGUILayout.BeginVertical(GUI.skin.box);
+            var machine = _script.GetMachineAt(index);
+            var col = machine.column;
+            var row = machine.row;
+            var margin = machine.MarginSymbolCount;
+            row += margin * 2;
+
+            var startSymbolSet = machineProp.FindPropertyRelative("_startSymbolSet");
+            var names = machine.GetSymbolNames();
+
+            for (var r = 0; r < row; ++r)
+            {
+                if (r == margin || r == row - margin) DrawRowLine(33 * col);
+
+                EditorGUILayout.BeginHorizontal();
+                for (var c = 0; c < col; ++c)
+                {
+                    var symbolName = machine.GetStartSymbolAt(c, r);
+                    var symbolIndex = names.IndexOf(symbolName);
+                    var selectedIndex = EditorGUILayout.Popup(symbolIndex, names, GUILayout.Width(30));
+                    machine.SetStartSymbolAt(c, r, names[selectedIndex]);
+
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+            EditorGUILayout.EndVertical();
+        }
+
+        void DrawTransition(SerializedProperty machineProp)
+        {
+            EditorGUILayout.BeginHorizontal(GUI.skin.box);
+            GUILayout.Space(15);
+            DrawPropertyField(machineProp, "transition");
+            EditorGUILayout.EndHorizontal();
         }
 
         void DrawPaylineTable(SerializedProperty machineProp, int index)
@@ -259,24 +293,19 @@ namespace Game
                 GUI.backgroundColor = _defaultBGColor;
                 EditorGUILayout.EndHorizontal();
 
-                EditorGUILayout.LabelField("Total: " + paylineTable.FindPropertyRelative("_table").arraySize, EditorStyles.boldLabel);
+                var table = paylineTable.FindPropertyRelative("_table");
+                EditorGUILayout.LabelField("Total: " + table.arraySize, EditorStyles.boldLabel);
 
-                var table = BeginFoldout(paylineTable, "_table", "Edit","");
-                if (table.isExpanded)
+                for (var i = 0; i < table.arraySize; ++i)
                 {
-                    for (var i = 0; i < table.arraySize; ++i)
-                    {
-                        var element = table.GetArrayElementAtIndex(i);
-                        var arr = element.FindPropertyRelative("rows");
+                    var element = table.GetArrayElementAtIndex(i);
+                    var arr = element.FindPropertyRelative("rows");
 
-                        EditorGUILayout.BeginHorizontal();
-                        EditorGUILayout.LabelField("line " + i, GUILayout.Width(50));
-                        DrawIntArray(arr, machineProp.FindPropertyRelative("column").intValue);
-                        EditorGUILayout.EndHorizontal();
-                    }
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField("line " + i, GUILayout.Width(50));
+                    DrawIntArrayBox(arr, machineProp.FindPropertyRelative("column").intValue);
+                    EditorGUILayout.EndHorizontal();
                 }
-                EndFoldOut();
-
             }
             EndFoldOut();
         }
@@ -332,7 +361,7 @@ namespace Game
 
                     EditorGUILayout.LabelField("Reel", EditorStyles.boldLabel, GUILayout.Width(30));
                     var re = element.FindPropertyRelative("ableReel");
-                    DrawIntArray(re, machineProp.FindPropertyRelative("column").intValue);
+                    DrawIntArrayBox(re, machineProp.FindPropertyRelative("column").intValue);
 
                     GUILayout.FlexibleSpace();
                     EditorGUILayout.LabelField("limit", EditorStyles.boldLabel, GUILayout.Width(32));

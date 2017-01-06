@@ -138,7 +138,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
         }
         catch (Exception e)
         {
-            Debug.LogError("!! Deserialize json fail !!\n" + e.ToString());
+            Debug.LogError("!! Deserialize json fail !!\n" + e.Message + "\n" + obj.Root.ToString());
         }
         return res;
     }
@@ -234,7 +234,7 @@ public class GameServerCommunicator : SingletonSimple<GameServerCommunicator>
 
     static public void Dispose()
     {
-        if( _instance != null ) _instance.Close( SlotSocket.CloseReason.ApplicationQuit );
+        if (_instance != null) _instance.Close(SlotSocket.CloseReason.ApplicationQuit);
     }
 }
 

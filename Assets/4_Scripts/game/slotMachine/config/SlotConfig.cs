@@ -101,6 +101,15 @@ namespace Game
             public FreeSpinRetriggerType RetriggerType;
 
             //------------------------------------------------------------
+            //reel
+            //------------------------------------------------------------
+            public Size2D ReelSize;
+            public float ReelSpace;
+            public float ReelGap;
+            public Reel ReelPrefab;
+            public int MarginSymbolCount;//릴 위아래 여유 심볼 수
+
+            //------------------------------------------------------------
             //symbol
             //------------------------------------------------------------
             public Size2D SymbolSize;
@@ -141,26 +150,38 @@ namespace Game
                 _symbolDefineList.Add(define);
             }
 
+            public string[] GetSymbolNames()
+            {
+                if (_symbolDefineList == null || _symbolDefineList.Count == 0) return null;
+
+                return _symbolDefineList.Select(s => s.symbolName).ToArray();
+            }
+
             //------------------------------------------------------------
             //startsymbols
             //------------------------------------------------------------
-            public ReelSymbolSet[] startSymbolNames;
+            [SerializeField]
+            ReelSymbolSet[] _startSymbolSet;
             public void SetStartSymbols(string[][] startSymbolNames)
             {
                 var len = startSymbolNames.Length;
-                this.startSymbolNames = new ReelSymbolSet[len];
+                _startSymbolSet = new ReelSymbolSet[len];
 
                 for (var i = 0; i < startSymbolNames.Length; ++i)
                 {
                     string[] symbolNames = startSymbolNames[i];
                     ReelSymbolSet symbolSet = new ReelSymbolSet(symbolNames);
-                    this.startSymbolNames[i] = symbolSet;
+                    _startSymbolSet[i] = symbolSet;
                 }
             }
 
             public string GetStartSymbolAt(int col, int row)
             {
-                return startSymbolNames[col].GetNameAt(row);
+                return _startSymbolSet[col].GetNameAt(row);
+            }
+            public void SetStartSymbolAt(int col, int row, string name)
+            {
+                _startSymbolSet[col].SetNameAt(row, name);
             }
 
             //------------------------------------------------------------
@@ -189,18 +210,9 @@ namespace Game
             }
 
             //------------------------------------------------------------
-            //reel
-            //------------------------------------------------------------
-            public Size2D ReelSize;
-            public float ReelSpace;
-            public float ReelGap;
-            public Reel ReelPrefab;
-
-            //------------------------------------------------------------
             //spin
             //------------------------------------------------------------
             public float SpinSpeedPerSec;//스핀 초당 속도
-            public int MarginSymbolCount;//릴 위아래 여유 심볼 수
             public int IncreaseCount;//다음 릴로 갈 수록 더 생겨야할 심볼 수
             public int SpiningSymbolCount;//스핀 한 세트 당 심볼 수
             public int SpinCountThreshold;//서버가 응답이 빠르더라도 최소한 돌아야할 스핀 세트 수 
@@ -265,15 +277,26 @@ namespace Game
     [Serializable]
     public class ReelSymbolSet
     {
-        public string[] symbolNames;
+        [SerializeField]
+        string[] _symbolNames;
         public ReelSymbolSet(string[] symbolNames)
         {
-            this.symbolNames = symbolNames;
+            Update(symbolNames);
+        }
+
+        public void Update(string[] symbolNames)
+        {
+            this._symbolNames = symbolNames;
         }
 
         public string GetNameAt(int row)
         {
-            return symbolNames[row];
+            return _symbolNames[row];
+        }
+
+        public void SetNameAt(int row, string name)
+        {
+            _symbolNames[row] = name;
         }
     }
 
