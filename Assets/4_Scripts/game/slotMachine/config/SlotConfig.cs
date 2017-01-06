@@ -161,27 +161,32 @@ namespace Game
             //startsymbols
             //------------------------------------------------------------
             [SerializeField]
-            ReelSymbolSet[] _startSymbolSet;
+            SymbolNames[] _startSymbols;
             public void SetStartSymbols(string[][] startSymbolNames)
             {
                 var len = startSymbolNames.Length;
-                _startSymbolSet = new ReelSymbolSet[len];
+                _startSymbols = new SymbolNames[len];
 
                 for (var i = 0; i < startSymbolNames.Length; ++i)
                 {
                     string[] symbolNames = startSymbolNames[i];
-                    ReelSymbolSet symbolSet = new ReelSymbolSet(symbolNames);
-                    _startSymbolSet[i] = symbolSet;
+                    SymbolNames symbolSet = new SymbolNames(symbolNames);
+                    _startSymbols[i] = symbolSet;
                 }
+            }
+
+            public SymbolNames GetStartSymbolNames(int col)
+            {
+                return _startSymbols[col];
             }
 
             public string GetStartSymbolAt(int col, int row)
             {
-                return _startSymbolSet[col][row];
+                return _startSymbols[col][row];
             }
             public void SetStartSymbolAt(int col, int row, string name)
             {
-                _startSymbolSet[col][row] = name;
+                _startSymbols[col][row] = name;
             }
 
             //------------------------------------------------------------

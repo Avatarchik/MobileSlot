@@ -558,29 +558,35 @@ namespace Game
     }
 
     [Serializable]
-    public class ReelSymbolSet
+    public class SymbolNames
     {
         [SerializeField]
-        string[] _symbolNames;
-        public ReelSymbolSet(string[] symbolNames)
+        string[] _names;
+
+        public SymbolNames(int count)
+        {
+            Update(new string[count]);
+        }
+
+        public SymbolNames(string[] symbolNames)
         {
             Update(symbolNames);
         }
 
         public void Update(string[] symbolNames)
         {
-            this._symbolNames = symbolNames;
+            _names = symbolNames;
         }
 
         public string this[int i]
         {
             get
             {
-                return _symbolNames[i];
+                return _names[i];
             }
             set
             {
-                _symbolNames[i] = value;
+                _names[i] = value;
             }
         }
     }
