@@ -152,29 +152,28 @@ namespace lpesign.UnityEditor
             switch (propertyType)
             {
                 case SerializedPropertyType.Integer:
-                    EditorGUILayout.IntField((int)propertyValue);
-                    // prop.SetPropertyValue( EditorGUILayout.Slider((int)prop.GetPropertyValue(), 2, 10));
+                    prop.intValue = EditorGUILayout.IntField((int)propertyValue);
                     break;
 
                 case SerializedPropertyType.Float:
-                    EditorGUILayout.FloatField((float)propertyValue);
+                    prop.floatValue = EditorGUILayout.FloatField((float)propertyValue);
                     break;
 
                 case SerializedPropertyType.String:
-                    EditorGUILayout.TextField((string)propertyValue);
+                    prop.stringValue = EditorGUILayout.TextField((string)propertyValue);
                     break;
 
                 case SerializedPropertyType.Boolean:
-                    prop.SetPropertyValue(EditorGUILayout.Toggle((bool)propertyValue));
+                    prop.boolValue = EditorGUILayout.Toggle((bool)propertyValue);
+                    // prop.boolValue = prop.SetPropertyValue(EditorGUILayout.Toggle((bool)propertyValue));
                     break;
 
                 case SerializedPropertyType.Enum:
-                    EditorGUILayout.PropertyField(prop, GUIContent.none);
+                    prop.SetEnumValue(EditorGUILayout.PropertyField(prop, GUIContent.none));
                     break;
 
                 case SerializedPropertyType.ObjectReference:
                     EditorGUILayout.PropertyField(prop, GUIContent.none);
-                    // Debug.LogWarning("ObjectReference Type not yet supported");
                     break;
 
                 case SerializedPropertyType.LayerMask:
