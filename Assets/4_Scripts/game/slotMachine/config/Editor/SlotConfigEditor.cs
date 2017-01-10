@@ -64,9 +64,8 @@ namespace Game
             GUILayout.BeginVertical(GUI.skin.button, GUILayout.ExpandWidth(true));
 
             DrawMultiPropertyFields("name", "ID");
-            DrawMultiPropertyFields("Host", "Port");
-            DrawPropertyField("Version");
-            DrawPropertyField("Jackpot");
+            DrawMultiPropertyFields("host", "port");
+            DrawMultiPropertyFields("accessID", "ver");
 
             GUILayout.BeginVertical(GUI.skin.button);
             EditorGUILayout.LabelField("Debug", EditorStyles.boldLabel);
@@ -223,7 +222,7 @@ namespace Game
             DrawPaylineTable(machineProp, index);
 
             EditorGUILayout.BeginVertical(GUI.skin.box);
-            DrawPropertyField(machineProp, "reelStripBundle");
+            DrawPropertyField(machineProp, "reelStripList");
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.EndVertical();

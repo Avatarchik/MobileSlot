@@ -21,9 +21,10 @@ namespace Game
         //------------------------------------------------------------------
         new public string name;
         public int ID;
-        public string Host;
-        public int Port;
-        public string Version;
+        public string host;
+        public int port;
+        public int accessID;
+        public string ver;
 
         public bool Jackpot;
         public bool DebugSymbolArea;//심볼 영역을 표시할지 여부
@@ -229,7 +230,7 @@ namespace Game
             //------------------------------------------------------------
             //reelstrip
             //------------------------------------------------------------
-            public ReelStripList reelStripBundle;
+            public ReelStripList reelStripList;
 
         }
 
@@ -381,11 +382,16 @@ namespace Game
         [SerializeField]
         List<ReelStrips> _list;
 
-        public ReelStripList(string[][] defaultyStrips, ReelStrips.Type type = ReelStrips.Type.NORMAL)
+        public ReelStripList()
+        {
+            _list = new List<ReelStrips>();
+        }
+
+        public ReelStripList(string[][] defaultstrips, ReelStrips.Type type = ReelStrips.Type.NORMAL)
         {
             _list = new List<ReelStrips>();
 
-            AddStrip(DEFAULT, defaultyStrips, type);
+            AddStrip(DEFAULT, defaultstrips, type);
         }
 
         public void AddStrip(string name, string[][] symbols, ReelStrips.Type type = ReelStrips.Type.NORMAL)
@@ -420,7 +426,7 @@ namespace Game
         public string name;
 
         [SerializeField]
-        Strip[] _strips;
+        SymbolNames[] _strips;
 
         public ReelStrips(string name, string[][] symbols, ReelStrips.Type type = ReelStrips.Type.NORMAL)
         {
@@ -428,10 +434,10 @@ namespace Game
             this.type = type;
 
             var count = symbols.Length;
-            _strips = new Strip[count];
+            _strips = new SymbolNames[count];
             for (var i = 0; i < count; ++i)
             {
-                var strip = new Strip(symbols[i]);
+                var strip = new SymbolNames(symbols[i]);
                 _strips[i] = strip;
             }
         }
@@ -452,23 +458,6 @@ namespace Game
             }
 
             return strip.GetRandom();
-        }
-    }
-
-    [Serializable]
-    public class Strip
-    {
-        [SerializeField]
-        string[] _strip;
-        public Strip(string[] strip)
-        {
-            _strip = strip;
-        }
-
-        public string GetRandom()
-        {
-            int randomIndex = UnityEngine.Random.Range(0, _strip.Length);
-            return _strip[randomIndex];
         }
     }
     #endregion

@@ -163,14 +163,14 @@ namespace Game
 
         IEnumerator Connecting_Enter()
         {
-            GameServerCommunicator.Instance.Connect(_config.Host, _config.Port);
+            GameServerCommunicator.Instance.Connect(_config.host, _config.port);
 
             yield break;
         }
 
         void OnConnectListener()
         {
-            GameServerCommunicator.Instance.Login(0, "good");
+            GameServerCommunicator.Instance.Login(_config.accessID, "good");
         }
 
         void OnLoginListener(ResDTO.Login dto)

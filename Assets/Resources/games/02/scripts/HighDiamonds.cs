@@ -28,9 +28,11 @@ namespace Game.HighDiamonds
             // define Common info
             //------------------------------------------------------------------------------------
             _slotConfig.ID = 2;
-            _slotConfig.Host = "182.252.135.251";
-            _slotConfig.Port = 13500;
-            _slotConfig.Version = "0.0.1";
+            _slotConfig.host = "182.252.135.251";
+            // _slotConfig.Host = "lbgames.sloticagames.com";
+            _slotConfig.port = 13500;
+            _slotConfig.accessID = 1086; //or 1;
+            _slotConfig.ver = "0.0.1";
             _slotConfig.Jackpot = true;
             _slotConfig.Betting = new SlotBetting()
             {
@@ -162,8 +164,9 @@ namespace Game.HighDiamonds
                 new string[]{ L0, B0, H0, S0, L0 }
             });
 
-            //rellStrip
-            machine.reelStripList = new ReelStripList(new string[][]
+            //reelStrip
+            var stripList = new ReelStripList();
+            stripList.AddStrip(ReelStripList.DEFAULT, new string[][]
             {
                 new string[] {B0,H0,L1,M1,W0,M0,S0,L2,M1,L0,B0,H1,L0,W0,M2,L1,L2,M0,L1,L2},
                 new string[] {H0,L1,M1,M0,W0,L2,M1,B1,L0,H1,L0,M2,L1,L2,M0,B1,L1,L2},
@@ -171,6 +174,8 @@ namespace Game.HighDiamonds
                 new string[] {H0,L1,M1,M0,W0,L2,M1,B1,L0,H1,L0,M2,L1,L2,M0,B1,L1,L2},
                 new string[] {B0,H0,L1,M1,W0,M0,S0,L2,M1,L0,B0,H1,L0,W0,M2,L1,L2,M0,L1,L2}
             }, ReelStrips.Type.NORMAL);
+
+            machine.reelStripList = stripList;
 
             //register machineconfig
             _slotConfig.ClearMachines();

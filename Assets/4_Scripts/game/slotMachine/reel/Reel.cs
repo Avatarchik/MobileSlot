@@ -518,7 +518,7 @@ namespace Game
 
         ReelStrips GetCurrentStrip()
         {
-            return _config.Main.reelStripBundle.GetStrips();
+            return _config.Main.reelStripList.GetStrips();
         }
 
         string GetAddedSymbolNames()
@@ -560,6 +560,13 @@ namespace Game
         {
             Value = symbolNames;
         }
+
+        public string GetRandom()
+        {
+            int randomIndex = UnityEngine.Random.Range(0, _names.Length);
+            return _names[randomIndex];
+        }
+
 
         public string[] Value
         {

@@ -22,9 +22,10 @@ namespace Game.ShiningSevens
             // define Common info
             //------------------------------------------------------------------------------------
             _slotConfig.ID = 1;
-            _slotConfig.Host = "182.252.135.251";
-            _slotConfig.Port = 13100;
-            _slotConfig.Version = "0.0.1";
+            _slotConfig.host = "182.252.135.251";
+            _slotConfig.port = 13100;
+            _slotConfig.accessID = 1086; //or 1;
+            _slotConfig.ver = "0.0.1";
             _slotConfig.Jackpot = false;
             _slotConfig.Betting = new SlotBetting()
             {
@@ -122,7 +123,7 @@ namespace Game.ShiningSevens
             //strips
             //todo
             //릴스트립도 가변배열로 고쳐야함
-            machine.reelStripBundle = new ReelStripList(new string[][]
+            machine.reelStripList = new ReelStripList(new string[][]
             {
                 new string[] {SG,BG,SB,BR,SB,W0,SG,BR,SB,BR,SG,BR,BG,SB,W0},
                 new string[] {SG,BR,SB,BR,SB,W0,SG,BG,SB,BG,SG,BG,BR,SB,BG},
