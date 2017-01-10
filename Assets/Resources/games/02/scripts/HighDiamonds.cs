@@ -163,7 +163,7 @@ namespace Game.HighDiamonds
             });
 
             //rellStrip
-            machine.reelStripBundle = new ReelStripList(new string[][]
+            machine.reelStripList = new ReelStripList(new string[][]
             {
                 new string[] {B0,H0,L1,M1,W0,M0,S0,L2,M1,L0,B0,H1,L0,W0,M2,L1,L2,M0,L1,L2},
                 new string[] {H0,L1,M1,M0,W0,L2,M1,B1,L0,H1,L0,M2,L1,L2,M0,B1,L1,L2},
