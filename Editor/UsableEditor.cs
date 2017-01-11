@@ -24,6 +24,7 @@ namespace lpesign.UnityEditor
             // EditorGUIUtility.labelWidth = 250;
             // EditorGUIUtility.fieldWidth = 150;
             // GUILayout.FlexibleSpace();
+            // GUILayout.Space(5);
             // "∙"
 
             _script = (T)target;
@@ -318,6 +319,27 @@ namespace lpesign.UnityEditor
         #endregion
 
         #region Handle Array
+        protected int DrawStringPopup(int selectedValue, string[] names, float w = 30)
+        {
+            var indices = new int[names.Length];
+            for (var i = 0; i < names.Length; ++i) indices[i] = i;
+
+            return EditorGUILayout.IntPopup(selectedValue, names, indices, GUILayout.Width(w));
+        }
+
+        protected string DrawStringPopup(string selectedValue, string[] names, float w = 30)
+        {
+            var indices = new int[names.Length];
+            for (var i = 0; i < names.Length; ++i) indices[i] = i;
+
+            var selectedIndex = names.IndexOf(selectedValue);
+            if (selectedIndex == -1) throw new System.ArgumentException("selectedValue must be included in names");
+
+            selectedIndex = EditorGUILayout.IntPopup(selectedIndex, names, indices, GUILayout.Width(w));
+
+            return names[selectedIndex];
+        }
+
         protected void DrawIntArrayBox(SerializedProperty prop, int range, float w = 30)
         {
             string[] names;
@@ -388,6 +410,22 @@ namespace lpesign.UnityEditor
             if (prop == null) throw new System.ArgumentNullException("prop");
             if (tp == null) throw new System.ArgumentNullException("tp");
             if (!tp.IsEnum) throw new System.ArgumentException("Type must be an enumerated type.");
+
+            try
+            {
+                var name = prop.enumNames[prop.enumValueIndex];
+                return System.Enum.Parse(tp, name) as System.Enum;
+            }
+            catch
+            {
+                return System.Enum.GetValues(tp).Cast<System.Enum>().First();
+            }
+        }
+
+        public static System.Enum GetEnumValue<T>(this SerializedProperty prop)
+        {
+            var tp = typeof(T);
+            if (!tp.IsEnum) throw new System.ArgumentException("T must be an enumerated type");
 
             try
             {

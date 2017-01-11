@@ -65,25 +65,24 @@ namespace lpesign
 
 
         #region Matching
-
-        public static bool IsNullOrEmpty(string value)
+        public static bool IsNullOrEmpty(this string value)
         {
             return System.String.IsNullOrEmpty(value);
             //return (value + "") == "";
         }
 
-        public static bool IsNotNullOrEmpty(string value)
+        public static bool IsNotNullOrEmpty(this string value)
         {
             return !System.String.IsNullOrEmpty(value);
             //return (value + "") != "";
         }
 
-        public static bool IsNullOrWhitespace(string value)
+        public static bool IsNullOrWhitespace(this string value)
         {
             return (value + "").Trim() == "";
         }
 
-        public static bool IsNotNullOrWhitespace(string value)
+        public static bool IsNotNullOrWhitespace(this string value)
         {
             return (value + "").Trim() != "";
         }
