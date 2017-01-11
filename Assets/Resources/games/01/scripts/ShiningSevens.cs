@@ -14,7 +14,7 @@ namespace Game.ShiningSevens
         public const string BG = "M1";
         public const string BR = "M2";
         public const string L0 = "L0";
-        
+
         override public void SettingByScript()
         {
             base.SettingByScript();
@@ -120,15 +120,16 @@ namespace Game.ShiningSevens
             machine.paylineTable = paylineTable;
 
 
-            //strips
-            //todo
-            //릴스트립도 가변배열로 고쳐야함
-            machine.reelStripList = new ReelStripList(new string[][]
+            //reelStrip
+
+            var stripsBundle = new ReelStripsBundle();
+            stripsBundle.AddStrips(ReelStripsBundle.Group.Default, new string[][]
             {
                 new string[] {SG,BG,SB,BR,SB,W0,SG,BR,SB,BR,SG,BR,BG,SB,W0},
                 new string[] {SG,BR,SB,BR,SB,W0,SG,BG,SB,BG,SG,BG,BR,SB,BG},
                 new string[] {SG,BG,W0,BR,SB,SR,SB,BR,SB,SG,BR,BG,W0,BR,BR}
             });
+            machine.reelStripsBundle = stripsBundle;
 
             //register machineconfig
             _slotConfig.ClearMachines();

@@ -165,17 +165,26 @@ namespace Game.HighDiamonds
             });
 
             //reelStrip
-            var stripList = new ReelStripList();
-            stripList.AddStrip(ReelStripList.DEFAULT, new string[][]
+            var stripsBundle = new ReelStripsBundle();
+            stripsBundle.AddStrips(ReelStripsBundle.Group.Default, new string[][]
             {
                 new string[] {B0,H0,L1,M1,W0,M0,S0,L2,M1,L0,B0,H1,L0,W0,M2,L1,L2,M0,L1,L2},
                 new string[] {H0,L1,M1,M0,W0,L2,M1,B1,L0,H1,L0,M2,L1,L2,M0,B1,L1,L2},
                 new string[] {H0,L1,M1,W0,W0,W0,M0,S0,L2,M1,L0,H1,L0,S0,M2,L1,B2,L2,M0,L1,L2},
                 new string[] {H0,L1,M1,M0,W0,L2,M1,B1,L0,H1,L0,M2,L1,L2,M0,B1,L1,L2},
                 new string[] {B0,H0,L1,M1,W0,M0,S0,L2,M1,L0,B0,H1,L0,W0,M2,L1,L2,M0,L1,L2}
-            }, ReelStrips.Type.NORMAL);
+            }, ReelStrips.Type.Normal);
 
-            machine.reelStripList = stripList;
+            stripsBundle.AddStrips(ReelStripsBundle.Group.Free, new string[][]
+            {
+                new string[] {B0,H0,L1},
+                new string[] {H0,L1,M1},
+                new string[] {H0,L1,M1,W0,W0},
+                new string[] {H0,L1,M1},
+                new string[] {B0,H0,L1}
+            }, ReelStrips.Type.Stack);
+
+            machine.reelStripsBundle = stripsBundle;
 
             //register machineconfig
             _slotConfig.ClearMachines();

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
+using System.Linq;
 
 using lpesign;
 using lpesign.UnityEditor;
@@ -33,8 +34,6 @@ namespace Game
             DrawBasic();
             DrawBetting();
             DrawMachines();
-
-            // DrawColumn();
 
             // var machines = serializedObject.FindProperty("_machineList");
             // EditorGUILayout.PropertyField(machines, true);
@@ -130,7 +129,6 @@ namespace Game
                 {
                     _script.AddMachine();
                 }
-
                 GUI.backgroundColor = _defaultBGColor;
             }
             EndFoldOut();
@@ -140,8 +138,22 @@ namespace Game
         {
             EditorGUILayout.BeginVertical(GUI.skin.button);
 
-            EditorGUILayout.BeginHorizontal();
+            DrawTab(index);
+            DrawBase(machineProp);
+            DrawReel(machineProp);
+            DrawSymbol(machineProp, index);
+            DrawScatterInfoList(machineProp);
+            DrawSpin(machineProp);
+            DrawTransition(machineProp);
+            DrawPaylineTable(machineProp, index);
+            DrawReelStrip(machineProp, index);
 
+            EditorGUILayout.EndVertical();
+        }
+
+        void DrawTab(int index)
+        {
+            EditorGUILayout.BeginHorizontal();
             //nick
             string nick = "";
             if (index == 0) nick = "Main";
@@ -159,10 +171,11 @@ namespace Game
                 }
             }
             GUI.backgroundColor = _defaultBGColor;
-
             EditorGUILayout.EndHorizontal();
+        }
 
-            //BASE
+        void DrawBase(SerializedProperty machineProp)
+        {
             var baseInfo = BeginFoldout(machineProp, "row", "Base");
             if (baseInfo.isExpanded)
             {
@@ -172,8 +185,10 @@ namespace Game
                 if (freespin.boolValue) DrawHorizontalProperties(machineProp, 90, "TriggerType", "RetriggerType");
             }
             EndFoldOut();
+        }
 
-            //reel
+        void DrawReel(SerializedProperty machineProp)
+        {
             var reelInfo = BeginFoldout(machineProp, "ReelSize", "Reel");
             if (reelInfo.isExpanded)
             {
@@ -186,7 +201,10 @@ namespace Game
                 DrawPropertyField(machineProp, 80, "ReelPrefab");
             }
             EndFoldOut();
+        }
 
+        void DrawSymbol(SerializedProperty machineProp, int index)
+        {
             //symbols
             var symbolInfo = BeginFoldout(machineProp, "SymbolSize", "Symbol");
             if (symbolInfo.isExpanded)
@@ -197,112 +215,6 @@ namespace Game
 
                 DrawSymbolDefineList(machineProp, index);
                 DrawStartSymbol(machineProp, index);
-            }
-            EndFoldOut();
-
-            DrawScatterInfoList(machineProp);
-
-            //spin
-            var spinInfo = BeginFoldout(machineProp, "SpinSpeedPerSec", "Spin");
-            if (spinInfo.isExpanded)
-            {
-                DrawPropertyField(machineProp, "ReelSize");
-                DrawPropertyField(machineProp, 140, "MarginSymbolCount");
-                DrawPropertyField(machineProp, 140, "IncreaseCount");
-                DrawPropertyField(machineProp, 140, "SpiningSymbolCount");
-                DrawPropertyField(machineProp, 140, "SpinCountThreshold");
-                DrawPropertyField(machineProp, 140, "DelayEachReel");
-                DrawPropertyField(machineProp, "tweenFirstBackInfo");
-                DrawPropertyField(machineProp, "tweenLastBackInfo");
-            }
-            EndFoldOut();
-
-
-            DrawTransition(machineProp);
-            DrawPaylineTable(machineProp, index);
-
-            EditorGUILayout.BeginVertical(GUI.skin.box);
-            DrawPropertyField(machineProp, "reelStripList");
-            EditorGUILayout.EndVertical();
-
-            EditorGUILayout.EndVertical();
-        }
-
-        void DrawStartSymbol(SerializedProperty machineProp, int index)
-        {
-            EditorGUILayout.LabelField("StartSymbols");
-            EditorGUILayout.BeginVertical(GUI.skin.box);
-            var machine = _script.GetMachineAt(index);
-            var col = machine.column;
-            var row = machine.row;
-            var margin = machine.MarginSymbolCount;
-            row += margin * 2;
-
-            var names = machine.GetSymbolNames();
-
-            for (var r = 0; r < row; ++r)
-            {
-                if (r == margin || r == row - margin) DrawRowLine(33 * col);
-
-                EditorGUILayout.BeginHorizontal();
-                for (var c = 0; c < col; ++c)
-                {
-                    var symbolNames = machine.GetStartSymbolNames(c);
-                    var symbolIndex = names.IndexOf(symbolNames[r]);
-                    var selectedIndex = EditorGUILayout.Popup(symbolIndex, names, GUILayout.Width(30));
-                    symbolNames[r] = names[selectedIndex];
-
-                }
-                EditorGUILayout.EndHorizontal();
-            }
-            EditorGUILayout.EndVertical();
-        }
-
-        void DrawTransition(SerializedProperty machineProp)
-        {
-            EditorGUILayout.BeginHorizontal(GUI.skin.box);
-            GUILayout.Space(15);
-            DrawPropertyField(machineProp, "transition");
-            EditorGUILayout.EndHorizontal();
-        }
-
-        void DrawPaylineTable(SerializedProperty machineProp, int index)
-        {
-            var paylineTable = BeginFoldout(machineProp, "paylineTable", "Payline");
-            if (paylineTable.isExpanded)
-            {
-                EditorGUILayout.BeginHorizontal();
-                GUI.backgroundColor = Color.yellow;
-                if (GUILayout.Button("Write JS Array Format"))
-                {
-                    if (EditorUtility.DisplayDialog("Write JS Array Format?", "not yet implemented", "OK", "Cancel"))
-                    {
-                        //todo
-                    }
-                }
-                if (GUILayout.Button("Load From File"))
-                {
-                    if (EditorUtility.DisplayDialog("Load From File?", "not yet implemented", "OK", "Cancel"))
-                    {
-                        //todo
-                    }
-                }
-                GUI.backgroundColor = _defaultBGColor;
-                EditorGUILayout.EndHorizontal();
-
-                var table = paylineTable.FindPropertyRelative("_table");
-                EditorGUILayout.LabelField("Total: " + table.arraySize, EditorStyles.boldLabel);
-
-                for (var i = 0; i < table.arraySize; ++i)
-                {
-                    var element = table.GetArrayElementAtIndex(i);
-                    var arr = element.FindPropertyRelative("rows");
-
-                    EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField("line " + i, GUILayout.Width(50));
-                    DrawIntArrayBox(arr, machineProp.FindPropertyRelative("column").intValue);
-                    EditorGUILayout.EndHorizontal();
-                }
             }
             EndFoldOut();
         }
@@ -338,6 +250,36 @@ namespace Game
             };
 
             return list;
+        }
+
+        void DrawStartSymbol(SerializedProperty machineProp, int index)
+        {
+            EditorGUILayout.LabelField("StartSymbols");
+            EditorGUILayout.BeginVertical(GUI.skin.box);
+            var machine = _script.GetMachineAt(index);
+            var col = machine.column;
+            var row = machine.row;
+            var margin = machine.MarginSymbolCount;
+            row += margin * 2;
+
+            var symbolNames = machine.GetSymbolNames();
+
+            for (var r = 0; r < row; ++r)
+            {
+                if (r == margin || r == row - margin) DrawRowLine(36 * col);
+
+                EditorGUILayout.BeginHorizontal();
+                for (var c = 0; c < col; ++c)
+                {
+                    var startSymbolNames = machine.GetStartSymbolNames(c);
+                    var symbolIndex = symbolNames.IndexOf(startSymbolNames[r]);
+                    var selectedIndex = EditorGUILayout.Popup(symbolIndex, symbolNames, GUILayout.Width(33));
+                    startSymbolNames[r] = symbolNames[selectedIndex];
+
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+            EditorGUILayout.EndVertical();
         }
 
         void DrawScatterInfoList(SerializedProperty machineProp)
@@ -377,6 +319,144 @@ namespace Game
                     EditorGUILayout.EndHorizontal();
 
                     EditorGUILayout.EndVertical();
+                }
+            }
+            EndFoldOut();
+        }
+
+        void DrawSpin(SerializedProperty machineProp)
+        {
+            var spinInfo = BeginFoldout(machineProp, "SpinSpeedPerSec", "Spin");
+            if (spinInfo.isExpanded)
+            {
+                DrawPropertyField(machineProp, "ReelSize");
+                DrawPropertyField(machineProp, 140, "MarginSymbolCount");
+                DrawPropertyField(machineProp, 140, "IncreaseCount");
+                DrawPropertyField(machineProp, 140, "SpiningSymbolCount");
+                DrawPropertyField(machineProp, 140, "SpinCountThreshold");
+                DrawPropertyField(machineProp, 140, "DelayEachReel");
+                DrawPropertyField(machineProp, "tweenFirstBackInfo");
+                DrawPropertyField(machineProp, "tweenLastBackInfo");
+            }
+            EndFoldOut();
+        }
+
+        void DrawTransition(SerializedProperty machineProp)
+        {
+            EditorGUILayout.BeginHorizontal(GUI.skin.box);
+            GUILayout.Space(15);
+            DrawPropertyField(machineProp, "transition");
+            EditorGUILayout.EndHorizontal();
+        }
+
+        void DrawPaylineTable(SerializedProperty machineProp, int index)
+        {
+            var table = machineProp.FindPropertyRelative("paylineTable").FindPropertyRelative("_table");
+
+            var paylineTable = BeginFoldout(machineProp, "paylineTable", "Payline  total: " + table.arraySize);
+            if (paylineTable.isExpanded)
+            {
+                GUILayout.Space(5);
+                GUI.backgroundColor = Color.yellow;
+                if (GUILayout.Button("Write JS Array Format", GUILayout.Width(250)))
+                {
+                    if (EditorUtility.DisplayDialog("Write JS Array Format?", "not yet implemented", "OK", "Cancel"))
+                    {
+                        //todo
+                    }
+                }
+                GUI.backgroundColor = _defaultBGColor;
+                GUILayout.Space(5);
+
+                for (var i = 0; i < table.arraySize; ++i)
+                {
+                    var element = table.GetArrayElementAtIndex(i);
+                    var arr = element.FindPropertyRelative("rows");
+
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField("line " + i, GUILayout.Width(50));
+                    DrawIntArrayBox(arr, machineProp.FindPropertyRelative("column").intValue);
+                    EditorGUILayout.EndHorizontal();
+                }
+            }
+            EndFoldOut();
+        }
+
+
+        string _displayedStripsGroup = string.Empty;
+
+        void DrawReelStrip(SerializedProperty machineProp, int index)
+        {
+            var bundleprop = machineProp.FindPropertyRelative("reelStripsBundle");
+            var containsGroupProp = bundleprop.FindPropertyRelative("_containsGroup");
+
+            var reelStripList = BeginFoldout(machineProp,
+                                             "reelStripsBundle",
+                                             "ReelStrips total: " + containsGroupProp.arraySize);
+            if (reelStripList.isExpanded)
+            {
+                var enumType = typeof(ReelStripsBundle.Group);
+
+                var currentGroupProp = bundleprop.FindPropertyRelative("_currentGroup");
+
+                if (containsGroupProp.arraySize > 0)
+                {
+                    if (_displayedStripsGroup.IsNullOrEmpty())
+                    {
+                        _displayedStripsGroup = containsGroupProp.GetArrayElementAtIndex(0).GetEnumValue(enumType).ToString();
+                    }
+
+                    GUI.backgroundColor = Color.yellow;
+                    if (GUILayout.Button("Load From File", GUILayout.Width(250)))
+                    {
+                        if (EditorUtility.DisplayDialog("Load From File?", "not yet implemented", "OK", "Cancel"))
+                        {
+                            //todo
+                        }
+                    }
+                    GUI.backgroundColor = _defaultBGColor;
+
+                    //draw contains Gruop tap
+                    EditorGUILayout.BeginHorizontal();
+                    for (var i = 0; i < containsGroupProp.arraySize; ++i)
+                    {
+                        var element = containsGroupProp.GetArrayElementAtIndex(i);
+                        var enumName = element.GetEnumValue(enumType).ToString();
+
+                        if (_displayedStripsGroup == enumName) GUI.backgroundColor = Color.cyan;
+                        if (GUILayout.Button(enumName, GUILayout.Width(50)))
+                        {
+                            _displayedStripsGroup = enumName;
+                        }
+                        GUI.backgroundColor = _defaultBGColor;
+                    }
+                    EditorGUILayout.EndHorizontal();
+
+                    //draw strips
+                    var machine = _script.GetMachineAt(index);
+                    var symbolAllNames = machine.GetSymbolNames();
+                    ReelStripsBundle.Group chooseGroup = (ReelStripsBundle.Group)System.Enum.Parse(enumType, _displayedStripsGroup);
+                    var reelStrips = machine.reelStripsBundle.GetStrips(chooseGroup);
+
+                    EditorGUILayout.BeginHorizontal();
+                    for (var c = 0; c < reelStrips.Length; ++c)
+                    {
+                        var rows = reelStrips.GetStripAt(c);
+                        EditorGUILayout.BeginVertical(GUI.skin.box);
+                        for (var r = 0; r < rows.Length; ++r)
+                        {
+                            var sname = rows[r];
+                            var symbolIndex = symbolAllNames.IndexOf(sname);
+                            var selectedIndex = EditorGUILayout.Popup(symbolIndex, symbolAllNames, GUILayout.Width(33));
+                            rows[r] = symbolAllNames[selectedIndex];
+                        }
+                        EditorGUILayout.EndVertical();
+                    }
+                    EditorGUILayout.EndHorizontal();
+                }
+                else
+                {
+                    //empty reelStrips
                 }
             }
             EndFoldOut();

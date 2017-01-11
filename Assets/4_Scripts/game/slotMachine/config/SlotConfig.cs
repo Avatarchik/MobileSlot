@@ -230,8 +230,7 @@ namespace Game
             //------------------------------------------------------------
             //reelstrip
             //------------------------------------------------------------
-            public ReelStripList reelStripList;
-
+            public ReelStripsBundle reelStripsBundle;
         }
 
         //------------------------------------------------------------------
@@ -374,42 +373,69 @@ namespace Game
 
     #region ReelStirp
     [Serializable]
-    public class ReelStripList
+    public class ReelStripsBundle
     {
-        public const string DEFAULT = "default";
-        public const string FREE = "free";
+        [Serializable]
+        public class ReelStripsMap : SerializableDictionaryBase<Group, ReelStrips> { }
+        public enum Group
+        {
+            Default,
+            Free,
+            A,
+            B,
+            C
+        }
 
         [SerializeField]
-        List<ReelStrips> _list;
+        ReelStripsMap _map;
 
-        public ReelStripList()
+        [SerializeField]
+        Group _currentGroup;
+
+        [SerializeField]
+        List<Group> _containsGroup;
+
+        public ReelStripsBundle()
         {
-            _list = new List<ReelStrips>();
+            _map = new ReelStripsMap();
+            _containsGroup = new List<Group>();
         }
 
-        public ReelStripList(string[][] defaultstrips, ReelStrips.Type type = ReelStrips.Type.NORMAL)
+        public ReelStripsBundle(string[][] defaultstrips, ReelStrips.Type stripsType = ReelStrips.Type.Normal) : base()
         {
-            _list = new List<ReelStrips>();
-
-            AddStrip(DEFAULT, defaultstrips, type);
+            AddStrips(Group.Default, defaultstrips, stripsType);
         }
 
-        public void AddStrip(string name, string[][] symbols, ReelStrips.Type type = ReelStrips.Type.NORMAL)
+        public void AddStrips(Group groupName, string[][] symbols, ReelStrips.Type stripsType = ReelStrips.Type.Normal)
         {
-            ReelStrips reelStrips = new ReelStrips(name, symbols, type);
-            _list.Add(reelStrips);
+            ReelStrips reelStrips = new ReelStrips(symbols, stripsType);
+            _map[groupName] = reelStrips;
+
+            _containsGroup.Add(groupName);
         }
 
-        public ReelStrips GetStrips(string key = DEFAULT)
+        public void RemoveStrips(Group groupName)
         {
-            var count = _list.Count;
-            for (var i = 0; i < count; ++i)
-            {
-                var reelStrip = _list[i];
-                if (reelStrip.name == key) return reelStrip;
-            }
+            if (_map.ContainsKey(groupName) == false) return;
 
-            return null;
+            _map.Remove(groupName);
+            _containsGroup.Remove(groupName);
+        }
+
+        public void SelectStrip(Group groupName)
+        {
+            _currentGroup = groupName;
+        }
+
+        public ReelStrips GetStrips()
+        {
+            return _map[_currentGroup];
+        }
+
+        public ReelStrips GetStrips(Group groupName)
+        {
+            SelectStrip(groupName);
+            return GetStrips();
         }
     }
 
@@ -418,47 +444,53 @@ namespace Game
     {
         public enum Type
         {
-            NORMAL,
-            STACK
+            Normal,
+            Stack
         }
 
-        public ReelStrips.Type type;
-        public string name;
+        public Type type;
 
         [SerializeField]
-        SymbolNames[] _strips;
+        SymbolNames[] _names;
 
-        public ReelStrips(string name, string[][] symbols, ReelStrips.Type type = ReelStrips.Type.NORMAL)
+        public ReelStrips(string[][] symbols, Type type = Type.Normal)
         {
-            this.name = name;
             this.type = type;
 
             var count = symbols.Length;
-            _strips = new SymbolNames[count];
+            _names = new SymbolNames[count];
             for (var i = 0; i < count; ++i)
             {
                 var strip = new SymbolNames(symbols[i]);
-                _strips[i] = strip;
+                _names[i] = strip;
             }
         }
 
         public string GetRandom(int column)
         {
-            var strip = _strips[column];
+            var strip = GetStripAt(column);
 
             switch (type)
             {
-                case Type.NORMAL:
+                case Type.Normal:
                     //customize
                     break;
 
-                case Type.STACK:
+                case Type.Stack:
                     //customize
                     break;
             }
 
             return strip.GetRandom();
         }
+
+        public SymbolNames GetStripAt(int column)
+        {
+            return _names[column];
+        }
+
+        public int Length { get { return _names.Length; } }
+
     }
     #endregion
 

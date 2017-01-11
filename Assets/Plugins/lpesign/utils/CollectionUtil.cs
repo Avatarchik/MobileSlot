@@ -1,5 +1,7 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System;
+using System.Linq;
 
 namespace lpesign
 {
@@ -26,6 +28,11 @@ namespace lpesign
             Array.Copy(arr, indexFrom, result, 0, length);
 
             return result;
+        }
+
+        public static string ToEachString<T>(this IEnumerable<T> list)
+        {
+            return string.Join(",", list.Select(s => s.ToString()).ToArray());
         }
 
         public static int IndexOf(this System.Array lst, object obj)

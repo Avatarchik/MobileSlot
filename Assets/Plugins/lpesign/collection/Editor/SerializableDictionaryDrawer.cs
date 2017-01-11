@@ -57,7 +57,7 @@ namespace lpesign.UnityEditor
                     var valueLabel = new GUIContent("value");
 
                     EditorGUI.PropertyField(keyRect, keyProp, keyLabel);
-                    EditorGUI.PropertyField(valueRect, valueProp, valueLabel);
+                    EditorGUI.PropertyField(valueRect, valueProp, valueLabel,false);
                 }
 
                 //+ - button

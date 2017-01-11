@@ -518,7 +518,7 @@ namespace Game
 
         ReelStrips GetCurrentStrip()
         {
-            return _config.Main.reelStripList.GetStrips();
+            return _config.Main.reelStripsBundle.GetStrips();
         }
 
         string GetAddedSymbolNames()
