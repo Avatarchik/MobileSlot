@@ -294,19 +294,33 @@ namespace Game
                     EditorGUILayout.BeginVertical(GUI.skin.box);
 
                     EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField("Type", GUILayout.Width(30));
                     EditorGUILayout.PropertyField(element.FindPropertyRelative("type"), GUIContent.none, GUILayout.Width(80));
 
-                    EditorGUILayout.LabelField("Reel", EditorStyles.boldLabel, GUILayout.Width(30));
-                    var re = element.FindPropertyRelative("ableReel");
-                    DrawIntArrayBox(re, machineProp.FindPropertyRelative("column").intValue);
-
-                    GUILayout.FlexibleSpace();
-                    EditorGUILayout.LabelField("limit", EditorStyles.boldLabel, GUILayout.Width(32));
-                    EditorGUILayout.PropertyField(element.FindPropertyRelative("limit"), GUIContent.none, GUILayout.Width(15));
-
+                    GUILayout.Space(10);
+                    EditorGUILayout.LabelField("MaxCount", GUILayout.Width(60));
+                    EditorGUILayout.PropertyField(element.FindPropertyRelative("maxCount"), GUIContent.none, GUILayout.Width(15));
                     EditorGUILayout.EndHorizontal();
 
                     EditorGUILayout.BeginHorizontal();
+
+                    var expectThreshold = element.FindPropertyRelative("expectThreshold");
+                    EditorGUILayout.LabelField("expectThreshold", GUILayout.Width(95));
+                    EditorGUILayout.PropertyField(expectThreshold, GUIContent.none, GUILayout.Width(15));
+                    if (expectThreshold.intValue > 0)
+                    {
+                        GUILayout.Space(10);
+                        EditorGUILayout.LabelField("sound", GUILayout.Width(40));
+                        EditorGUILayout.PropertyField(element.FindPropertyRelative("expectSound"), GUIContent.none,GUILayout.Width(130));
+                    }
+                    EditorGUILayout.EndHorizontal();
+
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField("Reel", GUILayout.Width(30));
+                    var re = element.FindPropertyRelative("ableReel");
+                    DrawIntArrayBox(re, machineProp.FindPropertyRelative("column").intValue);
+                    EditorGUILayout.EndHorizontal();
+
                     var sounds = BeginFoldout(element, "stopSounds", "", "");
                     if (sounds.isExpanded)
                     {
@@ -316,7 +330,6 @@ namespace Game
                     }
                     EndFoldOut();
 
-                    EditorGUILayout.EndHorizontal();
 
                     EditorGUILayout.EndVertical();
                 }

@@ -150,8 +150,8 @@ namespace Game.HighDiamonds
 
             //scatters
             machine.ClearScatterInfo();
-            machine.AddSccaterInfo(SymbolType.FSScatter, 3, new int[] { 0, 2, 4 });
-            machine.AddSccaterInfo(SymbolType.PGSVScatter, 9, new int[] { 0, 1, 2, 3, 4 });
+            machine.AddScatterInfo(new ScatterInfo(SymbolType.FSScatter, 3, 2, new int[] { 0, 2, 4 }));
+            machine.AddScatterInfo(new ScatterInfo(SymbolType.PGSVScatter, 9, 0, new int[] { 0, 1, 2, 3, 4 }));
 
 
             //startSymbol

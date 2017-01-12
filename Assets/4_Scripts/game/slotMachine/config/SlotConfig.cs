@@ -193,12 +193,6 @@ namespace Game
                 if (_scatters != null) _scatters.Clear();
             }
 
-            public void AddSccaterInfo(SymbolType scatterType, int limit, int[] ableReel)
-            {
-                var info = new ScatterInfo(scatterType, limit, ableReel);
-                AddScatterInfo(info);
-            }
-
             public void AddScatterInfo(ScatterInfo info)
             {
                 if (_scatters == null) _scatters = new List<ScatterInfo>();
@@ -325,25 +319,21 @@ namespace Game
     public struct ScatterInfo
     {
         public SymbolType type;
-        public int limit;
         public int[] ableReel;
+        public int maxCount;
+        public int expectThreshold;
+        public AudioClip expectSound;
         public AudioClip[] stopSounds;
 
         // int _index;
 
-        public ScatterInfo(SymbolType scatterType, int limit, int[] ableReel)
+        public ScatterInfo(SymbolType scatterType, int maxCount, int expectThreshold, int[] ableReel)
         {
             this.type = scatterType;
-            this.limit = limit;
+            this.maxCount = maxCount;
+            this.expectThreshold = expectThreshold;
+            this.expectSound = null;
             this.ableReel = ableReel;
-            this.stopSounds = new AudioClip[ableReel.Length];
-        }
-
-        public ScatterInfo(SymbolType scatterType)
-        {
-            this.type = scatterType;
-            this.limit = 0;
-            this.ableReel = new int[0];
             this.stopSounds = new AudioClip[ableReel.Length];
         }
 
