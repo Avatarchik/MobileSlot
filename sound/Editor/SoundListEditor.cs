@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
-using System.Collections.Generic;
 
 using lpesign;
 using lpesign.UnityEditor;
@@ -22,7 +21,7 @@ public class SoundListEditor : UsableEditor<SoundList>
     {
         //createBasicList
         var basicProperty = serializedObject.FindProperty("basic");
-        _basicList = CreateSoundSchemaList(basicProperty);
+        _basicList = CreateSoundSchemaList(basicProperty.FindPropertyRelative("_sounds"));
 
         //createGroupList
         var groups = serializedObject.FindProperty("groups");
@@ -71,8 +70,6 @@ public class SoundListEditor : UsableEditor<SoundList>
 
         DrawScript();
 
-        serializedObject.Update();
-
         DrawDefaultButton();
         DrawBasic();
         DrawGroup();
@@ -102,19 +99,14 @@ public class SoundListEditor : UsableEditor<SoundList>
 
     void DrawGroup()
     {
+        SerializedProperty property = serializedObject.FindProperty("groups");
 
-        // EditorGUILayout.LabelField("Groups", EditorStyles.boldLabel);
-        var groups = BeginFoldout("groups", "Groups");
-        if (groups.isExpanded)
+        for (var i = 0; i < property.arraySize; ++i)
         {
-            // EditorGUILayout.BeginVertical(GUI.skin.button);
-            SerializedProperty property = serializedObject.FindProperty("groups");
-            for (var i = 0; i < property.arraySize; ++i)
+            var element = BeginFoldout(property.GetArrayElementAtIndex(i));
+            if (element.isExpanded)
             {
                 EditorGUILayout.BeginVertical(GUI.skin.box);
-                GUILayout.Space(3);
-
-                var element = property.GetArrayElementAtIndex(i);
 
                 var groupName = element.FindPropertyRelative("_name");
                 var type = element.FindPropertyRelative("type");
@@ -135,22 +127,29 @@ public class SoundListEditor : UsableEditor<SoundList>
                 }
                 GUI.backgroundColor = _defaultBGColor;
                 EditorGUILayout.EndHorizontal();
-
-                var list = _groupList[i];
-                list.DoLayoutList();
-
+                try
+                {
+                    var list = _groupList[i];
+                    list.DoLayoutList();
+                }
+                catch (System.IndexOutOfRangeException e)
+                {
+                    Debug.Log("catched!");
+                    CreaetReorderLists();
+                    EditorGUILayout.EndVertical();
+                    break;
+                }
                 EditorGUILayout.EndVertical();
             }
-            GUI.backgroundColor = Color.green;
-            if (GUILayout.Button("Add Group", GUILayout.Height(30)))
-            {
-                _script.groups.Add(new SoundGroup("new Group" + _script.groups.Count));
-            }
-            GUI.backgroundColor = _defaultBGColor;
-
-            // EditorGUILayout.EndVertical();
+            EndFoldout();
         }
-        EndFoldOut();
+
+        GUI.backgroundColor = Color.green;
+        if (GUILayout.Button("Add Group", GUILayout.Height(30)))
+        {
+            _script.groups.Add(new SoundGroup("new Group" + _script.groups.Count));
+        }
+        GUI.backgroundColor = _defaultBGColor;
     }
 
     void DrawClearAllButton()

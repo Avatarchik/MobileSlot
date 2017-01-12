@@ -227,45 +227,32 @@ namespace lpesign.UnityEditor
         #endregion
 
         #region foldout
-        protected SerializedProperty BeginFoldout(SerializedProperty targetProperty, string propertyName, string label = "", string areaStyle = "box")
+        protected SerializedProperty BeginFoldout(SerializedProperty targetProperty, string label = "")
         {
+
             GUIStyle foldStyle = EditorStyles.foldout;
             FontStyle previousStyle = foldStyle.fontStyle;
             foldStyle.fontStyle = FontStyle.Bold;
 
-            var property = targetProperty.FindPropertyRelative(propertyName);
-            EditorGUILayout.BeginVertical(areaStyle == "" ? _defaultStye : areaStyle);
-            label = StringUtil.IsNullOrEmpty(label) ? propertyName : label;
+            EditorGUILayout.BeginVertical(_defaultStye);
+            label = StringUtil.IsNullOrEmpty(label) ? targetProperty.displayName : label;
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.Space(15);
-            property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, label, foldStyle);
+            targetProperty.isExpanded = EditorGUILayout.Foldout(targetProperty.isExpanded, label, foldStyle);
             EditorGUILayout.EndHorizontal();
 
             foldStyle.fontStyle = previousStyle;
-            return property;
+            return targetProperty;
         }
 
-        protected SerializedProperty BeginFoldout(string propertyName, string label = "", string areaStyle = "box")
+        protected SerializedProperty BeginFoldout(string propertyName, string label = "")
         {
-            GUIStyle foldStyle = EditorStyles.foldout;
-            FontStyle previousStyle = foldStyle.fontStyle;
-            foldStyle.fontStyle = FontStyle.Bold;
-
             var property = serializedObject.FindProperty(propertyName);
-            EditorGUILayout.BeginVertical(areaStyle == "" ? _defaultStye : areaStyle);
-            label = StringUtil.IsNullOrEmpty(label) ? propertyName : label;
-
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Space(15);
-            property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, label, foldStyle);
-            EditorGUILayout.EndHorizontal();
-
-            foldStyle.fontStyle = previousStyle;
-            return property;
+            return BeginFoldout( property, label );
         }
 
-        protected void EndFoldOut()
+        protected void EndFoldout()
         {
             EditorGUILayout.EndVertical();
         }
