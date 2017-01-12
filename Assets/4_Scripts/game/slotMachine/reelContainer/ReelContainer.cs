@@ -309,7 +309,7 @@ namespace Game
                 }
 
                 nextReel.SpinToExpect();
-                SlotSoundList.Expect();
+                SlotSoundList.Expect(null);
                 return;
             }
 

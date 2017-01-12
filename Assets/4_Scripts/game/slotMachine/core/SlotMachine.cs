@@ -180,6 +180,7 @@ namespace Game
 
         IEnumerator Initialize(ResDTO.Login dto)
         {
+
             //필요한 리소스 Pool 들의 preload 가 완료 되길 기다린다.
             Debug.Log("Wait Pool");
             while (GamePool.IsReady == false)
@@ -715,6 +716,8 @@ namespace Game
         }
     }
 
+    //todo
+    //간단한 이터레이터 구현으로 고치자
     public class WinItemList : IEnumerable<WinItemList.Item>
     {
         List<WinItemList.Item> _items;

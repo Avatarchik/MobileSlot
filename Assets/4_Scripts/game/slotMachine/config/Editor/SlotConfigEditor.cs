@@ -109,7 +109,7 @@ namespace Game
 
                 _bettingList.DoLayoutList();
             }
-            EndFoldOut();
+            EndFoldout();
         }
 
         void DrawMachines()
@@ -131,7 +131,7 @@ namespace Game
                 }
                 GUI.backgroundColor = _defaultBGColor;
             }
-            EndFoldOut();
+            EndFoldout();
         }
 
         void DrawMachine(SerializedProperty machineProp, int index)
@@ -176,22 +176,25 @@ namespace Game
 
         void DrawBase(SerializedProperty machineProp)
         {
-            var baseInfo = BeginFoldout(machineProp, "row", "Base");
+            var baseInfo = BeginFoldout(machineProp.FindPropertyRelative("row"), "Base");
             if (baseInfo.isExpanded)
             {
+                EditorGUI.indentLevel++;
                 DrawHorizontalProperties(machineProp, "row", "column");
 
                 var freespin = DrawHorizontalProperties(machineProp, 75, "UseFreeSpin");
                 if (freespin.boolValue) DrawHorizontalProperties(machineProp, 90, "TriggerType", "RetriggerType");
+                EditorGUI.indentLevel--;
             }
-            EndFoldOut();
+            EndFoldout();
         }
-
+ 
         void DrawReel(SerializedProperty machineProp)
         {
-            var reelInfo = BeginFoldout(machineProp, "ReelSize", "Reel");
+            var reelInfo = BeginFoldout(machineProp.FindPropertyRelative("ReelSize"), "Reel");
             if (reelInfo.isExpanded)
             {
+                EditorGUI.indentLevel++;
                 DrawPropertyField(machineProp, "ReelSize");
                 DrawHorizontalProperties(machineProp, 80, "ReelSpace", "ReelGap");
 
@@ -199,24 +202,27 @@ namespace Game
                 EditorGUILayout.IntSlider(machineProp.FindPropertyRelative("MarginSymbolCount"), 0, sliderLimit);
 
                 DrawPropertyField(machineProp, 80, "ReelPrefab");
+                EditorGUI.indentLevel--;
             }
-            EndFoldOut();
+            EndFoldout();
         }
 
         void DrawSymbol(SerializedProperty machineProp, int index)
         {
             //symbols
-            var symbolInfo = BeginFoldout(machineProp, "SymbolSize", "Symbol");
+            var symbolInfo = BeginFoldout(machineProp.FindPropertyRelative("SymbolSize"), "Symbol");
             if (symbolInfo.isExpanded)
             {
+                EditorGUI.indentLevel++;
                 DrawPropertyField(machineProp, 70, "SymbolSize");
                 var useEmpty = DrawPropertyField(machineProp, 80, "useEmpty").boolValue;
                 if (useEmpty) DrawPropertyField(machineProp, 70, "NullSymbolSize");
+                EditorGUI.indentLevel--;
 
                 DrawSymbolDefineList(machineProp, index);
                 DrawStartSymbol(machineProp, index);
             }
-            EndFoldOut();
+            EndFoldout();
         }
 
         ReorderableList _symbolDefineList;
@@ -284,7 +290,7 @@ namespace Game
 
         void DrawScatterInfoList(SerializedProperty machineProp)
         {
-            var scatters = BeginFoldout(machineProp, "_scatters", "ScatterInfo");
+            var scatters = BeginFoldout(machineProp.FindPropertyRelative("_scatters"), "ScatterInfo");
             if (scatters.isExpanded)
             {
                 for (var i = 0; i < scatters.arraySize; ++i)
@@ -311,7 +317,7 @@ namespace Game
                     {
                         GUILayout.Space(10);
                         EditorGUILayout.LabelField("sound", GUILayout.Width(40));
-                        EditorGUILayout.PropertyField(element.FindPropertyRelative("expectSound"), GUIContent.none,GUILayout.Width(130));
+                        EditorGUILayout.PropertyField(element.FindPropertyRelative("expectSound"), GUIContent.none, GUILayout.Width(130));
                     }
                     EditorGUILayout.EndHorizontal();
 
@@ -321,27 +327,28 @@ namespace Game
                     DrawIntArrayBox(re, machineProp.FindPropertyRelative("column").intValue);
                     EditorGUILayout.EndHorizontal();
 
-                    var sounds = BeginFoldout(element, "stopSounds", "", "");
+                    var sounds = BeginFoldout(element.FindPropertyRelative("stopSounds"));
                     if (sounds.isExpanded)
                     {
                         EditorGUILayout.BeginHorizontal();
                         DrawAudioClipArray(element.FindPropertyRelative("stopSounds"));
                         EditorGUILayout.EndHorizontal();
                     }
-                    EndFoldOut();
+                    EndFoldout();
 
 
                     EditorGUILayout.EndVertical();
                 }
             }
-            EndFoldOut();
+            EndFoldout();
         }
 
         void DrawSpin(SerializedProperty machineProp)
         {
-            var spinInfo = BeginFoldout(machineProp, "SpinSpeedPerSec", "Spin");
+            var spinInfo = BeginFoldout(machineProp.FindPropertyRelative("SpinSpeedPerSec"), "Spin");
             if (spinInfo.isExpanded)
             {
+                EditorGUI.indentLevel++;
                 DrawPropertyField(machineProp, "ReelSize");
                 DrawPropertyField(machineProp, 140, "MarginSymbolCount");
                 DrawPropertyField(machineProp, 140, "IncreaseCount");
@@ -350,14 +357,15 @@ namespace Game
                 DrawPropertyField(machineProp, 140, "DelayEachReel");
                 DrawPropertyField(machineProp, "tweenFirstBackInfo");
                 DrawPropertyField(machineProp, "tweenLastBackInfo");
+                EditorGUI.indentLevel--;
             }
-            EndFoldOut();
+            EndFoldout();
         }
 
         void DrawTransition(SerializedProperty machineProp)
         {
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
-            GUILayout.Space(15);
+            GUILayout.Space(13);
             DrawPropertyField(machineProp, "transition");
             EditorGUILayout.EndHorizontal();
         }
@@ -366,7 +374,7 @@ namespace Game
         {
             var table = machineProp.FindPropertyRelative("paylineTable").FindPropertyRelative("_table");
 
-            var paylineTable = BeginFoldout(machineProp, "paylineTable", "Payline  total: " + table.arraySize);
+            var paylineTable = BeginFoldout(machineProp.FindPropertyRelative("paylineTable"), "Payline  total: " + table.arraySize);
             if (paylineTable.isExpanded)
             {
                 GUILayout.Space(5);
@@ -392,7 +400,7 @@ namespace Game
                     EditorGUILayout.EndHorizontal();
                 }
             }
-            EndFoldOut();
+            EndFoldout();
         }
 
 
@@ -403,8 +411,7 @@ namespace Game
             var bundleprop = machineProp.FindPropertyRelative("reelStripsBundle");
             var containsGroupProp = bundleprop.FindPropertyRelative("_containsGroup");
 
-            var reelStripList = BeginFoldout(machineProp,
-                                             "reelStripsBundle",
+            var reelStripList = BeginFoldout(machineProp.FindPropertyRelative("reelStripsBundle"),
                                              "ReelStrips total: " + containsGroupProp.arraySize);
             if (reelStripList.isExpanded)
             {
@@ -472,7 +479,7 @@ namespace Game
                     //empty reelStrips
                 }
             }
-            EndFoldOut();
+            EndFoldout();
         }
     }
 }

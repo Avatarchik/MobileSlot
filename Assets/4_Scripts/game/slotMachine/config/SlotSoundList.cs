@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System;
-using System.Collections.Generic;
 
 using lpesign;
 
@@ -10,10 +9,14 @@ namespace Game
     {
         const string INTRO = "INTRO";
         const string BGM = "BGM";
+        const string BGM_FREESPIN = "BGM_FREESPIN";
+
         const string WIN = "WIN";
+        const string WIN_JACKPOT = "JACKPOT";
+        const string WIN_MEGAWIN = "MEGAWIN";
+        const string WIN_BIGWIN = "BIGWIN";
         const string WIN_END = "WIN_END";
 
-        const string BGM_FREE = "BGM_FREE";
         const string FREESPIN_TRIGGER = "FREESPIN_TRIGGER";
         const string FREESPIN_READY = "FREESPIN_READY";
         const string FREESPIN_READY_LOOP = "FREESPIN_READY_LOOP";
@@ -22,9 +25,10 @@ namespace Game
         const string FREESPIN_CONGRATULATION = "FREESPIN_CONGRATULATION";
 
 
-        //GROUP
         const string SPIN = "SPIN";
+        const string SPIN_FREESPIN = "SPIN_FREESPIN";
         const string REEL_STOP = "REEL_STOP";
+        const string REEL_STOP_FREESPIN = "REEL_STOP_FREESPIN";
 
         const string BTN = "BTN";
         const string BTN_SPIN = "SPIN";
@@ -33,15 +37,6 @@ namespace Game
         const string BTN_INCREASE = "INCREASE";
         const string BTN_COMMON = "COMMON";
 
-        const string SPECIAL_WIN = "SPECIAL_WIN";
-        const string SPECIAL_WIN_JACKPOT = "JACKPOT";
-        const string SPECIAL_WIN_MEGAWIN = "MEGAWIN";
-        const string SPECIAL_WIN_BIGWIN = "BIGWIN";
-
-        const string EXPECT = "EXPECT";
-        const string SCATTER_STOP = "SCATTER_STOP";
-
-        const string FREE_REEL_STOP = "FREE_REEL_STOP";
         const string PROGRESSIVE_WIN = "PROGRESSIVE_WIN";
 
         override public void CreateDefaultList()
@@ -49,53 +44,60 @@ namespace Game
             base.CreateDefaultList();
 
             var config = FindObjectOfType<SlotConfig>();
-            var main = config.Main;
+            if (config == null) throw new NullReferenceException("SlotConfig can not be null");
+            var machine = config.Main;
+            if (machine == null) throw new NullReferenceException("Main MachineConfig  can not be null");
 
-            if (main == null)
+            var freespin = machine.UseFreeSpin;
+            var columnCount = machine.column;
+            //basic
+
+            basic.Add(INTRO);
+            basic.Add(BGM);
+            if (freespin) basic.Add(BGM_FREESPIN);
+
+            basic.Add(WIN);
+            basic.Add(WIN_END);
+
+            basic.Add(WIN_BIGWIN);
+            basic.Add(WIN_MEGAWIN);
+            if (config.Jackpot) basic.Add(WIN_JACKPOT);
+
+
+            //freespin sounds
+            if (freespin)
             {
-                Debug.LogError("Main MachineConfig is can not be null!");
-                return;
+                basic.Add(FREESPIN_TRIGGER);
+                basic.Add(FREESPIN_READY);
+                basic.Add(FREESPIN_READY_LOOP);
+                basic.Add(FREESPIN_NUMBERING);
+                basic.Add(FREESPIN_COMPLETE);
+                basic.Add(FREESPIN_CONGRATULATION);
             }
 
-            var columnCount = main.column;
-
-            //todo
-            //scatterinfo 와 Symbol 정의와 연관된다. 자동으로 판단되게 하자
-            bool useProgressive = false;
-            int progressiveCount = 5;
-
-            //create sound
-            basic.Add(new SoundSchema(INTRO));
-            basic.Add(new SoundSchema(BGM));
-            basic.Add(new SoundSchema(WIN));
-            basic.Add(new SoundSchema(WIN_END));
-
-            //create Group
+            //spin, stop
             groups.Add(new SoundGroup(SPIN, SoundGroup.PlayType.Order, columnCount));
+            if (freespin) groups.Add(new SoundGroup(SPIN_FREESPIN, SoundGroup.PlayType.Order, columnCount));
+
             groups.Add(new SoundGroup(REEL_STOP, SoundGroup.PlayType.Order, columnCount));
-            groups.Add(new SoundGroup(BTN, SoundGroup.PlayType.CHOOSE, new string[] { BTN_SPIN, BTN_FAST, BTN_DECREASE, BTN_INCREASE, BTN_COMMON }));
+            if (freespin) groups.Add(new SoundGroup(REEL_STOP_FREESPIN, SoundGroup.PlayType.Order, columnCount));
 
-            if (config.Jackpot) groups.Add(new SoundGroup(SPECIAL_WIN, SoundGroup.PlayType.CHOOSE, new string[] { SPECIAL_WIN_JACKPOT, SPECIAL_WIN_MEGAWIN, SPECIAL_WIN_BIGWIN }));
-            else groups.Add(new SoundGroup(SPECIAL_WIN, SoundGroup.PlayType.CHOOSE, new string[] { SPECIAL_WIN_MEGAWIN, SPECIAL_WIN_BIGWIN }));
-
-            //optional
-            if (main.UseFreeSpin)
+            //progressive win sounds
+            var scatterInfo = machine.ScatterInfos;
+            foreach (var s in scatterInfo)
             {
-                basic.Add(new SoundSchema(BGM_FREE));
-                basic.Add(new SoundSchema(FREESPIN_TRIGGER));
-                basic.Add(new SoundSchema(FREESPIN_READY));
-                basic.Add(new SoundSchema(FREESPIN_READY_LOOP));
-                basic.Add(new SoundSchema(FREESPIN_NUMBERING));
-                basic.Add(new SoundSchema(FREESPIN_COMPLETE));
-                basic.Add(new SoundSchema(FREESPIN_CONGRATULATION));
-
-                groups.Add(new SoundGroup(FREE_REEL_STOP, SoundGroup.PlayType.Order, columnCount));
+                if (s.type == SymbolType.PGSVScatter)
+                {
+                    groups.Add(new SoundGroup(PROGRESSIVE_WIN, SoundGroup.PlayType.CHOOSE, s.maxCount));
+                    break;
+                }
             }
 
-            if (useProgressive)
+            //button
+            groups.Add(new SoundGroup(BTN, SoundGroup.PlayType.CHOOSE, new string[]
             {
-                groups.Add(new SoundGroup(PROGRESSIVE_WIN, SoundGroup.PlayType.CHOOSE, progressiveCount));
-            }
+                BTN_SPIN, BTN_FAST, BTN_DECREASE, BTN_INCREASE, BTN_COMMON
+            }));
         }
 
         static private SoundPlayer _player;
@@ -124,9 +126,14 @@ namespace Game
             _player.PlayBGM(BGM);
         }
 
-        static public void PlaySFX(AudioClip clip, float volume = 1f, float pitch = 1f)
+        static public void StopBGM()
         {
-            _player.PlaySFX(clip);
+            _player.StopBGM();
+        }
+
+        static public void PlaySFX(AudioClip clip, float volume = 1f)
+        {
+            _player.PlaySFX(clip, volume);
         }
 
         static public void Spin()
@@ -139,9 +146,10 @@ namespace Game
             if (_spinChannel != null) _spinChannel.Stop();
         }
 
-        static public void Expect()
+        static public void Expect(AudioClip clip, float volume = 1f)
         {
             StopSpin();
+            _player.PlaySFX(clip, volume);
         }
 
         static public void ReelStop()
