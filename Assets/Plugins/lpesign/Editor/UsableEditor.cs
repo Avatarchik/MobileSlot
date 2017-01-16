@@ -235,7 +235,7 @@ namespace lpesign.UnityEditor
             foldStyle.fontStyle = FontStyle.Bold;
 
             EditorGUILayout.BeginVertical(_defaultStye);
-            label = StringUtil.IsNullOrEmpty(label) ? targetProperty.displayName : label;
+            label = label.IsEmpty() ? targetProperty.displayName : label;
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.Space(15);
@@ -249,7 +249,7 @@ namespace lpesign.UnityEditor
         protected SerializedProperty BeginFoldout(string propertyName, string label = "")
         {
             var property = serializedObject.FindProperty(propertyName);
-            return BeginFoldout( property, label );
+            return BeginFoldout(property, label);
         }
 
         protected void EndFoldout()

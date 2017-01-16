@@ -188,7 +188,7 @@ namespace Game
             }
             EndFoldout();
         }
- 
+
         void DrawReel(SerializedProperty machineProp)
         {
             var reelInfo = BeginFoldout(machineProp.FindPropertyRelative("ReelSize"), "Reel");
@@ -421,7 +421,7 @@ namespace Game
 
                 if (containsGroupProp.arraySize > 0)
                 {
-                    if (_displayedStripsGroup.IsNullOrEmpty())
+                    if (_displayedStripsGroup.IsEmpty())
                     {
                         _displayedStripsGroup = containsGroupProp.GetArrayElementAtIndex(0).GetEnumValue(enumType).ToString();
                     }

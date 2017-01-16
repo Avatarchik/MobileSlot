@@ -45,16 +45,16 @@ namespace lpesign
             return System.Array.IndexOf(lst, obj);
         }
 
-        public static bool IsEmpty(this IEnumerable lst)
-        {
-            if (lst is IList)
-            {
-                return (lst as IList).Count == 0;
-            }
-            else
-            {
-                return !lst.GetEnumerator().MoveNext();
-            }
-        }
+        // public static bool IsEmpty<T>(this IEnumerable<T> list)
+        // {
+        //     if (list is IList)
+        //     {
+        //         return (list as IList).Count == 0;
+        //     }
+        //     else
+        //     {
+        //         return !list.GetEnumerator().MoveNext();
+        //     }
+        // }
     }
 }
