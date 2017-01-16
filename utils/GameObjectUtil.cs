@@ -26,6 +26,17 @@ namespace lpesign
         {
             return Create(name, parent).transform;
         }
+
+        static public void LogNullCheck(object obj)
+        {
+            LogNullCheck("", obj);
+        }
+
+        static public void LogNullCheck(string prefix, object obj)
+        {
+            if (prefix.IsNotEmpty()) Debug.Log("'" + prefix + "' is " + (obj == null ? "null" : "not null"));
+            else Debug.Log(obj == null ? "null" : "not null");
+        }
     }
 }
 
