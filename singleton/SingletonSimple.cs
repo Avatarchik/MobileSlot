@@ -46,7 +46,6 @@ namespace lpesign
         virtual protected void Awake()
         {
             _instance = this as T;
-            Hide();
         }
 
         public void Hide()
