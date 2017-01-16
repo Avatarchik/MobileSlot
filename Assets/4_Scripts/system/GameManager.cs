@@ -41,6 +41,20 @@ public class GameManager : Singleton<GameManager>
         }
 
         SceneLoader.CheckScene(new string[] { SC_LOBBY, SC_GAME01, SC_GAME02 });
+
+        //check GameManager instance
+        if (_instance == null)
+        {
+            var path = "GameManager";
+            var prefab = Resources.Load<GameManager>(path);
+            if (prefab == null)
+            {
+                throw new System.ApplicationException("GameManager must exist.\nCan not found prefab at 'Resources/" + path + "");
+            }
+
+            var manager = Instantiate(prefab, Vector3.zero, Quaternion.identity);
+            manager.name = typeof(GameManager).Name + "(Auto Generated)";
+        }
     }
 
     void Start()

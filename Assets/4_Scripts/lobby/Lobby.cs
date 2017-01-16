@@ -20,8 +20,6 @@ public class Lobby : SingletonSimple<Lobby>
 
     void Start()
     {
-        Debug.Log("lobby start");
-
         GameManager.Instance.SceneReady();
     }
 }
