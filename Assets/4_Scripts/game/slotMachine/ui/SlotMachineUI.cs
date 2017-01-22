@@ -34,13 +34,14 @@ namespace Game
             SetBalance(0);
         }
 
-        public void Initialize(SlotMachine slot)
+        public void Initialize(SlotMachine machine)
         {
-            SlotMachine = slot;
+            SlotMachine = machine;
 
             _model = SlotModel.Instance;
+
             _user = _model.Owner;
-            _betting = slot.Config.Betting;
+            _betting = SlotModel.Instance.SlotConfig.Betting;
 
             InitPaytable();
             InitInfo();

@@ -5,13 +5,10 @@ using lpesign;
 
 namespace Game
 {
-
     public class SlotModel : SingletonSimple<SlotModel>
     {
         public event Action<int> OnUpdateAutoSpinCount;
 
-
-        #region freespin property
         public bool IsFreeSpinTrigger { get; private set; }
         public bool IsFreeSpinReTrigger { get { return IsFreeSpinning && IsFreeSpinTrigger; } }
 
@@ -58,8 +55,21 @@ namespace Game
         }
 
         public bool HasNudge { get; private set; }
+        SlotConfig _slotConfig;
+        public SlotConfig SlotConfig
+        {
+            get { return _slotConfig; }
+            set
+            {
+                _slotConfig = value;
+                Betting = _slotConfig.Betting;
+            }
+        }
 
-        #endregion
+        public SlotBetting Betting { get; private set; }
+
+
+        SlotMachine _currentMachine;
 
         ResDTO.Spin.Payout.SpinInfo _lastSpinInfo;
 
@@ -67,20 +77,25 @@ namespace Game
         int _remainAutoCount;
         int _spinCount;
 
-        SlotBetting _betting;
-        SlotConfig _config;
 
-
-        public void Initialize(SlotMachine slot, ResDTO.Login dto)
+        override protected void Awake()
         {
-            if (Owner == null) Owner = new User();
-            else Owner.Reset();
-
-            _config = slot.Config;
-            _betting = _config.Betting;
+            base.Awake();
+            Owner = new User();
 
             Reset();
-            SetLoginData(dto);
+        }
+
+        public void Initialize(SlotConfig config, SlotMachine startMachine)
+        {
+            SlotConfig = config;
+            SetMachine(startMachine);
+        }
+
+        public void SetMachine(SlotMachine machine)
+        {
+            _currentMachine = machine;
+            Betting.PaylineNum = _currentMachine.Config.paylineTable.Count;
         }
 
         public void AccumulatePayout(double payout)
@@ -98,7 +113,7 @@ namespace Game
         {
             Owner.Update(dto);
 
-            _betting.Init(dto.min_line_bet, dto.max_line_bet, dto.last_line_bet);
+            Betting.Init(dto.min_line_bet, dto.max_line_bet, dto.last_line_bet);
         }
 
         public void SetSpinData(ResDTO.Spin dto)
@@ -145,7 +160,7 @@ namespace Game
             {
                 if (IsFreeSpinReTrigger)
                 {
-                    switch (_config.MainMachine.RetriggerType)
+                    switch (_currentMachine.Config.RetriggerType)
                     {
                         case FreeSpinRetriggerType.Add:
                             FreeSpinAddedCount = _lastSpinInfo.freeSpinCount;

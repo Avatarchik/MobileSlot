@@ -6,7 +6,7 @@ using DG.Tweening;
 namespace Game
 {
 
-    public class Topboard : MonoBehaviour
+    public class Topboard : SlotMachineModule
     {
         //todo
         //보너스 스핀, 빅윈 메가윈 잭팟 등등의 연출은 트윈이 사용되었는데 애니메이션 클립 만들어서 재생시키자

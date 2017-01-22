@@ -6,9 +6,11 @@ namespace Game
     public class DebugHelper : MonoBehaviour
     {
         SlotMachine _machine;
+        SlotModel _model;
         void Start()
         {
             _machine = FindObjectOfType<SlotMachine>();
+            _model = SlotModel.Instance;
         }
 
         void Update()
@@ -69,13 +71,8 @@ namespace Game
             _machine.TrySpin(new SendData()
             {
                 cmd = command,
-                data = new ReqDTO.Spin() { lineBet = _machine.Config.Betting.LineBet }
+                data = new ReqDTO.Spin() { lineBet = _model.SlotConfig.Betting.LineBet }
             }); ;
-        }
-
-        void GetTestSpinSendData(string commnad)
-        {
-
         }
     }
 }

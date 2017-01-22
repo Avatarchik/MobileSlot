@@ -27,10 +27,7 @@ namespace Game
             ApplySpinResult
         }
 
-        SlotConfig _config;
-        public SlotConfig Config { get { return _config; } }
-
-
+        public MachineConfig Config { get; private set; }
         public Stack<MachineState> State { get; private set; }
 
         [SerializeField]
@@ -40,6 +37,7 @@ namespace Game
         Dictionary<MachineState, Func<IEnumerator>> _stateExitMap;
         Func<IEnumerator> _stateEnter;
         Func<IEnumerator> _stateExit;
+        Coroutine _currentStateRoutine;
 
         SlotMachineUI _ui;
         SlotModel _model;
@@ -58,10 +56,10 @@ namespace Game
 
         FreeSpinDirector _freeSpinDirector;
 
+        SlotConfig _slotConfig;
+
         void Awake()
         {
-            _model = SlotModel.Instance;
-
             State = new Stack<MachineState>();
             CacheStateBehaviour();
 
@@ -120,22 +118,6 @@ namespace Game
         }
 #endif
 
-        void Start()
-        {
-            _config = FindObjectOfType<SlotConfig>();
-            if (_config == null) throw new NullReferenceException("SlotConfig can not be null!");
-
-            _betting = _config.Betting;
-            _betting.PaylineNum = _config.MainMachine.paylineTable.Count;
-
-
-            if (_config.DebugTestSpin) gameObject.AddComponent<DebugHelper>();
-
-            GamePool.SymbolLoad(_config);
-
-            SetState(MachineState.Connecting);
-        }
-
         protected void SetState(MachineState next)
         {
             if (_currentState == next) return;
@@ -150,7 +132,6 @@ namespace Game
             StateEnter();
         }
 
-        Coroutine _currentStateRoutine;
         void StateEnter()
         {
             if (_currentStateRoutine != null) StopCoroutine(_currentStateRoutine);
@@ -163,16 +144,36 @@ namespace Game
             if (_stateEnter != null) _currentStateRoutine = StartCoroutine(_stateEnter());
         }
 
+
+        void Start()
+        {
+            _slotConfig = FindObjectOfType<SlotConfig>();
+            if (_slotConfig == null) throw new NullReferenceException("SlotConfig can not be null!");
+
+            Config = _slotConfig.MainMachine;
+
+            _model = SlotModel.Instance;
+            _model.Initialize(_slotConfig, this);
+            _betting = _model.Betting;
+
+            if (_slotConfig.DebugTestSpin) gameObject.AddComponent<DebugHelper>();
+
+            GamePool.SymbolLoad(_slotConfig);
+
+            SetState(MachineState.Connecting);
+        }
+
+
         IEnumerator Connecting_Enter()
         {
-            GameServerCommunicator.Instance.Connect(_config.host, _config.port);
+            GameServerCommunicator.Instance.Connect(_slotConfig.host, _slotConfig.port);
 
             yield break;
         }
 
         void OnConnectListener()
         {
-            GameServerCommunicator.Instance.Login(_config.accessID, "good");
+            GameServerCommunicator.Instance.Login(_slotConfig.accessID, "good");
         }
 
         void OnLoginListener(ResDTO.Login dto)
@@ -182,47 +183,51 @@ namespace Game
 
         IEnumerator Initialize(ResDTO.Login dto)
         {
-
             //필요한 리소스 Pool 들의 preload 가 완료 되길 기다린다.
-            Debug.Log("Wait Pool");
             while (GamePool.IsReady == false)
             {
-                yield return null;
+                Debug.Log("Wait Pool...");
+                yield return new WaitForSeconds(0.2f);
             }
 
             Debug.Log("Pool readied");
 
-            _model.Initialize(this, dto);
+            _model.SetLoginData(dto);
+
+            //-----------------------------------------------------------------
+            // essential module
+            // ReelContainer & Topboard & SlotMachineUI
+            //-----------------------------------------------------------------
 
             _ui = FindObjectOfType<SlotMachineUI>() as SlotMachineUI;
-            if (_ui == null) Debug.LogError("can't find ui");
             _ui.Initialize(this);
 
             _reelContainer = GetComponentInChildren<ReelContainer>();
-            if (_ui == null) Debug.LogError("can't find ReelContainer");
             _reelContainer.Initialize(this);
             _reelContainer.OnPlayAllWin += OnPlayAllWinHandler;
             _reelContainer.OnPlayEachWin += OnPlayEachWinHandler;
             _reelContainer.OnReelStopComplete += OnReelStopCompleteHandler;
 
             _topboard = GetComponentInChildren<Topboard>();
-            if (_topboard == null) Debug.LogError("can't find Topboard");
 
             _paylineDisplayer = GetComponentInChildren<PaylineDisplayer>();
+            if( _paylineDisplayer != null ) _paylineDisplayer.Initialize(this);
 
             _freeSpinDirector = GetComponentInChildren<FreeSpinDirector>();
+            if( _freeSpinDirector != null ) _freeSpinDirector.Initialize(this);
 
             SlotSoundList.Initialize();
-            SlotSoundList.PlayBGM();
+
+            GameManager.Instance.SceneReady();
 
             SetState(MachineState.Idle);
-            GameManager.Instance.SceneReady();
         }
 
         IEnumerator Idle_Enter()
         {
-            _ui.Idle();
+            SlotSoundList.PlayBGM();
 
+            _ui.Idle();
 
             if (_model.IsAutoSpin)
             {
@@ -317,7 +322,7 @@ namespace Game
                 _model.SetSpinData(dto);
                 SetState(MachineState.ReceivedSymbol);
             }
-            else if (_config.MainMachine.TriggerType == FreeSpinTriggerType.Select &&
+            else if (Config.TriggerType == FreeSpinTriggerType.Select &&
                      _currentState == MachineState.FreeSpinReady)
             {
                 _model.AccumulatePayout(_model.TotalPayout);
@@ -355,7 +360,7 @@ namespace Game
 
         IEnumerator ReelStopComplete_Enter()
         {
-            yield return new WaitForSeconds(_config.MainMachine.transition.ReelStopAfterDelay);
+            yield return new WaitForSeconds(Config.transition.ReelStopAfterDelay);
 
             //결과 심볼들을 바탕으로 미리 계산 해야 하는 일들이 있다면 여기서 미리 계산한다.
             _ui.ReelStopComplete();
@@ -381,7 +386,7 @@ namespace Game
             _topboard.FreeSpinTrigger();
             _ui.FreeSpinTrigger();
 
-            yield return new WaitForSeconds(_config.MainMachine.transition.FreeSpinTriggerDuration);
+            yield return new WaitForSeconds(Config.transition.FreeSpinTriggerDuration);
 
             if (_lastSpinInfo.totalPayout > 0) SetState(MachineState.PlayWin);
             else SetState(MachineState.CheckNextSpin);
@@ -414,7 +419,7 @@ namespace Game
 
                 SetState(MachineState.FreeSpin);
             }
-            else if (_config.MainMachine.TriggerType == FreeSpinTriggerType.Select)
+            else if (Config.TriggerType == FreeSpinTriggerType.Select)
             {
                 yield return StartCoroutine(_freeSpinDirector.Select());
 
@@ -538,7 +543,7 @@ namespace Game
 
             _reelContainer.PlayAllWin();
 
-            yield return new WaitForSeconds(_config.MainMachine.transition.PlaySymbolAfterDelay);
+            yield return new WaitForSeconds(Config.transition.PlaySymbolAfterDelay);
 
             SetState(MachineState.TakeCoin);
         }
@@ -670,7 +675,7 @@ namespace Game
 
             _topboard.BonusSpin();
 
-            yield return new WaitForSeconds(_config.MainMachine.transition.LockReelAfterDelay);
+            yield return new WaitForSeconds(Config.transition.LockReelAfterDelay);
 
             _reelContainer.BonusSpin(_lastSpinInfo);
             SlotSoundList.Spin();

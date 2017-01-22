@@ -1,15 +1,14 @@
-﻿using UnityEngine;
-using System.Collections;
-
-namespace Game
+﻿namespace Game
 {
     public class EmptySymbol : Symbol
     {
         public static string EMPTY = "EM";
 
-        override public void Initialize(string symbolName, SlotConfig config)
+        override public void Initialize(string symbolName, MachineConfig machineConfig)
         {
-            Initialize(symbolName, config.MainMachine.NullSymbolSize, config.DebugSymbolArea);
+            var areaSize = machineConfig.NullSymbolSize;
+            var displayArea = SlotModel.Instance.SlotConfig.DebugSymbolArea;
+            Initialize(symbolName, areaSize, displayArea);
         }
 
         override public void SetState(SymbolState nextState, bool useOverlap = true)
@@ -17,6 +16,8 @@ namespace Game
             if (useOverlap == false && _currentState == nextState) return;
 
             _currentState = nextState;
+
+            //do nothing
         }
     }
 }

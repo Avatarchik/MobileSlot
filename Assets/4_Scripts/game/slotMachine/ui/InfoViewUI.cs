@@ -12,8 +12,6 @@ namespace Game
         public Text txtTotalBet;
         public Text txtWin;
 
-        SlotBetting _betting;
-
         double _lineBet;
         double _totalBet;
         double _win;
@@ -31,10 +29,9 @@ namespace Game
         {
             base.Init(slotUI);
 
-            _betting = _ui.SlotMachine.Config.Betting;
             _betting.OnUpdateLineBetIndex += OnUpdateLineBetHandler;
 
-            SetLineNum(_ui.SlotMachine.Config.MainMachine.paylineTable.Count);
+            SetLineNum( _slotConfig.MainMachine.paylineTable.Count);
             
             SetWin(0);
 

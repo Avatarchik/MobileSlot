@@ -35,7 +35,6 @@ namespace Game
         const string JACKPOT_MINOR = "MINOR JACKPOT";
 
         Text _txt;
-        SlotModel _model;
 
         void Awake()
         {
@@ -46,14 +45,12 @@ namespace Game
         {
             base.Init(slotUI);
 
-            _model = SlotModel.Instance;
-
             WriteBoard(GAME_INIT);
         }
 
         public void Spin()
         {
-            WriteBoard(string.Format(SPIN_START, _config.MainMachine.paylineTable.Count, _config.Betting.TotalBet.ToBalance()));
+            WriteBoard(string.Format(SPIN_START, _slotConfig.MainMachine.paylineTable.Count, _slotConfig.Betting.TotalBet.ToBalance()));
         }
 
         public void FreeSpin()
@@ -78,7 +75,7 @@ namespace Game
 
         public void FreeSpinTrigger()
         {
-            switch (_config.MainMachine.TriggerType)
+            switch (_slotConfig.MainMachine.TriggerType)
             {
                 case FreeSpinTriggerType.Auto:
                     WriteBoard(string.Format(FREE_SPIN_AUTO, _model.FreeSpinAddedCount));

@@ -29,7 +29,6 @@ namespace Game
         #endregion
 
         protected int _column;
-        protected SlotConfig _config;
         protected List<Symbol> _symbols;
 
         protected float _spinDis;
@@ -62,13 +61,18 @@ namespace Game
             if (expectObject != null) expectObject.SetActive(false);
         }
 
-        public void Initialize(SlotConfig config)
-        {
-            _config = config;
-            _symbolNecessaryCount = _config.MainMachine.row + _config.MainMachine.MarginSymbolCount * 2;
+        protected SlotMachine _machine;
+        protected MachineConfig _machineConfig;
 
-            _lastSymbolNames = _config.MainMachine.GetStartSymbolNames(_column);
-            _receivedSymbolNames = new SymbolNames(_config.MainMachine.row);
+        public void Initialize(SlotMachine relativeMachine)
+        {
+            _machine = relativeMachine;
+            _machineConfig = _machine.Config;
+
+            _symbolNecessaryCount = _machineConfig.row + _machineConfig.MarginSymbolCount * 2;
+
+            _lastSymbolNames = _machineConfig.GetStartSymbolNames(_column);
+            _receivedSymbolNames = new SymbolNames(_machineConfig.row);
 
             //CreateStartSymbols
             for (var i = 0; i < _symbolNecessaryCount; ++i)
@@ -98,7 +102,7 @@ namespace Game
         virtual protected float GetStartSymbolPos()
         {
             var res = 0f;
-            for (var i = 0; i < _config.MainMachine.MarginSymbolCount; ++i)
+            for (var i = 0; i < _machineConfig.MarginSymbolCount; ++i)
             {
                 res += _symbols[i].Height;
             }
@@ -141,7 +145,7 @@ namespace Game
 
             _isReceived = true;
 
-            _receivedSymbolNames.Value = spinInfo.GetReelData(_column, _config.MainMachine.row);
+            _receivedSymbolNames.Value = spinInfo.GetReelData(_column, _machineConfig.row);
 
             /*
             string[] reelData = spinInfo.GetReelData(_column, _config.Main.Row);
@@ -185,7 +189,7 @@ namespace Game
             {
                 TweenFirst();
             }
-            else if (_spinCount <= _config.MainMachine.SpinCountThreshold || _isReceived == false || Loop)
+            else if (_spinCount <= _machineConfig.SpinCountThreshold || _isReceived == false || Loop)
             {
                 TweenLiner();
             }
@@ -205,26 +209,26 @@ namespace Game
         {
             Tweener tweenBack = null;
 
-            if (_config.MainMachine.tweenFirstBackInfo.distance > 0)
+            if (_machineConfig.tweenFirstBackInfo.distance > 0)
             {
-                var backPos = _symbolContainer.position + new Vector3(0f, _config.MainMachine.tweenFirstBackInfo.distance, 0f);
-                tweenBack = _symbolContainer.DOMove(backPos, _config.MainMachine.tweenFirstBackInfo.duration);
+                var backPos = _symbolContainer.position + new Vector3(0f, _machineConfig.tweenFirstBackInfo.distance, 0f);
+                tweenBack = _symbolContainer.DOMove(backPos, _machineConfig.tweenFirstBackInfo.duration);
                 tweenBack.SetEase(Ease.OutSine);
-                _spinDis += _config.MainMachine.tweenFirstBackInfo.distance;
+                _spinDis += _machineConfig.tweenFirstBackInfo.distance;
             }
 
-            AddSpiningSymbols(_config.MainMachine.SpiningSymbolCount);
+            AddSpiningSymbols(_machineConfig.SpiningSymbolCount);
 
             UpdateSpinDestination();
 
-            var duration = _spinDis / _config.MainMachine.SpinSpeedPerSec;
+            var duration = _spinDis / _machineConfig.SpinSpeedPerSec;
             var tween = _symbolContainer.DOLocalMove(_spinDestination, duration);
             // tween.SetEase(Ease.Linear);
             tween.SetEase(Ease.InCubic);
 
             //todo
             //시퀀스 매 생성하지 않고 재활용 하기
-            var startDelay = StartOrder * _config.MainMachine.DelayEachReel;
+            var startDelay = StartOrder * _machineConfig.DelayEachReel;
             Sequence firstTweenSequence = DOTween.Sequence();
             firstTweenSequence.PrependInterval(startDelay);
             if (tweenBack != null) firstTweenSequence.Append(tweenBack);
@@ -236,9 +240,9 @@ namespace Game
 
         virtual protected void TweenLiner()
         {
-            AddSpiningSymbols(_config.MainMachine.SpiningSymbolCount);
+            AddSpiningSymbols(_machineConfig.SpiningSymbolCount);
 
-            var duration = _spinDis / _config.MainMachine.SpinSpeedPerSec;
+            var duration = _spinDis / _machineConfig.SpinSpeedPerSec;
 
             UpdateSpinDestination();
 
@@ -252,14 +256,14 @@ namespace Game
         {
             _isTweenLast = true;
 
-            AddSpiningSymbols(StartOrder * _config.MainMachine.IncreaseCount);
+            AddSpiningSymbols(StartOrder * _machineConfig.IncreaseCount);
             ComposeLastSpiningSymbols();
 
-            _spinDis -= _config.MainMachine.tweenFirstBackInfo.distance;
-            _spinDis += _config.MainMachine.tweenLastBackInfo.distance;
+            _spinDis -= _machineConfig.tweenFirstBackInfo.distance;
+            _spinDis += _machineConfig.tweenLastBackInfo.distance;
             UpdateSpinDestination();
 
-            var duration = _spinDis / _config.MainMachine.SpinSpeedPerSec;
+            var duration = _spinDis / _machineConfig.SpinSpeedPerSec;
             var tween = _symbolContainer.DOLocalMove(_spinDestination, duration);
             tween.SetEase(Ease.Linear);
             tween.OnComplete(SpinReelComplete);
@@ -272,7 +276,7 @@ namespace Game
         {
             AddInterpolationSymbols();
             AddResultSymbols();
-            AddSpiningSymbols(_config.MainMachine.MarginSymbolCount);
+            AddSpiningSymbols(_machineConfig.MarginSymbolCount);
         }
 
         public void StopSpin()
@@ -291,8 +295,8 @@ namespace Game
             {
                 ComposeLastSpiningSymbols();
 
-                _spinDis -= _config.MainMachine.tweenFirstBackInfo.distance;
-                _spinDis += _config.MainMachine.tweenLastBackInfo.distance;
+                _spinDis -= _machineConfig.tweenFirstBackInfo.distance;
+                _spinDis += _machineConfig.tweenLastBackInfo.distance;
                 UpdateSpinDestination();
             }
 
@@ -319,13 +323,13 @@ namespace Game
             ExpectType = ExpectReelType.Null;
 
             RemoveSymbolsExceptNecessary();
-            AlignSymbols(-_config.MainMachine.tweenLastBackInfo.distance);
+            AlignSymbols(-_machineConfig.tweenLastBackInfo.distance);
 
             SlotSoundList.ReelStop();
 
-            if (_config.MainMachine.tweenLastBackInfo.distance != 0)
+            if (_machineConfig.tweenLastBackInfo.distance != 0)
             {
-                var backOutTween = _symbolContainer.DOLocalMove(Vector3.zero, _config.MainMachine.tweenLastBackInfo.duration);
+                var backOutTween = _symbolContainer.DOLocalMove(Vector3.zero, _machineConfig.tweenLastBackInfo.duration);
                 backOutTween.SetEase(Ease.OutBack);
                 backOutTween.Play();
             }
@@ -444,7 +448,7 @@ namespace Game
 
             if (symbol == null) throw new System.NullReferenceException("Symbol '" + symbolName + "' is null");
 
-            if (symbol != null && symbol.IsInitialized == false) symbol.Initialize(symbolName, _config);
+            if (symbol.IsInitialized == false) symbol.Initialize(symbolName, _machineConfig);
 
             return symbol;
         }
@@ -463,13 +467,13 @@ namespace Game
                                bool includeMarginSymbol = false,
                                string[] ignoreNames = null)
         {
-            var startIndex = _config.MainMachine.MarginSymbolCount;
-            var length = _symbols.Count - _config.MainMachine.MarginSymbolCount;
+            var startIndex = _machineConfig.MarginSymbolCount;
+            var length = _symbols.Count - _machineConfig.MarginSymbolCount;
 
             if (includeMarginSymbol)
             {
                 startIndex = 0;
-                length = length + _config.MainMachine.MarginSymbolCount;
+                length = length + _machineConfig.MarginSymbolCount;
             }
 
             for (var i = startIndex; i < length; ++i)
@@ -490,7 +494,7 @@ namespace Game
 
         public Symbol GetSymbolAt(int row, bool includeMarginSymbol = false)
         {
-            if (includeMarginSymbol == false) row += _config.MainMachine.MarginSymbolCount;
+            if (includeMarginSymbol == false) row += _machineConfig.MarginSymbolCount;
 
             if (row < 0 || _symbols.Count <= row) throw new System.ArgumentOutOfRangeException();
             return _symbols[row];
@@ -498,13 +502,13 @@ namespace Game
 
         public bool ContainsByName(string symbolname, bool includeMarginSymbol = false)
         {
-            var startIndex = _config.MainMachine.MarginSymbolCount;
-            var length = _symbols.Count - _config.MainMachine.MarginSymbolCount;
+            var startIndex = _machineConfig.MarginSymbolCount;
+            var length = _symbols.Count - _machineConfig.MarginSymbolCount;
 
             if (includeMarginSymbol)
             {
                 startIndex = 0;
-                length = length + _config.MainMachine.MarginSymbolCount;
+                length = length + _machineConfig.MarginSymbolCount;
             }
 
             for (var i = startIndex; i < length; ++i)
@@ -518,7 +522,7 @@ namespace Game
 
         ReelStrips GetCurrentStrip()
         {
-            return _config.MainMachine.reelStripsBundle.GetStrips();
+            return _machineConfig.reelStripsBundle.GetStrips();
         }
 
         string GetAddedSymbolNames()

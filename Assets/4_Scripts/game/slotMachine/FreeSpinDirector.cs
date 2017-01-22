@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace Game
 {
-    public abstract class FreeSpinDirector : MonoBehaviour
+    public abstract class FreeSpinDirector : SlotMachineModule
     {
         [SerializeField]
         protected float _limitTime = 15f;

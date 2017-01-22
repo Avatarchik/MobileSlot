@@ -18,9 +18,4 @@ public class User
         GameLevel = dto.gameLevel;
         GameLevelPercent = dto.gameLevelPercent;
     }
-
-    public void Reset()
-    {
-        Balance = 0;
-    }
 }

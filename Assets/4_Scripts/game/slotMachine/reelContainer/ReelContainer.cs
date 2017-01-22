@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Game
 {
 
-    public class ReelContainer : MonoBehaviour
+    public class ReelContainer : SlotMachineModule
     {
 
         public event Action OnReelStopComplete;
@@ -16,8 +16,6 @@ namespace Game
 
         public bool IsExpecting { get; private set; }
 
-        protected SlotMachine _slot;
-        SlotConfig _config;
         List<Reel> _reels;
         Transform _tf;
 
@@ -49,10 +47,9 @@ namespace Game
             }
         }
 
-        public void Initialize(SlotMachine slot)
+        override public void Initialize(SlotMachine relativeMachine)
         {
-            _slot = slot;
-            _config = _slot.Config;
+            base.Initialize(relativeMachine);
 
             _winItemList = new WinItemList();
 
@@ -62,8 +59,8 @@ namespace Game
 
         void CreateDefaultSpinOrder()
         {
-            _defaltOrder = new int[_config.MainMachine.column];
-            for (var i = 0; i < _config.MainMachine.column; ++i)
+            _defaltOrder = new int[_machineConfig.column];
+            for (var i = 0; i < _machineConfig.column; ++i)
             {
                 _defaltOrder[i] = i;
             }
@@ -73,7 +70,7 @@ namespace Game
         {
             _spinStartOrder = startOrder ?? _defaltOrder;
 
-            for (var i = 0; i < _config.MainMachine.column; ++i)
+            for (var i = 0; i < _machineConfig.column; ++i)
             {
                 var lockCount = 0;
                 var reelIndex = _spinStartOrder[i];
@@ -104,11 +101,11 @@ namespace Game
         {
             if (_reels != null) return;
 
-            int count = _config.MainMachine.column;
+            int count = _machineConfig.column;
 
             _reels = new List<Reel>(count);
 
-            var prefab = _config.MainMachine.ReelPrefab;
+            var prefab = _machineConfig.ReelPrefab;
 
             for (var i = 0; i < count; ++i)
             {
@@ -118,8 +115,8 @@ namespace Game
                 reel.OnStop += OnStopListener;
 
                 reel.transform.SetParent(_tf);
-                reel.transform.localPosition = Vector3.right * _config.MainMachine.ReelSpace * i;
-                reel.Initialize(_config);
+                reel.transform.localPosition = Vector3.right * _machineConfig.ReelSpace * i;
+                reel.Initialize( _machine );
 
                 _reels.Add(reel);
             }
@@ -158,7 +155,7 @@ namespace Game
         {
             UpdateSpinInfo(spinInfo);
 
-            for (var i = 0; i < _config.MainMachine.column; ++i)
+            for (var i = 0; i < _machineConfig.column; ++i)
             {
                 _reels[i].ReceivedSymbol(spinInfo);
             }
@@ -182,7 +179,7 @@ namespace Game
 
         public void StopSpin()
         {
-            for (var i = 0; i < _config.MainMachine.column; ++i)
+            for (var i = 0; i < _machineConfig.column; ++i)
             {
                 var reelIndex = _spinStartOrder[i];
                 var reel = _reels[reelIndex];
@@ -201,7 +198,7 @@ namespace Game
             {
                 if (fixedReel[i] == 1)
                 {
-                    if (i > 0) yield return new WaitForSeconds(_config.MainMachine.transition.EachLockReel);
+                    if (i > 0) yield return new WaitForSeconds(_machineConfig.transition.EachLockReel);
 
                     _reels[i].Lock();
                 }
@@ -212,9 +209,9 @@ namespace Game
         {
             //todo
             //게임 별 구체화
-            if (_slot.CurrentState == SlotMachine.MachineState.BonusSpin)
+            if (_machine.CurrentState == SlotMachine.MachineState.BonusSpin)
             {
-                for (var i = 0; i < _config.MainMachine.column; ++i) if (_reels[i].IsLocked == false) _reels[i].ExpectType = ExpectReelType.BonusSpin;
+                for (var i = 0; i < _machineConfig.column; ++i) if (_reels[i].IsLocked == false) _reels[i].ExpectType = ExpectReelType.BonusSpin;
             }
         }
 
@@ -233,15 +230,15 @@ namespace Game
 
         void CheckScatters()
         {
-            if (_config.MainMachine.ScatterInfos == null) return;
+            if (_machineConfig.ScatterInfos == null) return;
 
-            var count = _config.MainMachine.ScatterInfos.Count;
+            var count = _machineConfig.ScatterInfos.Count;
 
             Debug.Log("------ CheckScatters: " + count);
 
             for (var i = 0; i < count; ++i)
             {
-                var info = _config.MainMachine.ScatterInfos[i];
+                var info = _machineConfig.ScatterInfos[i];
                 AudioClip stopSound;
                 if (info.CheckScattered(_lastStoppedReel, out stopSound))
                 {
@@ -281,7 +278,7 @@ namespace Game
 
         void CheckNextReel()
         {
-            if (_nextStopIndex >= _config.MainMachine.column)
+            if (_nextStopIndex >= _machineConfig.column)
             {
                 ReelStopCompleted();
                 return;
@@ -301,7 +298,7 @@ namespace Game
             {
                 IsExpecting = true;
 
-                for (var i = _nextStopIndex; i < _config.MainMachine.column; ++i)
+                for (var i = _nextStopIndex; i < _machineConfig.column; ++i)
                 {
                     var reel = _reels[_spinStartOrder[i]];
                     if (i == _nextStopIndex) reel.Loop = false;
@@ -317,7 +314,7 @@ namespace Game
             {
                 IsExpecting = false;
 
-                for (var i = _nextStopIndex; i < _config.MainMachine.column; ++i)
+                for (var i = _nextStopIndex; i < _machineConfig.column; ++i)
                 {
                     var reel = _reels[_spinStartOrder[i]];
                     reel.Loop = false;
@@ -332,7 +329,7 @@ namespace Game
 
         public void FreeSpinTrigger()
         {
-            var count = _config.MainMachine.column;
+            var count = _machineConfig.column;
             while (count-- > 0) _reels[count].FreeSpinTrigger();
         }
 
@@ -365,7 +362,7 @@ namespace Game
                 else
                 {
                     winItem.Type = WinItemList.Item.ItemType.Payline;
-                    winItem.PaylineRows = _config.MainMachine.paylineTable.GetPayline(lineData.line).rows;
+                    winItem.PaylineRows = _machineConfig.paylineTable.GetPayline(lineData.line).rows;
                     winItem.PaylineIndex = lineData.line;
 
                     for (var col = 0; col < lineData.matches; ++col)
@@ -425,14 +422,14 @@ namespace Game
                     SetSymbolsToWin(item.Symbols);
                     if (OnPlayEachWin != null) OnPlayEachWin(item);
 
-                    yield return new WaitForSeconds(_config.MainMachine.transition.EachWin);
+                    yield return new WaitForSeconds(_machineConfig.transition.EachWin);
                 }
                 else
                 {
                     PlayAllWin();
                     enume.Reset();
 
-                    yield return new WaitForSeconds(_config.MainMachine.transition.EachWinSummary);
+                    yield return new WaitForSeconds(_machineConfig.transition.EachWinSummary);
                 }
             }
         }

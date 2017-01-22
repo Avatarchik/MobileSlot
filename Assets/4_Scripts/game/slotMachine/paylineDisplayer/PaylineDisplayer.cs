@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Game
 {
-    public class PaylineDisplayer : MonoBehaviour
+    public class PaylineDisplayer : SlotMachineModule
     {
         [SerializeField]
         PaylineRenderer[] _paylines;

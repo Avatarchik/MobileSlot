@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 using DG.Tweening;
 using lpesign;
@@ -52,9 +51,11 @@ namespace Game
             _anim = GetComponentInChildren<AnimControl>();
         }
 
-        virtual public void Initialize(string symbolName, SlotConfig config)
+        virtual public void Initialize(string symbolName, MachineConfig machineConfig)
         {
-            Initialize(symbolName, config.MainMachine.SymbolSize, config.DebugSymbolArea);
+            var areaSize = machineConfig.SymbolSize;
+            var displayArea = SlotModel.Instance.SlotConfig.DebugSymbolArea;
+            Initialize(symbolName, areaSize, displayArea);
         }
 
         protected void Initialize(string symbolName, Size2D areaSize, bool dipslayArea = false)

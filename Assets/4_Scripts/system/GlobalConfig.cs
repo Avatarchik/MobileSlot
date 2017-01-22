@@ -53,4 +53,14 @@ public class GlobalConfig
     static public int ReferenceWidth = 1334;
     static public int ReferenceHeight = 750;
     static public int PixelPerUnit = 100;
+
+    static public bool IsDebug()
+    {
+        // if( Application.isEditor ) return true;
+        var res = false;
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBGL
+        res = true;
+#endif
+        return res;
+    }
 }

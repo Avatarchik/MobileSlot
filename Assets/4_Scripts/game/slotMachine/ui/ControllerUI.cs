@@ -15,9 +15,6 @@ namespace Game
         public Button btnSpin;
         public Button btnStop;
 
-        SlotModel _model;
-        SlotBetting _betting;
-
         void Awake()
         {
             if (btnStop != null) btnStop.image.enabled = false;
@@ -27,14 +24,11 @@ namespace Game
         {
             base.Init(slotUI);
 
-            _model = SlotModel.Instance;
             _model.OnUpdateAutoSpinCount += (count) =>
             {
                 UpdateAutoButton(_model.IsAutoSpin);
             };
 
-
-            _betting = _ui.SlotMachine.Config.Betting;
             _betting.OnUpdateLineBetIndex += () =>
             {
                 UpdateButtonState();
