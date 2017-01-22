@@ -43,7 +43,7 @@ namespace Game.ShiningSevens
             //------------------------------------------------------------------------------------
             // define machienConfig
             //------------------------------------------------------------------------------------
-            var machine = new SlotConfig.MachineConfig(_slotConfig);
+            var machine = new MachineConfig(_slotConfig);
             machine.row = 3;
             machine.column = 3;
 

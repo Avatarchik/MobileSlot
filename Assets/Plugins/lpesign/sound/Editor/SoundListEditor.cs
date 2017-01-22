@@ -134,7 +134,7 @@ public class SoundListEditor : UsableEditor<SoundList>
                 }
                 catch (System.IndexOutOfRangeException e)
                 {
-                    Debug.Log("catched!");
+                    Debug.Log("catched!" + e.ToString());
                     CreaetReorderLists();
                     EditorGUILayout.EndVertical();
                     break;

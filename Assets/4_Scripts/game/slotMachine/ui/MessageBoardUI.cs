@@ -53,7 +53,7 @@ namespace Game
 
         public void Spin()
         {
-            WriteBoard(string.Format(SPIN_START, _config.Main.paylineTable.Count, _config.Betting.TotalBet.ToBalance()));
+            WriteBoard(string.Format(SPIN_START, _config.MainMachine.paylineTable.Count, _config.Betting.TotalBet.ToBalance()));
         }
 
         public void FreeSpin()
@@ -78,13 +78,13 @@ namespace Game
 
         public void FreeSpinTrigger()
         {
-            switch (_config.Main.TriggerType)
+            switch (_config.MainMachine.TriggerType)
             {
-                case SlotConfig.FreeSpinTriggerType.Auto:
+                case FreeSpinTriggerType.Auto:
                     WriteBoard(string.Format(FREE_SPIN_AUTO, _model.FreeSpinAddedCount));
                     break;
 
-                case SlotConfig.FreeSpinTriggerType.Select:
+                case FreeSpinTriggerType.Select:
                     WriteBoard(FREE_SPIN_SELECT);
                     break;
             }

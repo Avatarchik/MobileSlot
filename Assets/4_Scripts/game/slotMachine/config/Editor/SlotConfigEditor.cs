@@ -76,7 +76,6 @@ namespace Game
 
 
         ReorderableList _bettingList;
-
         void DrawBetting()
         {
             var bet = BeginFoldout("Betting");
@@ -416,9 +415,6 @@ namespace Game
             if (reelStripList.isExpanded)
             {
                 var enumType = typeof(ReelStripsBundle.Group);
-
-                var currentGroupProp = bundleprop.FindPropertyRelative("_currentGroup");
-
                 if (containsGroupProp.arraySize > 0)
                 {
                     if (_displayedStripsGroup.IsEmpty())

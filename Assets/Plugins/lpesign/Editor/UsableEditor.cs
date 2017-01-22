@@ -229,7 +229,6 @@ namespace lpesign.UnityEditor
         #region foldout
         protected SerializedProperty BeginFoldout(SerializedProperty targetProperty, string label = "")
         {
-
             GUIStyle foldStyle = EditorStyles.foldout;
             FontStyle previousStyle = foldStyle.fontStyle;
             foldStyle.fontStyle = FontStyle.Bold;
@@ -350,7 +349,6 @@ namespace lpesign.UnityEditor
         }
         #endregion
     }
-
 
     public static class EditorExtension
     {

@@ -23,7 +23,7 @@ namespace Game
         public bool IsAutoSpin { get { return _remainAutoCount > 0; } }
         public bool IsFastSpin { get; set; }
         public User Owner { get; private set; }
-        public SlotConfig.WinType WinType { get; private set; }
+        public WinType WinType { get; private set; }
         public float WinMultiplier { get; private set; }
 
         public double TotalPayout { get { return _accumulatedPayout + SpinDTO.payouts.totalPayout; } }
@@ -35,7 +35,7 @@ namespace Game
             get
             {
                 if (IsFreeSpinTrigger || IsFreeSpinning) return false;
-                else return WinType == SlotConfig.WinType.BIGWIN || WinType == SlotConfig.WinType.MEGAWIN || WinType == SlotConfig.WinType.JACPOT;
+                else return WinType == WinType.BIGWIN || WinType == WinType.MEGAWIN || WinType == WinType.JACPOT;
             }
         }
 
@@ -121,13 +121,13 @@ namespace Game
             FreeSpinTotal = FreeSpinAddedCount;
         }
 
-        SlotConfig.WinType GetWinType()
+        WinType GetWinType()
         {
-            if (SpinDTO.payouts.totalPayout == 0f) return SlotConfig.WinType.LOSE;
-            else if (SpinDTO.payouts.isBigWin) return SlotConfig.WinType.BIGWIN;
-            else if (SpinDTO.payouts.isMegaWin) return SlotConfig.WinType.MEGAWIN;
-            else if (SpinDTO.payouts.isJackpot) return SlotConfig.WinType.JACPOT;
-            else return SlotConfig.WinType.NORMAL;
+            if (SpinDTO.payouts.totalPayout == 0f) return WinType.LOSE;
+            else if (SpinDTO.payouts.isBigWin) return WinType.BIGWIN;
+            else if (SpinDTO.payouts.isMegaWin) return WinType.MEGAWIN;
+            else if (SpinDTO.payouts.isJackpot) return WinType.JACPOT;
+            else return WinType.NORMAL;
         }
 
         // public bool IsFreeSpinTrigger { get; private set; }
@@ -145,17 +145,17 @@ namespace Game
             {
                 if (IsFreeSpinReTrigger)
                 {
-                    switch (_config.Main.RetriggerType)
+                    switch (_config.MainMachine.RetriggerType)
                     {
-                        case SlotConfig.FreeSpinRetriggerType.Add:
+                        case FreeSpinRetriggerType.Add:
                             FreeSpinAddedCount = _lastSpinInfo.freeSpinCount;
                             break;
 
-                        case SlotConfig.FreeSpinRetriggerType.Refill:
+                        case FreeSpinRetriggerType.Refill:
                             FreeSpinAddedCount = _lastSpinInfo.freeSpinCount - FreeSpinRemain;
                             break;
 
-                        case SlotConfig.FreeSpinRetriggerType.None:
+                        case FreeSpinRetriggerType.None:
                             IsFreeSpinTrigger = false;
                             break;
                     }

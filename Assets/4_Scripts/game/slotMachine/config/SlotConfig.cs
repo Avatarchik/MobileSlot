@@ -7,6 +7,9 @@ using lpesign;
 
 namespace Game
 {
+    //------------------------------------------------------------------
+    // SlotConfig
+    //------------------------------------------------------------------
     /// <summary>
     /// 슬롯 게임에 대한 설정
     /// 한 슬롯 게임 내부에 다수의 머신이 존재할 수 있다.
@@ -36,7 +39,7 @@ namespace Game
         List<MachineConfig> _machineList;
 
         public List<MachineConfig> MachineList { get { return _machineList; } }
-        public MachineConfig Main
+        public MachineConfig MainMachine
         {
             get { return GetMachineAt(0); }
         }
@@ -75,437 +78,163 @@ namespace Game
 
             _machineList.RemoveAt(index);
         }
-
-        //------------------------------------------------------------------
-        //게임 개별 머신
-        //------------------------------------------------------------------
-        [Serializable]
-        public class MachineConfig
-        {
-            public SlotConfig RelativeSlotConfig { get; set; }
-            public MachineConfig(SlotConfig relativeSlotConfig)
-            {
-                RelativeSlotConfig = relativeSlotConfig;
-            }
-
-            //------------------------------------------------------------
-            //base
-            //------------------------------------------------------------
-            public int row;
-            public int column;
-
-            //------------------------------------------------------------
-            //freespin
-            //------------------------------------------------------------
-            public bool UseFreeSpin;
-            public FreeSpinTriggerType TriggerType;
-            public FreeSpinRetriggerType RetriggerType;
-
-            //------------------------------------------------------------
-            //reel
-            //------------------------------------------------------------
-            public Size2D ReelSize;
-            public float ReelSpace;
-            public float ReelGap;
-            public Reel ReelPrefab;
-            public int MarginSymbolCount;//릴 위아래 여유 심볼 수
-
-            //------------------------------------------------------------
-            //symbol
-            //------------------------------------------------------------
-            public Size2D SymbolSize;
-            public bool useEmpty;
-            public Size2D NullSymbolSize;
-
-            [SerializeField]
-            List<SymbolDefine> _symbolDefineList;
-            public List<SymbolDefine> SymbolDefineList { get { return _symbolDefineList; } }
-            public void ClearSymbolDefine()
-            {
-                if (_symbolDefineList != null) _symbolDefineList.Clear();
-            }
-            public void AddSymbolDefine(string symbolName, SymbolType type)
-            {
-                var buffer = row * column;
-
-                AddSymbolDefine(symbolName, type, buffer);
-            }
-
-            public void AddSymbolDefine(string symbolName, SymbolType type, int buffer)
-            {
-                if (_symbolDefineList == null) _symbolDefineList = new List<SymbolDefine>();
-
-                var define = new SymbolDefine();
-                define.symbolName = symbolName;
-                define.type = type;
-
-                var path = string.Empty;
-
-                if (type == SymbolType.Empty) path = "games/common/prefabs/EM";
-                else path = "games/" + ConvertUtil.ToDigit(RelativeSlotConfig.ID) + "/prefabs/symbols/" + symbolName;
-
-                define.prefab = Resources.Load<Symbol>(path);
-
-                define.buffer = buffer;
-
-                _symbolDefineList.Add(define);
-            }
-
-            public string[] GetSymbolNames()
-            {
-                if (_symbolDefineList == null || _symbolDefineList.Count == 0) return null;
-
-                return _symbolDefineList.Select(s => s.symbolName).ToArray();
-            }
-
-            //------------------------------------------------------------
-            //startsymbols
-            //------------------------------------------------------------
-            [SerializeField]
-            SymbolNames[] _startSymbols;
-            public void SetStartSymbols(string[][] startSymbolNames)
-            {
-                var len = startSymbolNames.Length;
-                _startSymbols = new SymbolNames[len];
-
-                for (var i = 0; i < startSymbolNames.Length; ++i)
-                {
-                    string[] symbolNames = startSymbolNames[i];
-                    SymbolNames symbolSet = new SymbolNames(symbolNames);
-                    _startSymbols[i] = symbolSet;
-                }
-            }
-
-            public SymbolNames GetStartSymbolNames(int col)
-            {
-                return _startSymbols[col];
-            }
-
-            //------------------------------------------------------------
-            //scatter
-            //------------------------------------------------------------
-            [SerializeField]
-            List<ScatterInfo> _scatters;
-            public List<ScatterInfo> ScatterInfos { get { return _scatters; } }
-
-            public void ClearScatterInfo()
-            {
-                if (_scatters != null) _scatters.Clear();
-            }
-
-            public void AddScatterInfo(ScatterInfo info)
-            {
-                if (_scatters == null) _scatters = new List<ScatterInfo>();
-
-                _scatters.Add(info);
-            }
-
-            //------------------------------------------------------------
-            //spin
-            //------------------------------------------------------------
-            public float SpinSpeedPerSec;//스핀 초당 속도
-            public int IncreaseCount;//다음 릴로 갈 수록 더 생겨야할 심볼 수
-            public int SpiningSymbolCount;//스핀 한 세트 당 심볼 수
-            public int SpinCountThreshold;//서버가 응답이 빠르더라도 최소한 돌아야할 스핀 세트 수 
-            public float DelayEachReel;//각 릴 사이의 스핀 시작 딜레이
-            public MoveTweenInfo tweenFirstBackInfo;//첫번재 스핀에 정보
-            public MoveTweenInfo tweenLastBackInfo;//마지막 스핀이 정보
-
-            //------------------------------------------------------------
-            //transition
-            //------------------------------------------------------------
-            public Transition transition;
-
-            //------------------------------------------------------------
-            //paytable
-            //------------------------------------------------------------
-            public PaylineTable paylineTable;
-
-            //------------------------------------------------------------
-            //reelstrip
-            //------------------------------------------------------------
-            public ReelStripsBundle reelStripsBundle;
-        }
-
-        //------------------------------------------------------------------
-        //custom enum
-        //------------------------------------------------------------------
-        #region customn enum
-        public enum FreeSpinTriggerType
-        {
-            Auto,
-            Select
-        }
-
-        public enum FreeSpinRetriggerType
-        {
-            None,
-            Add,
-            Refill
-        }
-
-        public enum ExpectReelType
-        {
-            Null,
-            BonusSpin,
-            FreeSpin,
-            Progressive
-        }
-
-        public enum WinType
-        {
-            LOSE,
-            NORMAL,
-            BIGWIN,
-            MEGAWIN,
-            JACPOT
-        }
-        #endregion
     }
 
-    [Serializable]
-    public class PaylineTable
+    //------------------------------------------------------------------
+    // MachineConfig
+    //------------------------------------------------------------------
+    [System.Serializable]
+    public class MachineConfig
     {
-        [SerializeField]
-        List<Payline> _table;
-
-        public int Count { get { return _table.Count; } }
-
-        public PaylineTable(int length)
+        public SlotConfig RelativeSlotConfig { get; set; }
+        public MachineConfig(SlotConfig relativeSlotConfig)
         {
-            _table = new List<Payline>();
+            RelativeSlotConfig = relativeSlotConfig;
         }
 
-        public PaylineTable(int[][] tableArr)
-        {
-            _table = new List<Payline>();
+        //------------------------------------------------------------
+        //base
+        //------------------------------------------------------------
+        public int row;
+        public int column;
 
-            var length = tableArr.Length;
-            for (var i = 0; i < length; ++i)
-            {
-                int[] rows = tableArr[i];
-                AddPayline(rows);
-            }
-        }
+        //------------------------------------------------------------
+        //freespin
+        //------------------------------------------------------------
+        public bool UseFreeSpin;
+        public FreeSpinTriggerType TriggerType;
+        public FreeSpinRetriggerType RetriggerType;
 
-        public Payline GetPayline(int line)
-        {
-            return _table[line];
-        }
+        //------------------------------------------------------------
+        //reel
+        //------------------------------------------------------------
+        public Size2D ReelSize;
+        public float ReelSpace;
+        public float ReelGap;
+        public Reel ReelPrefab;
+        public int MarginSymbolCount;//릴 위아래 여유 심볼 수
 
-        public void AddPayline(int[] rows)
-        {
-            AddPayline(new Payline(rows));
-        }
-
-        public void AddPayline(Payline payline)
-        {
-            _table.Add(payline);
-        }
-
-        [Serializable]
-        public class Payline
-        {
-            public int[] rows;
-
-            public Payline(int[] rows)
-            {
-                this.rows = rows;
-            }
-        }
-    }
-
-    [Serializable]
-    public struct ScatterInfo
-    {
-        public SymbolType type;
-        public int[] ableReel;
-        public int maxCount;
-        public int expectThreshold;
-        public AudioClip expectSound;
-        public AudioClip[] stopSounds;
-
-        // int _index;
-
-        public ScatterInfo(SymbolType scatterType, int maxCount, int expectThreshold, int[] ableReel)
-        {
-            this.type = scatterType;
-            this.maxCount = maxCount;
-            this.expectThreshold = expectThreshold;
-            this.expectSound = null;
-            this.ableReel = ableReel;
-            this.stopSounds = new AudioClip[ableReel.Length];
-        }
-
-        // public void Reset()
-        // {
-        //     _index = 0;
-        // }
-
-        public bool CheckScattered(Reel reel, out AudioClip stopSound)
-        {
-            // Debug.Log("reel: " + reel.Column + " check ableReel: " + string.Join(",", ableReel.Select(x => x.ToString()).ToArray()));
-
-            // if (Array.IndexOf(ableReel, reel.Column) == -1 ||
-            //     reel.ContainsByName(symbolName) == false)
-            // {
-            //     stopSound = null;
-            //     Debug.Log("no scatterd: " + Array.IndexOf(ableReel, reel.Column) + " : " + reel.ContainsByName(symbolName));
-            //     return false;
-            // }
-
-            // Debug.Log(symbolName + " scattered");
-            // stopSound = stopSounds[_index++];
-            stopSound = null;
-            return true;
-        }
-    }
-
-    #region ReelStirp
-    [Serializable]
-    public class ReelStripsBundle
-    {
-        [Serializable]
-        public class ReelStripsMap : SerializableDictionaryBase<Group, ReelStrips> { }
-        public enum Group
-        {
-            Default,
-            Free,
-            A,
-            B,
-            C
-        }
+        //------------------------------------------------------------
+        //symbol
+        //------------------------------------------------------------
+        public Size2D SymbolSize;
+        public bool useEmpty;
+        public Size2D NullSymbolSize;
 
         [SerializeField]
-        ReelStripsMap _map;
+        List<SymbolDefine> _symbolDefineList;
+        public List<SymbolDefine> SymbolDefineList { get { return _symbolDefineList; } }
+        public void ClearSymbolDefine()
+        {
+            if (_symbolDefineList != null) _symbolDefineList.Clear();
+        }
+        public void AddSymbolDefine(string symbolName, SymbolType type)
+        {
+            var buffer = row * column;
 
+            AddSymbolDefine(symbolName, type, buffer);
+        }
+
+        public void AddSymbolDefine(string symbolName, SymbolType type, int buffer)
+        {
+            if (_symbolDefineList == null) _symbolDefineList = new List<SymbolDefine>();
+
+            var define = new SymbolDefine();
+            define.symbolName = symbolName;
+            define.type = type;
+
+            var path = string.Empty;
+
+            if (type == SymbolType.Empty) path = "games/common/prefabs/EM";
+            else path = "games/" + ConvertUtil.ToDigit(RelativeSlotConfig.ID) + "/prefabs/symbols/" + symbolName;
+
+            define.prefab = Resources.Load<Symbol>(path);
+
+            define.buffer = buffer;
+
+            _symbolDefineList.Add(define);
+        }
+
+        public string[] GetSymbolNames()
+        {
+            if (_symbolDefineList == null || _symbolDefineList.Count == 0) return null;
+
+            return _symbolDefineList.Select(s => s.symbolName).ToArray();
+        }
+
+        //------------------------------------------------------------
+        //startsymbols
+        //------------------------------------------------------------
         [SerializeField]
-        Group _currentGroup;
-
-        [SerializeField]
-        List<Group> _containsGroup;
-
-        public ReelStripsBundle()
+        SymbolNames[] _startSymbols;
+        public void SetStartSymbols(string[][] startSymbolNames)
         {
-            _map = new ReelStripsMap();
-            _containsGroup = new List<Group>();
-        }
+            var len = startSymbolNames.Length;
+            _startSymbols = new SymbolNames[len];
 
-        public ReelStripsBundle(string[][] defaultstrips, ReelStrips.Type stripsType = ReelStrips.Type.Normal) : base()
-        {
-            AddStrips(Group.Default, defaultstrips, stripsType);
-        }
-
-        public void AddStrips(Group groupName, string[][] symbols, ReelStrips.Type stripsType = ReelStrips.Type.Normal)
-        {
-            ReelStrips reelStrips = new ReelStrips(symbols, stripsType);
-            _map[groupName] = reelStrips;
-
-            _containsGroup.Add(groupName);
-        }
-
-        public void RemoveStrips(Group groupName)
-        {
-            if (_map.ContainsKey(groupName) == false) return;
-
-            _map.Remove(groupName);
-            _containsGroup.Remove(groupName);
-        }
-
-        public void SelectStrip(Group groupName)
-        {
-            _currentGroup = groupName;
-        }
-
-        public ReelStrips GetStrips()
-        {
-            return _map[_currentGroup];
-        }
-
-        public ReelStrips GetStrips(Group groupName)
-        {
-            SelectStrip(groupName);
-            return GetStrips();
-        }
-    }
-
-    [Serializable]
-    public class ReelStrips
-    {
-        public enum Type
-        {
-            Normal,
-            Stack
-        }
-
-        public Type type;
-
-        [SerializeField]
-        SymbolNames[] _names;
-
-        public ReelStrips(string[][] symbols, Type type = Type.Normal)
-        {
-            this.type = type;
-
-            var count = symbols.Length;
-            _names = new SymbolNames[count];
-            for (var i = 0; i < count; ++i)
+            for (var i = 0; i < startSymbolNames.Length; ++i)
             {
-                var strip = new SymbolNames(symbols[i]);
-                _names[i] = strip;
+                string[] symbolNames = startSymbolNames[i];
+                SymbolNames symbolSet = new SymbolNames(symbolNames);
+                _startSymbols[i] = symbolSet;
             }
         }
 
-        public string GetRandom(int column)
+        public SymbolNames GetStartSymbolNames(int col)
         {
-            var strip = GetStripAt(column);
-
-            switch (type)
-            {
-                case Type.Normal:
-                    //customize
-                    break;
-
-                case Type.Stack:
-                    //customize
-                    break;
-            }
-
-            return strip.GetRandom();
+            return _startSymbols[col];
         }
 
-        public SymbolNames GetStripAt(int column)
+        //------------------------------------------------------------
+        //scatter
+        //------------------------------------------------------------
+        [SerializeField]
+        List<ScatterInfo> _scatters;
+        public List<ScatterInfo> ScatterInfos { get { return _scatters; } }
+
+        public void ClearScatterInfo()
         {
-            return _names[column];
+            if (_scatters != null) _scatters.Clear();
         }
 
-        public int Length { get { return _names.Length; } }
+        public void AddScatterInfo(ScatterInfo info)
+        {
+            if (_scatters == null) _scatters = new List<ScatterInfo>();
 
+            _scatters.Add(info);
+        }
+
+        //------------------------------------------------------------
+        //spin
+        //------------------------------------------------------------
+        public float SpinSpeedPerSec;//스핀 초당 속도
+        public int IncreaseCount;//다음 릴로 갈 수록 더 생겨야할 심볼 수
+        public int SpiningSymbolCount;//스핀 한 세트 당 심볼 수
+        public int SpinCountThreshold;//서버가 응답이 빠르더라도 최소한 돌아야할 스핀 세트 수 
+        public float DelayEachReel;//각 릴 사이의 스핀 시작 딜레이
+        public MoveTweenInfo tweenFirstBackInfo;//첫번재 스핀에 정보
+        public MoveTweenInfo tweenLastBackInfo;//마지막 스핀이 정보
+
+        //------------------------------------------------------------
+        //transition
+        //------------------------------------------------------------
+        public Transition transition;
+
+        //------------------------------------------------------------
+        //paytable
+        //------------------------------------------------------------
+        public PaylineTable paylineTable;
+
+        //------------------------------------------------------------
+        //reelstrip
+        //------------------------------------------------------------
+        public ReelStripsBundle reelStripsBundle;
     }
-    #endregion
 
-    [Serializable]
-    public class Transition
-    {
-        [RangeAttribute(0f, 1f)]
-        public float ReelStopAfterDelay = 0.2f;
 
-        [RangeAttribute(0f, 1f)]
-        public float PlaySymbolAfterDelay = 0f;
-
-        [RangeAttribute(0.5f, 2f)]
-        public float EachWin = 1f;
-        [RangeAttribute(0.5f, 2f)]
-        public float EachWinSummary = 1f;
-
-        [RangeAttribute(1f, 2f)]
-        public float EachLockReel = 1f;
-        [RangeAttribute(1f, 2f)]
-        public float LockReelAfterDelay = 1f;
-        [RangeAttribute(1f, 2.5f)]
-        public float FreeSpinTriggerDuration = 1f;
-    }
-
+    //------------------------------------------------------------------
+    //SlotBetting
+    //------------------------------------------------------------------
     [System.Serializable]
     public class SlotBetting
     {
@@ -610,7 +339,6 @@ namespace Game
             _lastLineBet = _currentLineBet;
         }
         #endregion
-
 
         void CheckMinBet()
         {

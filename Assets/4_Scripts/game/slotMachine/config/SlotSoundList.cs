@@ -45,7 +45,7 @@ namespace Game
 
             var config = FindObjectOfType<SlotConfig>();
             if (config == null) throw new NullReferenceException("SlotConfig can not be null");
-            var machine = config.Main;
+            var machine = config.MainMachine;
             if (machine == null) throw new NullReferenceException("Main MachineConfig  can not be null");
 
             var freespin = machine.UseFreeSpin;

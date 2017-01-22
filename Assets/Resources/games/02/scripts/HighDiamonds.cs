@@ -49,7 +49,7 @@ namespace Game.HighDiamonds
             //------------------------------------------------------------------------------------
             // define machienConfig
             //------------------------------------------------------------------------------------
-            var machine = new SlotConfig.MachineConfig(_slotConfig);
+            var machine = new MachineConfig(_slotConfig);
 
             //base
             machine.row = 3;
@@ -57,8 +57,8 @@ namespace Game.HighDiamonds
 
             //freespin
             machine.UseFreeSpin = true;
-            machine.TriggerType = SlotConfig.FreeSpinTriggerType.Select;
-            machine.RetriggerType = SlotConfig.FreeSpinRetriggerType.Add;
+            machine.TriggerType = FreeSpinTriggerType.Select;
+            machine.RetriggerType = FreeSpinRetriggerType.Add;
 
             //reel
             machine.ReelPrefab = Resources.Load<Reel>("games/" + _slotConfig.ID.ToString("00") + "/prefabs/Reel");

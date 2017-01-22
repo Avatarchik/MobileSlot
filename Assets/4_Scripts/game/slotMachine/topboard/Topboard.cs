@@ -124,13 +124,13 @@ namespace Game
 
             switch (info.winType)
             {
-                case SlotConfig.WinType.BIGWIN:
+                case WinType.BIGWIN:
                     bigwin.enabled = true;
                     break;
-                case SlotConfig.WinType.MEGAWIN:
+                case WinType.MEGAWIN:
                     megawin.enabled = true;
                     break;
-                case SlotConfig.WinType.JACPOT:
+                case WinType.JACPOT:
                     jackpotwin.enabled = true;
                     break;
             }

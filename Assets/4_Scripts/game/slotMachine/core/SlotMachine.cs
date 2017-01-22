@@ -30,6 +30,7 @@ namespace Game
         SlotConfig _config;
         public SlotConfig Config { get { return _config; } }
 
+
         public Stack<MachineState> State { get; private set; }
 
         [SerializeField]
@@ -125,7 +126,8 @@ namespace Game
             if (_config == null) throw new NullReferenceException("SlotConfig can not be null!");
 
             _betting = _config.Betting;
-            _betting.PaylineNum = _config.Main.paylineTable.Count;
+            _betting.PaylineNum = _config.MainMachine.paylineTable.Count;
+
 
             if (_config.DebugTestSpin) gameObject.AddComponent<DebugHelper>();
 
@@ -315,7 +317,7 @@ namespace Game
                 _model.SetSpinData(dto);
                 SetState(MachineState.ReceivedSymbol);
             }
-            else if (_config.Main.TriggerType == SlotConfig.FreeSpinTriggerType.Select &&
+            else if (_config.MainMachine.TriggerType == FreeSpinTriggerType.Select &&
                      _currentState == MachineState.FreeSpinReady)
             {
                 _model.AccumulatePayout(_model.TotalPayout);
@@ -353,7 +355,7 @@ namespace Game
 
         IEnumerator ReelStopComplete_Enter()
         {
-            yield return new WaitForSeconds(_config.Main.transition.ReelStopAfterDelay);
+            yield return new WaitForSeconds(_config.MainMachine.transition.ReelStopAfterDelay);
 
             //결과 심볼들을 바탕으로 미리 계산 해야 하는 일들이 있다면 여기서 미리 계산한다.
             _ui.ReelStopComplete();
@@ -379,7 +381,7 @@ namespace Game
             _topboard.FreeSpinTrigger();
             _ui.FreeSpinTrigger();
 
-            yield return new WaitForSeconds(_config.Main.transition.FreeSpinTriggerDuration);
+            yield return new WaitForSeconds(_config.MainMachine.transition.FreeSpinTriggerDuration);
 
             if (_lastSpinInfo.totalPayout > 0) SetState(MachineState.PlayWin);
             else SetState(MachineState.CheckNextSpin);
@@ -412,7 +414,7 @@ namespace Game
 
                 SetState(MachineState.FreeSpin);
             }
-            else if (_config.Main.TriggerType == SlotConfig.FreeSpinTriggerType.Select)
+            else if (_config.MainMachine.TriggerType == FreeSpinTriggerType.Select)
             {
                 yield return StartCoroutine(_freeSpinDirector.Select());
 
@@ -536,7 +538,7 @@ namespace Game
 
             _reelContainer.PlayAllWin();
 
-            yield return new WaitForSeconds(_config.Main.transition.PlaySymbolAfterDelay);
+            yield return new WaitForSeconds(_config.MainMachine.transition.PlaySymbolAfterDelay);
 
             SetState(MachineState.TakeCoin);
         }
@@ -571,15 +573,15 @@ namespace Game
             {
                 switch (_model.WinType)
                 {
-                    case SlotConfig.WinType.BIGWIN:
+                    case WinType.BIGWIN:
                         skipDelay = 1f;
                         duration = 9f;
                         break;
-                    case SlotConfig.WinType.MEGAWIN:
+                    case WinType.MEGAWIN:
                         skipDelay = 1f;
                         duration = 12.5f;
                         break;
-                    case SlotConfig.WinType.JACPOT:
+                    case WinType.JACPOT:
                         skipDelay = 1f;
                         duration = 14f;
                         break;
@@ -668,7 +670,7 @@ namespace Game
 
             _topboard.BonusSpin();
 
-            yield return new WaitForSeconds(_config.Main.transition.LockReelAfterDelay);
+            yield return new WaitForSeconds(_config.MainMachine.transition.LockReelAfterDelay);
 
             _reelContainer.BonusSpin(_lastSpinInfo);
             SlotSoundList.Spin();
@@ -698,10 +700,10 @@ namespace Game
         public float duration;
         public float skipDelay;
         public float winMultiplier;
-        public SlotConfig.WinType winType;
-        public bool IsJMBWin { get { return winType == SlotConfig.WinType.BIGWIN || winType == SlotConfig.WinType.MEGAWIN || winType == SlotConfig.WinType.JACPOT; } }
+        public WinType winType;
+        public bool IsJMBWin { get { return winType == WinType.BIGWIN || winType == WinType.MEGAWIN || winType == WinType.JACPOT; } }
 
-        public WinBalanceInfo(double win, float duration, float skipDelay, float winMultiplier, SlotConfig.WinType winType)
+        public WinBalanceInfo(double win, float duration, float skipDelay, float winMultiplier, WinType winType)
         {
             this.win = win;
             this.duration = duration;

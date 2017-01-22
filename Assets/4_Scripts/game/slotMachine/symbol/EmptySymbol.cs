@@ -9,7 +9,7 @@ namespace Game
 
         override public void Initialize(string symbolName, SlotConfig config)
         {
-            Initialize(symbolName, config.Main.NullSymbolSize, config.DebugSymbolArea);
+            Initialize(symbolName, config.MainMachine.NullSymbolSize, config.DebugSymbolArea);
         }
 
         override public void SetState(SymbolState nextState, bool useOverlap = true)
