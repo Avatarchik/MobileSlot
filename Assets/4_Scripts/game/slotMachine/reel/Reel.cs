@@ -67,7 +67,7 @@ namespace Game
         public void Initialize(SlotMachine relativeMachine)
         {
             _machine = relativeMachine;
-            _machineConfig = _machine.Config;
+            _machineConfig = _machine.MachineConfig;
 
             _symbolNecessaryCount = _machineConfig.row + _machineConfig.MarginSymbolCount * 2;
 

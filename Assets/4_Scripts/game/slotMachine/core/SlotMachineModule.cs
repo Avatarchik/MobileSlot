@@ -18,7 +18,7 @@ namespace Game
         virtual public void Initialize(SlotMachine relativeMachine)
         {
             _machine = relativeMachine;
-            _machineConfig = _machine.Config;
+            _machineConfig = _machine.MachineConfig;
 
             // _model = SlotModel.Instance;
 

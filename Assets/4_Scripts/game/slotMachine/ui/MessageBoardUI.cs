@@ -4,7 +4,7 @@ using System.Collections;
 
 namespace Game
 {
-    public class MessageBoardUI : AbstractSlotMachineUIModule
+    public class DisplayBoardUI : AbstractSlotMachineUIModule
     {
         const string GAME_INIT = "PRESS SPIN TO PLAY";
         const string SPIN_START = "PLAYING {0} LINES FOR {1} COINS. GOOD LUCK!";

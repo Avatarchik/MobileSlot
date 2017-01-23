@@ -27,7 +27,7 @@ namespace Game
             ApplySpinResult
         }
 
-        public MachineConfig Config { get; private set; }
+        public MachineConfig MachineConfig { get; private set; }
         public Stack<MachineState> State { get; private set; }
 
         [SerializeField]
@@ -150,7 +150,7 @@ namespace Game
             _slotConfig = FindObjectOfType<SlotConfig>();
             if (_slotConfig == null) throw new NullReferenceException("SlotConfig can not be null!");
 
-            Config = _slotConfig.MainMachine;
+            MachineConfig = _slotConfig.MainMachine;
 
             _model = SlotModel.Instance;
             _model.Initialize(_slotConfig, this);
@@ -322,7 +322,7 @@ namespace Game
                 _model.SetSpinData(dto);
                 SetState(MachineState.ReceivedSymbol);
             }
-            else if (Config.TriggerType == FreeSpinTriggerType.Select &&
+            else if (MachineConfig.TriggerType == FreeSpinTriggerType.Select &&
                      _currentState == MachineState.FreeSpinReady)
             {
                 _model.AccumulatePayout(_model.TotalPayout);
@@ -360,7 +360,7 @@ namespace Game
 
         IEnumerator ReelStopComplete_Enter()
         {
-            yield return new WaitForSeconds(Config.transition.ReelStopAfterDelay);
+            yield return new WaitForSeconds(MachineConfig.transition.ReelStopAfterDelay);
 
             //결과 심볼들을 바탕으로 미리 계산 해야 하는 일들이 있다면 여기서 미리 계산한다.
             _ui.ReelStopComplete();
@@ -386,7 +386,7 @@ namespace Game
             _topboard.FreeSpinTrigger();
             _ui.FreeSpinTrigger();
 
-            yield return new WaitForSeconds(Config.transition.FreeSpinTriggerDuration);
+            yield return new WaitForSeconds(MachineConfig.transition.FreeSpinTriggerDuration);
 
             if (_lastSpinInfo.totalPayout > 0) SetState(MachineState.PlayWin);
             else SetState(MachineState.CheckNextSpin);
@@ -419,7 +419,7 @@ namespace Game
 
                 SetState(MachineState.FreeSpin);
             }
-            else if (Config.TriggerType == FreeSpinTriggerType.Select)
+            else if (MachineConfig.TriggerType == FreeSpinTriggerType.Select)
             {
                 yield return StartCoroutine(_freeSpinDirector.Select());
 
@@ -543,7 +543,7 @@ namespace Game
 
             _reelContainer.PlayAllWin();
 
-            yield return new WaitForSeconds(Config.transition.PlaySymbolAfterDelay);
+            yield return new WaitForSeconds(MachineConfig.transition.PlaySymbolAfterDelay);
 
             SetState(MachineState.TakeCoin);
         }
@@ -675,7 +675,7 @@ namespace Game
 
             _topboard.BonusSpin();
 
-            yield return new WaitForSeconds(Config.transition.LockReelAfterDelay);
+            yield return new WaitForSeconds(MachineConfig.transition.LockReelAfterDelay);
 
             _reelContainer.BonusSpin(_lastSpinInfo);
             SlotSoundList.Spin();
@@ -778,7 +778,7 @@ namespace Game
             else return _items[idx];
         }
 
-        public void Clear()
+        public void Reset()
         {
             _items.Clear();
             _winTablesIndices.Clear();
@@ -787,6 +787,8 @@ namespace Game
             Payout = 0;
         }
 
+        //todo
+        //심플 IEnumerator 구현으로 바꾸자
         public IEnumerator<WinItemList.Item> GetEnumerator()
         {
             return new WinItemListEnumerator(_items);

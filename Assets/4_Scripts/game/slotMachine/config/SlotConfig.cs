@@ -315,7 +315,7 @@ namespace Game
         public void Init(double min, double max, double last)
         {
             if (_betTable == null || _betTable.Length == 0) Debug.LogError("Invalid BetTable");
-            if (min >= max) Debug.LogError("min is bigger than max");
+            if (min >= max) Debug.LogError("min must be bigger than max");
 
             _min = min;
             _max = max;

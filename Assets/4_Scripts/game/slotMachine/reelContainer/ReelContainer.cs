@@ -130,7 +130,7 @@ namespace Game
                 _eachWin = null;
             }
 
-            _winItemList.Clear();
+            _winItemList.Reset();
 
             _nextStopIndex = 0;
         }

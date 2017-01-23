@@ -95,7 +95,7 @@ namespace Game
         public void SetMachine(SlotMachine machine)
         {
             _currentMachine = machine;
-            Betting.PaylineNum = _currentMachine.Config.paylineTable.Count;
+            Betting.PaylineNum = _currentMachine.MachineConfig.paylineTable.Count;
         }
 
         public void AccumulatePayout(double payout)
@@ -160,7 +160,7 @@ namespace Game
             {
                 if (IsFreeSpinReTrigger)
                 {
-                    switch (_currentMachine.Config.RetriggerType)
+                    switch (_currentMachine.MachineConfig.RetriggerType)
                     {
                         case FreeSpinRetriggerType.Add:
                             FreeSpinAddedCount = _lastSpinInfo.freeSpinCount;

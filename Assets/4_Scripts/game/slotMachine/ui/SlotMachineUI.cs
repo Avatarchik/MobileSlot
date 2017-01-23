@@ -15,7 +15,7 @@ namespace Game
 
         public SlotMachine SlotMachine { get; private set; }
         SlotBetting _betting;
-        MessageBoardUI _messageBoard;
+        DisplayBoardUI _messageBoard;
         ControllerUI _controller;
 
         double _balance;
@@ -73,7 +73,7 @@ namespace Game
 
         void InitMessageBoard()
         {
-            _messageBoard = GetComponentInChildren<MessageBoardUI>();
+            _messageBoard = GetComponentInChildren<DisplayBoardUI>();
             if (_messageBoard) _messageBoard.Init(this);
         }
 
