@@ -206,7 +206,7 @@ namespace Game
             _reelContainer.Initialize(this);
             _reelContainer.OnPlayAllWin += OnPlayAllWinHandler;
             _reelContainer.OnPlayEachWin += OnPlayEachWinHandler;
-            _reelContainer.OnReelStopComplete += OnReelStopCompleteHandler;
+            _reelContainer.OnReelStopComplete += OnReelStopCompleteListener;
 
             _topboard = GetComponentInChildren<Topboard>();
 
@@ -296,6 +296,7 @@ namespace Game
             if (_paylineDisplayer != null) _paylineDisplayer.Clear();
 
             _betting.Save();
+            
             _ui.Spin();
             _reelContainer.Spin();
             _topboard.Spin();
@@ -324,8 +325,7 @@ namespace Game
             }
             else if (MachineConfig.TriggerType == FreeSpinTriggerType.Select &&
                      _currentState == MachineState.FreeSpinReady)
-            {
-                _model.AccumulatePayout(_model.TotalPayout);
+            {                
                 _model.SetFreeSpinData(dto);
                 SetState(MachineState.FreeSpin);
             }
@@ -352,7 +352,7 @@ namespace Game
             _reelContainer.StopSpin();
         }
 
-        void OnReelStopCompleteHandler()
+        void OnReelStopCompleteListener()
         {
             SlotSoundList.StopSpin();
             SetState(MachineState.ReelStopComplete);

@@ -58,11 +58,11 @@ namespace Game.ShiningSevens
 
             //spin
             machine.MarginSymbolCount = 1;
-            machine.SpiningSymbolCount = 5;
+            machine.SpinningSymbolCount = 5;
             machine.IncreaseCount = 5;
             machine.SpinCountThreshold = 5;
             machine.SpinSpeedPerSec = 15f;
-            machine.DelayEachReel = 0.1f;
+            machine.DelayEachSpin = 0.1f;
             machine.tweenFirstBackInfo = new MoveTweenInfo(0.2f, 0.2f);
             machine.tweenLastBackInfo = new MoveTweenInfo(0.2f, 0.3f);
 
@@ -81,7 +81,7 @@ namespace Game.ShiningSevens
             //symbol define
             machine.useEmpty = true;
             machine.SymbolSize = new Size2D(2.1f, 1.1f);
-            machine.NullSymbolSize = new Size2D(2.1f, 0.3f);
+            machine.blankSymbolSize = new Size2D(2.1f, 0.3f);
 
             machine.ClearSymbolDefine();
             machine.AddSymbolDefine("W0", SymbolType.Wild);

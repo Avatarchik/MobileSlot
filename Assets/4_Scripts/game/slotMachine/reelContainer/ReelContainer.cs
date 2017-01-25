@@ -70,9 +70,9 @@ namespace Game
         {
             _spinStartOrder = startOrder ?? _defaltOrder;
 
+            var lockCount = 0;
             for (var i = 0; i < _machineConfig.column; ++i)
             {
-                var lockCount = 0;
                 var reelIndex = _spinStartOrder[i];
                 var reel = _reels[reelIndex];
 
@@ -148,7 +148,7 @@ namespace Game
 
             // DescSpinOrder(x => x.Spin());                            //시작 순서를 반대로 할 수 있다.
             // UpdateStartOrder(new int[] { 2, 1, 0 },x => x.Spin());   //시작 순서를 커스텀 시킬 수 있다.
-            UpdateStartOrder(x => x.Spin());
+            UpdateStartOrder( reel => reel.Spin());
         }
 
         public void ReceivedSymbol(ResDTO.Spin.Payout.SpinInfo spinInfo)
@@ -301,8 +301,8 @@ namespace Game
                 for (var i = _nextStopIndex; i < _machineConfig.column; ++i)
                 {
                     var reel = _reels[_spinStartOrder[i]];
-                    if (i == _nextStopIndex) reel.Loop = false;
-                    else reel.Loop = true;
+                    if (i == _nextStopIndex) reel.IsLoop = false;
+                    else reel.IsLoop = true;
                 }
 
                 nextReel.SpinToExpect();
@@ -317,7 +317,7 @@ namespace Game
                 for (var i = _nextStopIndex; i < _machineConfig.column; ++i)
                 {
                     var reel = _reels[_spinStartOrder[i]];
-                    reel.Loop = false;
+                    reel.IsLoop = false;
                 }
             }
         }

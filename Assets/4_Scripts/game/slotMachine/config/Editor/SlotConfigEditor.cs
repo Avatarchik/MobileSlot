@@ -215,7 +215,7 @@ namespace Game
                 EditorGUI.indentLevel++;
                 DrawPropertyField(machineProp, 70, "SymbolSize");
                 var useEmpty = DrawPropertyField(machineProp, 80, "useEmpty").boolValue;
-                if (useEmpty) DrawPropertyField(machineProp, 70, "NullSymbolSize");
+                if (useEmpty) DrawPropertyField(machineProp, 70, "BlankSymbolSize");
                 EditorGUI.indentLevel--;
 
                 DrawSymbolDefineList(machineProp, index);
@@ -351,9 +351,9 @@ namespace Game
                 DrawPropertyField(machineProp, "ReelSize");
                 DrawPropertyField(machineProp, 140, "MarginSymbolCount");
                 DrawPropertyField(machineProp, 140, "IncreaseCount");
-                DrawPropertyField(machineProp, 140, "SpiningSymbolCount");
+                DrawPropertyField(machineProp, 140, "SpinningSymbolCount");
                 DrawPropertyField(machineProp, 140, "SpinCountThreshold");
-                DrawPropertyField(machineProp, 140, "DelayEachReel");
+                DrawPropertyField(machineProp, 140, "DelayEachSpin");
                 DrawPropertyField(machineProp, "tweenFirstBackInfo");
                 DrawPropertyField(machineProp, "tweenLastBackInfo");
                 EditorGUI.indentLevel--;

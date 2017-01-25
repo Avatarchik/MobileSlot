@@ -77,11 +77,6 @@ namespace Game
             UpdateButtonState();
         }
 
-        void OnUpdateAutoSpinCountListener(int remainCount)
-        {
-            btnAuto.isOn = _model.IsAutoSpin;
-        }
-
         void UpdateAutoButton(bool isAuto)
         {
             btnAuto.isOn = isAuto;

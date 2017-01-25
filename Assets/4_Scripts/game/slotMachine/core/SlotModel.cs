@@ -98,12 +98,6 @@ namespace Game
             Betting.PaylineNum = _currentMachine.MachineConfig.paylineTable.Count;
         }
 
-        public void AccumulatePayout(double payout)
-        {
-            _accumulatedPayout += payout;
-            Debug.Log("AccumulatePayout" + _accumulatedPayout);
-        }
-
         public void Reset()
         {
             _accumulatedPayout = 0;
@@ -127,8 +121,16 @@ namespace Game
             WinMultiplier = SpinDTO.payouts.multipleWin;
         }
 
+        private void AccumulatePayout(double payout)
+        {
+            _accumulatedPayout += payout;
+        }
+
+
         public void SetFreeSpinData(ResDTO.Spin dto)
         {
+            AccumulatePayout( TotalPayout );
+            
             SetSpinData(dto);
 
             FreeSpinCurrentCount = 0;
@@ -204,11 +206,6 @@ namespace Game
             FreeSpinCurrentCount = 0;
             FreeSpinAddedCount = 0;
             FreeSpinTotal = 0;
-        }
-
-        public void ApplyBalance()
-        {
-            Owner.Balance = SpinDTO.balance;
         }
 
         public void StartAutoSpin(int count = int.MaxValue)

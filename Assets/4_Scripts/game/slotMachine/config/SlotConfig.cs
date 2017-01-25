@@ -113,16 +113,46 @@ namespace Game
         public float ReelGap;
         public Reel ReelPrefab;
         public int MarginSymbolCount;//릴 위아래 여유 심볼 수
+        public int MarginSymbolCountServer;//서버에서 주는 릴 위아래 여유 심볼 수
+
 
         //------------------------------------------------------------
         //symbol
         //------------------------------------------------------------
         public Size2D SymbolSize;
         public bool useEmpty;
-        public Size2D NullSymbolSize;
+        public Size2D blankSymbolSize;
 
         [SerializeField]
         List<SymbolDefine> _symbolDefineList;
+
+        
+        //------------------------------------------------------------
+        //spin
+        //------------------------------------------------------------
+        public float SpinSpeedPerSec;//스핀 초당 속도
+        public int IncreaseCount;//다음 릴로 갈 수록 더 생겨야할 심볼 수
+        public int SpinningSymbolCount;//스핀 한 세트 당 심볼 수
+        public int SpinCountThreshold;//서버가 응답이 빠르더라도 최소한 돌아야할 스핀 세트 수 
+        public float DelayEachSpin;//각 릴 사이의 스핀 시작 딜레이
+        public MoveTweenInfo tweenFirstBackInfo;//첫번재 스핀에 정보
+        public MoveTweenInfo tweenLastBackInfo;//마지막 스핀이 정보
+
+        //------------------------------------------------------------
+        //transition
+        //------------------------------------------------------------
+        public Transition transition;
+
+        //------------------------------------------------------------
+        //paytable
+        //------------------------------------------------------------
+        public PaylineTable paylineTable;
+
+        //------------------------------------------------------------
+        //reelstrip
+        //------------------------------------------------------------
+        public ReelStripsBundle reelStripsBundle;
+
         public List<SymbolDefine> SymbolDefineList { get { return _symbolDefineList; } }
         public void ClearSymbolDefine()
         {
@@ -203,32 +233,6 @@ namespace Game
 
             _scatters.Add(info);
         }
-
-        //------------------------------------------------------------
-        //spin
-        //------------------------------------------------------------
-        public float SpinSpeedPerSec;//스핀 초당 속도
-        public int IncreaseCount;//다음 릴로 갈 수록 더 생겨야할 심볼 수
-        public int SpiningSymbolCount;//스핀 한 세트 당 심볼 수
-        public int SpinCountThreshold;//서버가 응답이 빠르더라도 최소한 돌아야할 스핀 세트 수 
-        public float DelayEachReel;//각 릴 사이의 스핀 시작 딜레이
-        public MoveTweenInfo tweenFirstBackInfo;//첫번재 스핀에 정보
-        public MoveTweenInfo tweenLastBackInfo;//마지막 스핀이 정보
-
-        //------------------------------------------------------------
-        //transition
-        //------------------------------------------------------------
-        public Transition transition;
-
-        //------------------------------------------------------------
-        //paytable
-        //------------------------------------------------------------
-        public PaylineTable paylineTable;
-
-        //------------------------------------------------------------
-        //reelstrip
-        //------------------------------------------------------------
-        public ReelStripsBundle reelStripsBundle;
     }
 
 

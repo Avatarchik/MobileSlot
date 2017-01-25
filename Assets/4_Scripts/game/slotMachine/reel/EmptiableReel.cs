@@ -4,22 +4,21 @@ using System.Collections.Generic;
 namespace Game
 {
 
-    public class EmptiableReel : Reel
+    public class BlankableReel : Reel
     {
-        [SerializeField]
         float _emptySymbolYOffset = float.NaN;
 
         override protected float GetStartSymbolPos()
         {
             if (float.IsNaN(_emptySymbolYOffset))
             {
-                _emptySymbolYOffset = (_machineConfig.ReelSize.height - (_machineConfig.SymbolSize.height + _machineConfig.NullSymbolSize.height * 2)) * 0.5f;
+                _emptySymbolYOffset = (_machineConfig.ReelSize.height - (_machineConfig.SymbolSize.height + _machineConfig.blankSymbolSize.height * 2)) * 0.5f;
             }
 
             var res = base.GetStartSymbolPos();
 
             Symbol firstSymbol = _symbols[_machineConfig.MarginSymbolCount];
-            if (firstSymbol is EmptySymbol) res -= _emptySymbolYOffset;
+            if (firstSymbol is BlankSymbol) res -= _emptySymbolYOffset;
 
             return res;
         }
@@ -30,34 +29,34 @@ namespace Game
             string topSpiningName = _symbols[0].SymbolName;
 
             //일반 추가
-            if (topSpiningName == EmptySymbol.EMPTY && lastResultName == EmptySymbol.EMPTY)
+            if (topSpiningName == BlankSymbol.EMPTY && lastResultName == BlankSymbol.EMPTY)
             {
-                AddSpiningSymbol(_currentStrips.GetRandom(_column));
+                AddSpinningSymbol(_currentStrips.GetRandom(_column));
             }
             //널 추가 
-            else if (topSpiningName != EmptySymbol.EMPTY && lastResultName != EmptySymbol.EMPTY)
+            else if (topSpiningName != BlankSymbol.EMPTY && lastResultName != BlankSymbol.EMPTY)
             {
-                AddSpiningSymbol(EmptySymbol.EMPTY);
+                AddSpinningSymbol(BlankSymbol.EMPTY);
             }
         }
 
-        override protected void ComposeLastSpiningSymbols()
+        override protected void ComposeLastSpinningSymbols()
         {
-            base.ComposeLastSpiningSymbols();
+            base.ComposeLastSpinningSymbols();
 
-            if (_lastSymbolNames[0] == EmptySymbol.EMPTY && _receivedSymbolNames[0] != EmptySymbol.EMPTY)
+            if (_lastSymbolNames[0] == BlankSymbol.EMPTY && _receivedSymbolNames[0] != BlankSymbol.EMPTY)
             {
                 _spinDis += _emptySymbolYOffset;
             }
-            else if (_lastSymbolNames[0] != EmptySymbol.EMPTY && _receivedSymbolNames[0] == EmptySymbol.EMPTY)
+            else if (_lastSymbolNames[0] != BlankSymbol.EMPTY && _receivedSymbolNames[0] == BlankSymbol.EMPTY)
             {
                 _spinDis -= _emptySymbolYOffset;
             }
         }
 
-        override protected string GetSpiningSymbolName()
+        override protected string GetSpinningSymbolName()
         {
-            if (_symbols[0] is EmptySymbol == false) return EmptySymbol.EMPTY;
+            if (_symbols[0] is BlankSymbol == false) return BlankSymbol.EMPTY;
             else return _currentStrips.GetRandom(_column);
         }
     }

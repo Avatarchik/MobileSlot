@@ -1,12 +1,12 @@
 ﻿namespace Game
 {
-    public class EmptySymbol : Symbol
+    public class BlankSymbol : Symbol
     {
         public static string EMPTY = "EM";
 
         override public void Initialize(string symbolName, MachineConfig machineConfig)
         {
-            var areaSize = machineConfig.NullSymbolSize;
+            var areaSize = machineConfig.blankSymbolSize;
             var displayArea = SlotModel.Instance.SlotConfig.DebugSymbolArea;
             Initialize(symbolName, areaSize, displayArea);
         }

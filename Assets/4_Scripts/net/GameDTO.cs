@@ -66,7 +66,7 @@ public class ResDTO : DTO
                 }
             }
 
-            public int SpinCount { get; set; }
+            public int SpinCount { get; private set; }
 
             public SpinInfo MoveNext()
             {

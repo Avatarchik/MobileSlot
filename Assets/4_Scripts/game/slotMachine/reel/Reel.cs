@@ -22,7 +22,7 @@ namespace Game
         public int StartOrder { get; set; }
         public ExpectReelType ExpectType { get; set; }
         public bool IsExpectable { get { return ExpectType != ExpectReelType.Null; } }
-        public bool Loop { get; set; }
+        public bool IsLoop { get; set; }
 
         Transform _symbolContainer;
         public Transform SymbolContainer { get { return _symbolContainer; } }
@@ -84,7 +84,7 @@ namespace Game
             AlignSymbols();
         }
 
-        public void AlignSymbols(float offsetY = 0f)
+        void AlignSymbols(float offsetY = 0f)
         {
             var ypos = GetStartSymbolPos();
 
@@ -189,7 +189,7 @@ namespace Game
             {
                 TweenFirst();
             }
-            else if (_spinCount <= _machineConfig.SpinCountThreshold || _isReceived == false || Loop)
+            else if (_spinCount <= _machineConfig.SpinCountThreshold || _isReceived == false || IsLoop)
             {
                 TweenLiner();
             }
@@ -217,7 +217,7 @@ namespace Game
                 _spinDis += _machineConfig.tweenFirstBackInfo.distance;
             }
 
-            AddSpiningSymbols(_machineConfig.SpiningSymbolCount);
+            AddSpinningSymbols(_machineConfig.SpinningSymbolCount);
 
             UpdateSpinDestination();
 
@@ -228,7 +228,7 @@ namespace Game
 
             //todo
             //시퀀스 매 생성하지 않고 재활용 하기
-            var startDelay = StartOrder * _machineConfig.DelayEachReel;
+            var startDelay = StartOrder * _machineConfig.DelayEachSpin;
             Sequence firstTweenSequence = DOTween.Sequence();
             firstTweenSequence.PrependInterval(startDelay);
             if (tweenBack != null) firstTweenSequence.Append(tweenBack);
@@ -240,7 +240,7 @@ namespace Game
 
         virtual protected void TweenLiner()
         {
-            AddSpiningSymbols(_machineConfig.SpiningSymbolCount);
+            AddSpinningSymbols(_machineConfig.SpinningSymbolCount);
 
             var duration = _spinDis / _machineConfig.SpinSpeedPerSec;
 
@@ -256,8 +256,8 @@ namespace Game
         {
             _isTweenLast = true;
 
-            AddSpiningSymbols(StartOrder * _machineConfig.IncreaseCount);
-            ComposeLastSpiningSymbols();
+            AddSpinningSymbols(StartOrder * _machineConfig.IncreaseCount);
+            ComposeLastSpinningSymbols();
 
             _spinDis -= _machineConfig.tweenFirstBackInfo.distance;
             _spinDis += _machineConfig.tweenLastBackInfo.distance;
@@ -272,11 +272,11 @@ namespace Game
             _spinTween = tween;
         }
 
-        virtual protected void ComposeLastSpiningSymbols()
+        virtual protected void ComposeLastSpinningSymbols()
         {
             AddInterpolationSymbols();
             AddResultSymbols();
-            AddSpiningSymbols(_machineConfig.MarginSymbolCount);
+            AddSpinningSymbols(_machineConfig.MarginSymbolCount);
         }
 
         public void StopSpin()
@@ -293,7 +293,7 @@ namespace Game
         {
             if (_isTweenLast == false)
             {
-                ComposeLastSpiningSymbols();
+                ComposeLastSpinningSymbols();
 
                 _spinDis -= _machineConfig.tweenFirstBackInfo.distance;
                 _spinDis += _machineConfig.tweenLastBackInfo.distance;
@@ -381,7 +381,7 @@ namespace Game
                 var idx = _symbols.Count - 1;
                 var symbol = _symbols[idx];
                 _symbols.RemoveAt(idx);
-                GamePool.DespawnSymbol(symbol);
+                symbol.Clear();
             }
         }
 
@@ -390,7 +390,17 @@ namespace Game
             if (symbol == null) throw new System.ArgumentNullException("symbol", "symbol can't be null");
 
             _symbols.Add(symbol);
-            symbol.SetParent(this, ypos);
+            symbol.SetReel(this, ypos);
+        }      
+
+        protected void AddSpinningSymbol(string symbolname, bool increaseDis = true )
+        {
+            var symbol = CreateSymbol(symbolname);
+            var h = symbol.Height;
+
+            AddSymbolToHead(symbol, _symbols[0].Y + h);
+
+            if( increaseDis ) _spinDis += h;
         }
 
         protected void AddSymbolToHead(Symbol symbol, float ypos = 0f)
@@ -398,27 +408,18 @@ namespace Game
             if (symbol == null) throw new System.ArgumentNullException("symbol", "symbol can't be null");
 
             _symbols.Insert(0, symbol);
-            symbol.SetParent(this, ypos, true);
+            symbol.SetReel(this, ypos, true);
         }
 
-        protected void AddSpiningSymbol(string symbolname)
+        protected void AddSpinningSymbols(int count)
         {
-            var symbol = CreateSymbol(symbolname);
-            var h = symbol.Height;
-
-            AddSymbolToHead(symbol, _symbols[0].Y + h);
-            _spinDis += h;
-        }
-
-        protected void AddSpiningSymbols(int count)
-        {
-            while (count-- > 0) AddSpiningSymbol(GetSpiningSymbolName());
+            while (count-- > 0) AddSpinningSymbol(GetSpinningSymbolName());
         }
 
         protected void AddResultSymbols()
         {
             var count = _receivedSymbolNames.Length;
-            while (count-- > 0) AddSpiningSymbol(_receivedSymbolNames[count]);
+            while (count-- > 0) AddSpinningSymbol(_receivedSymbolNames[count]);
         }
 
         virtual protected void AddInterpolationSymbols()
@@ -427,7 +428,7 @@ namespace Game
             //null 심볼이나 stack 심볼, big 심볼등이 있을 수 있다
         }
 
-        virtual protected string GetSpiningSymbolName()
+        virtual protected string GetSpinningSymbolName()
         {
             return _currentStrips.GetRandom(_column);
         }

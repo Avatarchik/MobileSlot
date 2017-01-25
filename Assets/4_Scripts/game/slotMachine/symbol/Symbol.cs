@@ -22,11 +22,14 @@ namespace Game
         //todo
         //area 는 초기 pool넣을때 세팅되면 될듯
         //symbolname 은 없어도 되지 않을까?
-        public Size2D Area { get; private set; }
+        public Size2D SymbolSize { get; private set; }
         public string SymbolName { get; private set; }
 
         public bool IsInitialized { get; private set; }
 
+        //todo
+        //GamePool 에서 만들 때 만들어진 심볼에서 symbolDefine 을 설정해야 한다.
+        //현재는 프리팹과 SlotConfig 양쪽에서 중복 정의 되어 있다.
         [SerializeField]
         SymbolDefine _symbolDefine;
         public SymbolType Type { get { return _symbolDefine.type; } }
@@ -64,7 +67,7 @@ namespace Game
 
             IsInitialized = true;
 
-            Area = areaSize;
+            SymbolSize = areaSize;
             SymbolName = symbolName;
 
             _content.localPosition = new Vector3(Width * 0.5f, Height * -0.5f, 0f);
@@ -77,7 +80,7 @@ namespace Game
             var go = new GameObject("debugArea");
             go.transform.SetParent(_content);
             go.transform.localPosition = Vector3.zero;
-            go.transform.localScale = new Vector3(Area.width, Area.height, 0f);
+            go.transform.localScale = new Vector3(SymbolSize.width, SymbolSize.height, 0f);
             var renderer = go.AddComponent<SpriteRenderer>();
             renderer.sortingLayerName = Layers.Sorting.SYMBOL;
             renderer.sortingOrder = -1;
@@ -97,7 +100,7 @@ namespace Game
             _sprite.sortingLayerName = Layers.Sorting.SYMBOL;
         }
 
-        public void SetParent(Reel reel, float ypos, bool asFirst = false)
+        public void SetReel(Reel reel, float ypos, bool asFirst = false)
         {
             _relativeReel = reel;
             _tf.SetParent(_relativeReel.SymbolContainer);
@@ -253,12 +256,12 @@ namespace Game
 
         public float Width
         {
-            get { return Area.width; }
+            get { return SymbolSize.width; }
         }
 
         public float Height
         {
-            get { return Area.height; }
+            get { return SymbolSize.height; }
         }
 
         public float Y

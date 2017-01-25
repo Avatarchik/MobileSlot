@@ -9,11 +9,15 @@ public struct Size2D
 {
     public float width;
     public float height;
-
+    public float HalfWidth{get; private set;}
+    public float HalfHeight{get; private set;}
     public Size2D(float w, float h)
     {
         width = w;
         height = h;
+
+        HalfWidth = width * 0.5f;
+        HalfHeight = height * 0.5f;
     }
 
     override public string ToString()
