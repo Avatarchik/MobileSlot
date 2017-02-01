@@ -30,6 +30,10 @@ namespace Game
         public float LockReelAfterDelay;
         [RangeAttribute(1f, 2.5f)]
         public float FreeSpinTriggerDuration;
+
+        [RangeAttribute(0f, 0.3f)]
+        public float AutoSpinDelay;
+        
     }
 
     //------------------------------------------------------------------

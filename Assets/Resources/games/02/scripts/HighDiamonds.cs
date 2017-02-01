@@ -85,7 +85,8 @@ namespace Game.HighDiamonds
                 EachWinSummary = 1f,
                 EachLockReel = 0.2f,
                 LockReelAfterDelay = 1f,
-                FreeSpinTriggerDuration = 1f
+                FreeSpinTriggerDuration = 1f,
+                AutoSpinDelay = 0.2f
             };
 
             //paytable

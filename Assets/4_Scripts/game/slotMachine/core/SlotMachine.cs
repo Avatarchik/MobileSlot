@@ -234,7 +234,7 @@ namespace Game
             {
                 _model.UseAutoSpin();
 
-                yield return new WaitForSeconds(_model.IsFastSpin ? 0f : 0.2f);
+                yield return new WaitForSeconds(_model.IsFastSpin ? 0f : MachineConfig.transition.AutoSpinDelay );
                 TrySpin();
             }
             else if (_bookedSpin)
