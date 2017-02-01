@@ -36,7 +36,7 @@ namespace Game
 
         public void TakeCoin(WinBalanceInfo info, bool IsSummary)
         {
-            PlayJMBWin(info);
+             if( SlotModel.Instance.IsJMBWin ) PlayJMBWin(info);
         }
 
         public void StopTakeCoin()
@@ -118,19 +118,17 @@ namespace Game
 
         void PlayJMBWin(WinBalanceInfo info)
         {
-            if (info.IsJMBWin == false) return;
-
             HideWinTable();
 
             switch (info.winType)
             {
-                case WinType.BIGWIN:
+                case PayoutWinType.BIGWIN:
                     bigwin.enabled = true;
                     break;
-                case WinType.MEGAWIN:
+                case PayoutWinType.MEGAWIN:
                     megawin.enabled = true;
                     break;
-                case WinType.JACPOT:
+                case PayoutWinType.JACPOT:
                     jackpotwin.enabled = true;
                     break;
             }

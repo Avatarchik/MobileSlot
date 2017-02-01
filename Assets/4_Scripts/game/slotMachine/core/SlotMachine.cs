@@ -57,6 +57,7 @@ namespace Game
         FreeSpinDirector _freeSpinDirector;
 
         SlotConfig _slotConfig;
+        bool _isSummary;
 
         void Awake()
         {
@@ -548,8 +549,6 @@ namespace Game
             SetState(MachineState.TakeCoin);
         }
 
-        bool _isSummary;
-
         IEnumerator TakeCoin_Enter()
         {
             _takeCoinStartTime = Time.time;
@@ -578,15 +577,15 @@ namespace Game
             {
                 switch (_model.WinType)
                 {
-                    case WinType.BIGWIN:
+                    case PayoutWinType.BIGWIN:
                         skipDelay = 1f;
                         duration = 9f;
                         break;
-                    case WinType.MEGAWIN:
+                    case PayoutWinType.MEGAWIN:
                         skipDelay = 1f;
                         duration = 12.5f;
                         break;
-                    case WinType.JACPOT:
+                    case PayoutWinType.JACPOT:
                         skipDelay = 1f;
                         duration = 14f;
                         break;
@@ -705,10 +704,10 @@ namespace Game
         public float duration;
         public float skipDelay;
         public float winMultiplier;
-        public WinType winType;
-        public bool IsJMBWin { get { return winType == WinType.BIGWIN || winType == WinType.MEGAWIN || winType == WinType.JACPOT; } }
+        public PayoutWinType winType;
 
-        public WinBalanceInfo(double win, float duration, float skipDelay, float winMultiplier, WinType winType)
+        public WinBalanceInfo(double win, float duration, float skipDelay,
+                              float winMultiplier, PayoutWinType winType)
         {
             this.win = win;
             this.duration = duration;
@@ -778,6 +777,15 @@ namespace Game
             else return _items[idx];
         }
 
+        public void PlayAllWin()
+        {
+            var count = AllSymbols.Count;
+            for (var i = 0; i < count; ++i)
+            {
+                AllSymbols[i].SetState(SymbolState.Win);
+            }
+        }
+
         public void Reset()
         {
             _items.Clear();
@@ -825,6 +833,14 @@ namespace Game
             {
                 if (symbol == null || _symbols.Contains(symbol)) return;
                 _symbols.Add(symbol);
+            }
+            public void PlayAllWin()
+            {
+                var len = _symbols.Count;
+                for( var i = 0; i < len; ++i )
+                {
+                    _symbols[i].SetState( SymbolState.Win );
+                }
             }
         }
 

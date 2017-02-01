@@ -22,7 +22,7 @@ public enum ExpectReelType
     Progressive
 }
 
-public enum WinType
+public enum PayoutWinType
 {
     LOSE,
     NORMAL,

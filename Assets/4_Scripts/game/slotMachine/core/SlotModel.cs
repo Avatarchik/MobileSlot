@@ -20,7 +20,7 @@ namespace Game
         public bool IsAutoSpin { get { return _remainAutoCount > 0; } }
         public bool IsFastSpin { get; set; }
         public User Owner { get; private set; }
-        public WinType WinType { get; private set; }
+        public PayoutWinType WinType { get; private set; }
         public float WinMultiplier { get; private set; }
 
         public double TotalPayout { get { return _accumulatedPayout + SpinDTO.payouts.totalPayout; } }
@@ -32,7 +32,7 @@ namespace Game
             get
             {
                 if (IsFreeSpinTrigger || IsFreeSpinning) return false;
-                else return WinType == WinType.BIGWIN || WinType == WinType.MEGAWIN || WinType == WinType.JACPOT;
+                else return WinType == PayoutWinType.BIGWIN || WinType == PayoutWinType.MEGAWIN || WinType == PayoutWinType.JACPOT;
             }
         }
 
@@ -138,13 +138,13 @@ namespace Game
             FreeSpinTotal = FreeSpinAddedCount;
         }
 
-        WinType GetWinType()
+        PayoutWinType GetWinType()
         {
-            if (SpinDTO.payouts.totalPayout == 0f) return WinType.LOSE;
-            else if (SpinDTO.payouts.isBigWin) return WinType.BIGWIN;
-            else if (SpinDTO.payouts.isMegaWin) return WinType.MEGAWIN;
-            else if (SpinDTO.payouts.isJackpot) return WinType.JACPOT;
-            else return WinType.NORMAL;
+            if (SpinDTO.payouts.totalPayout == 0f) return PayoutWinType.LOSE;
+            else if (SpinDTO.payouts.isBigWin) return PayoutWinType.BIGWIN;
+            else if (SpinDTO.payouts.isMegaWin) return PayoutWinType.MEGAWIN;
+            else if (SpinDTO.payouts.isJackpot) return PayoutWinType.JACPOT;
+            else return PayoutWinType.NORMAL;
         }
 
         // public bool IsFreeSpinTrigger { get; private set; }

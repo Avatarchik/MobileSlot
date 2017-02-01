@@ -359,7 +359,6 @@ namespace Game
             //bg expect;
             //effect expect
             ShowExpect();
-
         }
 
         void ShowExpect()
