@@ -39,5 +39,5 @@ public enum SymbolType
     Wild,
     FSScatter,//FreeSpinScatter
     PGSVScatter,//ProgressiveScatter
-    Empty
+    Blank
 }

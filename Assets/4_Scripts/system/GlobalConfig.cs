@@ -21,6 +21,7 @@ Coroutine 에서 사용되는 IEnumerator 는 Routine 접미사를 붙이자
 머신 이하 모듈들 통합.
 winAnimator 분리
 config.Main 접근 조금 더 보기 좋게
+SlotMachine 의 _paylineDisplayer 의 중복 제거
 */
 
 public class Layers

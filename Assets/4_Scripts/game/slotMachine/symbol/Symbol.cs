@@ -100,6 +100,11 @@ namespace Game
             _sprite.sortingLayerName = Layers.Sorting.SYMBOL;
         }
 
+        public void GoToTop()
+        {
+            //todo
+        }
+
         public void SetReel(Reel reel, float ypos, bool asFirst = false)
         {
             _relativeReel = reel;

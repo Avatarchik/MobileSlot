@@ -153,6 +153,8 @@ namespace Game
         //------------------------------------------------------------
         public ReelStripsBundle reelStripsBundle;
 
+        public SymbolType TopChildSymbolType{ get;set;}
+
         public List<SymbolDefine> SymbolDefineList { get { return _symbolDefineList; } }
         public void ClearSymbolDefine()
         {
@@ -175,7 +177,7 @@ namespace Game
 
             var path = string.Empty;
 
-            if (type == SymbolType.Empty) path = "games/common/prefabs/EM";
+            if (type == SymbolType.Blank) path = "games/common/prefabs/EM";
             else path = "games/" + ConvertUtil.ToDigit(RelativeSlotConfig.ID) + "/prefabs/symbols/" + symbolName;
 
             define.prefab = Resources.Load<Symbol>(path);

@@ -131,6 +131,7 @@ namespace Game.HighDiamonds
             machine.useEmpty = false;
             machine.SymbolSize = new Size2D(1.04f, 0.68f);
             machine.ClearSymbolDefine();
+            machine.TopChildSymbolType = SymbolType.Blank;
             machine.AddSymbolDefine("S0", SymbolType.FSScatter, 3);
             machine.AddSymbolDefine("W0", SymbolType.Wild);
 

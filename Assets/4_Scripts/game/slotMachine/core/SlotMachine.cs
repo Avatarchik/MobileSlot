@@ -281,7 +281,7 @@ namespace Game
             }
             else if (_currentState == MachineState.TakeCoin)
             {
-                SkipTakeCoin();
+                stopTakeCoin();
             }
         }
 
@@ -474,8 +474,6 @@ namespace Game
                 yield return StartCoroutine(_freeSpinDirector.Summary());
             }
 
-            yield return new WaitForSeconds(2f);
-
             yield return StartCoroutine(FreeSpinModeStop());
 
             _isSummary = true;
@@ -542,7 +540,7 @@ namespace Game
 
             yield return _reelContainer.PlaySpecialWinDirection();
 
-            _reelContainer.PlayAllWin();
+            _reelContainer.playSymbolsWin();
 
             yield return new WaitForSeconds(MachineConfig.transition.PlaySymbolAfterDelay);
 
@@ -611,7 +609,7 @@ namespace Game
             return new WinBalanceInfo(winBalance, duration, skipDelay, (float)multiplier, _model.WinType);
         }
 
-        void SkipTakeCoin()
+        void stopTakeCoin()
         {
             if (CanSkipTakeCoin() == false) return;
 
@@ -687,7 +685,7 @@ namespace Game
             //모든 연출이 끝났다.
             //결과를 실제 유저 객체에 반영한다.
 
-            if (_model.IsAutoSpin == false) _reelContainer.PlayEachWin();
+            if (_model.IsAutoSpin == false ) _reelContainer.PlayEachWin();
 
             _ui.ApplyUserBalance();
             _model.Reset();
@@ -777,7 +775,7 @@ namespace Game
             else return _items[idx];
         }
 
-        public void PlayAllWin()
+        public void PlaySymbolsWin()
         {
             var count = AllSymbols.Count;
             for (var i = 0; i < count; ++i)
@@ -834,7 +832,7 @@ namespace Game
                 if (symbol == null || _symbols.Contains(symbol)) return;
                 _symbols.Add(symbol);
             }
-            public void PlayAllWin()
+            public void PlaySymbolsWin()
             {
                 var len = _symbols.Count;
                 for( var i = 0; i < len; ++i )

@@ -36,7 +36,7 @@ namespace Game
 
         virtual public IEnumerator Summary()
         {
-            yield break;
+            yield return new WaitForSeconds(2f);
         }
 
         virtual public void Close()

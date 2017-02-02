@@ -85,6 +85,7 @@ namespace Game.ShiningSevens
             machine.blankSymbolSize = new Size2D(2.1f, 0.3f);
 
             machine.ClearSymbolDefine();
+            machine.TopChildSymbolType = SymbolType.Blank;
             machine.AddSymbolDefine("W0", SymbolType.Wild);
 
             machine.AddSymbolDefine("H0", SymbolType.High);
@@ -95,7 +96,7 @@ namespace Game.ShiningSevens
             machine.AddSymbolDefine("M1", SymbolType.Middle);
             machine.AddSymbolDefine("M2", SymbolType.Middle);
 
-            machine.AddSymbolDefine("L0", SymbolType.Empty);
+            machine.AddSymbolDefine("L0", SymbolType.Blank);
 
             //startSymbol
             machine.SetStartSymbols(new string[][]

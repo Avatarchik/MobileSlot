@@ -75,13 +75,31 @@ namespace Game
             _receivedSymbolNames = new SymbolNames(_machineConfig.row);
 
             //CreateStartSymbols
+            CreateStartSymbols();
+            AlignSymbols();
+        }
+
+        void CreateStartSymbols()
+        {
             for (var i = 0; i < _symbolNecessaryCount; ++i)
             {
                 var symbol = CreateSymbol(_lastSymbolNames[i]);
                 AddSymbolToTail(symbol);
             }
 
-            AlignSymbols();
+            CheckTopChildSymbol();
+        }
+
+        void CheckTopChildSymbol()
+        {
+            if (_machineConfig.TopChildSymbolType == SymbolType.Blank) return;
+
+            var len = _symbols.Count;
+            for (var i = 0; i < len; ++i)
+            {
+                var symbol = _symbols[i];
+                if( symbol.Type == _machineConfig.TopChildSymbolType ) symbol.GoToTop();
+            }
         }
 
         void AlignSymbols(float offsetY = 0f)
@@ -218,7 +236,7 @@ namespace Game
             }
 
             AddSpinningSymbols(_machineConfig.SpinningSymbolCount);
-
+            CheckTopChildSymbol();
             UpdateSpinDestination();
 
             var duration = _spinDis / _machineConfig.SpinSpeedPerSec;
@@ -241,6 +259,7 @@ namespace Game
         virtual protected void TweenLiner()
         {
             AddSpinningSymbols(_machineConfig.SpinningSymbolCount);
+            CheckTopChildSymbol();
 
             var duration = _spinDis / _machineConfig.SpinSpeedPerSec;
 
@@ -277,6 +296,7 @@ namespace Game
             AddInterpolationSymbols();
             AddResultSymbols();
             AddSpinningSymbols(_machineConfig.MarginSymbolCount);
+            CheckTopChildSymbol();
         }
 
         public void StopSpin()
@@ -390,16 +410,16 @@ namespace Game
 
             _symbols.Add(symbol);
             symbol.SetReel(this, ypos);
-        }      
+        }
 
-        protected void AddSpinningSymbol(string symbolname, bool increaseDis = true )
+        protected void AddSpinningSymbol(string symbolname, bool increaseDis = true)
         {
             var symbol = CreateSymbol(symbolname);
             var h = symbol.Height;
 
             AddSymbolToHead(symbol, _symbols[0].Y + h);
 
-            if( increaseDis ) _spinDis += h;
+            if (increaseDis) _spinDis += h;
         }
 
         protected void AddSymbolToHead(Symbol symbol, float ypos = 0f)
