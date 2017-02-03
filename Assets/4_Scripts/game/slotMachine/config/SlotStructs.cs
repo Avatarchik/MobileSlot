@@ -66,6 +66,7 @@ namespace Game
     {
         public SymbolType type;
         public int[] ableReel;
+        public int minCount;
         public int maxCount;
         public int expectThreshold;
         public AudioClip expectSound;
@@ -73,9 +74,10 @@ namespace Game
 
         // int _index;
 
-        public ScatterInfo(SymbolType scatterType, int maxCount, int expectThreshold, int[] ableReel)
+        public ScatterInfo(SymbolType scatterType, int minCount, int maxCount, int expectThreshold, int[] ableReel)
         {
             this.type = scatterType;
+            this.minCount = minCount;
             this.maxCount = maxCount;
             this.expectThreshold = expectThreshold;
             this.expectSound = null;

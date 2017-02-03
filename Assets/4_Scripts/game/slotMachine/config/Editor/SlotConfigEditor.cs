@@ -303,6 +303,10 @@ namespace Game
                     EditorGUILayout.PropertyField(element.FindPropertyRelative("type"), GUIContent.none, GUILayout.Width(80));
 
                     GUILayout.Space(10);
+                    EditorGUILayout.LabelField("MinCount", GUILayout.Width(60));
+                    EditorGUILayout.PropertyField(element.FindPropertyRelative("minCount"), GUIContent.none, GUILayout.Width(15));
+
+                    GUILayout.Space(10);
                     EditorGUILayout.LabelField("MaxCount", GUILayout.Width(60));
                     EditorGUILayout.PropertyField(element.FindPropertyRelative("maxCount"), GUIContent.none, GUILayout.Width(15));
                     EditorGUILayout.EndHorizontal();

@@ -393,13 +393,23 @@ namespace Game
             yield break;
         }
 
-        public void playSymbolsWin()
+        public void playAllWins()
         {
             //필요한 경우 여기서 winsymbol 의 수와 종류를 파악. 사운드 재생등을 커스텀 시킨다.
-            
-            _winItemList.PlaySymbolsWin();
+
+            SymbolsToWin( _winItemList.AllSymbols );
 
             if (OnPlayAllWin != null) OnPlayAllWin(_winItemList);
+        }
+
+        void SymbolsToWin( List<Symbol> winSymbols )
+        {
+            // public List<Symbol> AllSymbols { get; private set; }
+            // var count = AllSymbols.Count;
+            // for (var i = 0; i < count; ++i)
+            // {
+            //     AllSymbols[i].SetState(SymbolState.Win);
+            // }
         }
 
         //todo
@@ -420,14 +430,14 @@ namespace Game
                 if (enume.MoveNext())
                 {
                     var item = enume.Current;
-                    item.PlaySymbolsWin();
+                    SymbolsToWin( item.Symbols );
                     if (OnPlayEachWin != null) OnPlayEachWin(item);
 
                     yield return new WaitForSeconds(_machineConfig.transition.EachWin);
                 }
                 else
                 {
-                    playSymbolsWin();
+                    playAllWins();
                     enume.Reset();
 
                     yield return new WaitForSeconds(_machineConfig.transition.EachWinSummary);

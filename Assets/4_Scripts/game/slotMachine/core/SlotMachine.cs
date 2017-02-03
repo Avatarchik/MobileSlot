@@ -540,7 +540,7 @@ namespace Game
 
             yield return _reelContainer.PlaySpecialWinDirection();
 
-            _reelContainer.playSymbolsWin();
+            _reelContainer.playAllWins();
 
             yield return new WaitForSeconds(MachineConfig.transition.PlaySymbolAfterDelay);
 
@@ -775,15 +775,6 @@ namespace Game
             else return _items[idx];
         }
 
-        public void PlaySymbolsWin()
-        {
-            var count = AllSymbols.Count;
-            for (var i = 0; i < count; ++i)
-            {
-                AllSymbols[i].SetState(SymbolState.Win);
-            }
-        }
-
         public void Reset()
         {
             _items.Clear();
@@ -831,14 +822,6 @@ namespace Game
             {
                 if (symbol == null || _symbols.Contains(symbol)) return;
                 _symbols.Add(symbol);
-            }
-            public void PlaySymbolsWin()
-            {
-                var len = _symbols.Count;
-                for( var i = 0; i < len; ++i )
-                {
-                    _symbols[i].SetState( SymbolState.Win );
-                }
             }
         }
 

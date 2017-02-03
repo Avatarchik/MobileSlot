@@ -102,7 +102,7 @@ namespace Game
             }
         }
 
-        void AlignSymbols(float offsetY = 0f)
+        void AlignSymbols(float offsetY = 0f, SymbolState state = SymbolState.Null )
         {
             var ypos = GetStartSymbolPos();
 
@@ -112,6 +112,8 @@ namespace Game
                 var symbol = _symbols[i];
                 symbol.Y = ypos;
                 ypos -= symbol.Height;
+
+                if( state != SymbolState.Null ) symbol.SetState( state );
             }
 
             _symbolContainer.localPosition = new Vector3(0f, offsetY, 0f);
@@ -285,7 +287,7 @@ namespace Game
             var duration = _spinDis / _machineConfig.SpinSpeedPerSec;
             var tween = _symbolContainer.DOLocalMove(_spinDestination, duration);
             tween.SetEase(Ease.Linear);
-            tween.OnComplete(SpinReelComplete);
+            tween.OnComplete(OnSpinReelComplete);
             tween.Play();
 
             _spinTween = tween;
@@ -323,13 +325,13 @@ namespace Game
             var duration = 0.1f;
             var tween = _symbolContainer.DOLocalMove(_spinDestination, duration);
             tween.SetEase(Ease.Linear);
-            tween.OnComplete(SpinReelComplete);
+            tween.OnComplete(OnSpinReelComplete);
             tween.Play();
 
             _spinTween = tween;
         }
 
-        void SpinReelComplete()
+        void OnSpinReelComplete()
         {
             if (_isExpecting) HideExpect();
 
@@ -520,8 +522,10 @@ namespace Game
             return _symbols[row];
         }
 
-        public bool ContainsByName(string symbolname, bool includeMarginSymbol = false)
+        public List<Symbol> ContainsByType(SymbolType symbolType, bool includeMarginSymbol = false)
         {
+            var res = new List<Symbol>();
+
             var startIndex = _machineConfig.MarginSymbolCount;
             var length = _symbols.Count - _machineConfig.MarginSymbolCount;
 
@@ -534,10 +538,10 @@ namespace Game
             for (var i = startIndex; i < length; ++i)
             {
                 var symbol = _symbols[i];
-                if (symbol.SymbolName == symbolname) return true;
+                if (symbol.Type == symbolType) res.Add( symbol );
             }
 
-            return false;
+            return res;
         }
 
         ReelStrips GetCurrentStrip()

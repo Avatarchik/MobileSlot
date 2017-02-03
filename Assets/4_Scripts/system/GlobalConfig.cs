@@ -22,6 +22,7 @@ Coroutine 에서 사용되는 IEnumerator 는 Routine 접미사를 붙이자
 winAnimator 분리
 config.Main 접근 조금 더 보기 좋게
 SlotMachine 의 _paylineDisplayer 의 중복 제거
+ReelContainer 의 checkScatter 메소드 수정해야함. reel 에 scatterinfo 를 전달해 조사
 */
 
 public class Layers
