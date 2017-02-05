@@ -6,6 +6,7 @@ namespace lpesign
 {
     public class AnimatorUtil
     {
+        //
     }
 
     static public class AnimatorExtension
