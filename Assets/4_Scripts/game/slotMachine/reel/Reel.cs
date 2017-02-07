@@ -192,7 +192,7 @@ namespace Game
 
         void SpinReel()
         {
-            if (_spinCount >= SPIN_COUNT_LIMIT)
+            if ( _isExpecting == false && _spinCount >= SPIN_COUNT_LIMIT)
             {
                 ServerTooLate();
                 return;

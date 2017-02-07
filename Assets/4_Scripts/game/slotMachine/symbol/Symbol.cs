@@ -14,7 +14,8 @@ namespace Game
         Scatter,
         Trigger,
         Win,
-        Lock
+        WinEach,
+        Fix
     }
 
     public abstract class Symbol : MonoBehaviour
@@ -150,8 +151,8 @@ namespace Game
                     Win();
                     break;
 
-                case SymbolState.Lock:
-                    Lock();
+                case SymbolState.Fix:
+                    Fix();
                     break;
             }
         }
@@ -203,7 +204,7 @@ namespace Game
             if (PlayAnimation("Win") == false) DefaultWin();
         }
 
-        void Lock()
+        void Fix()
         {
 
         }
